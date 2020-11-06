@@ -6,7 +6,7 @@ from multiprocessing import Pool
 import scipy.special as special
 from sklearn.utils import shuffle
 # import sys
-import probability_functions as pr
+import psix_functions as pr
 import multiprocessing as mp
 from itertools import combinations
 from tqdm import tqdm
@@ -99,6 +99,12 @@ if __name__ == '__main__':
     exons = psi_table.index[np.abs(0.5 - psi_table.mean(axis=1)) <= (0.5-m)]
     # exons with PSI observations in at least n % of the cells
     exons = exons & psi_table.index[psi_table.isna().mean(axis=1) <= (1-n)]
+    
+    
+    ### This should be just to speed things up
+    psi_table = psi_table.loc[exons]
+    mrna_table = mrna_table.loc[exons]
+    ###
     
     print('Running Psix on:')
     print(str(len(psi_table.columns)) + ' cells.')

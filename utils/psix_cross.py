@@ -95,6 +95,11 @@ if __name__ == '__main__':
     
     exons = psix_table.loc[(psix_table.L_score > l_min) & (psix_table.qvals <= 0.05)].index
     
+    ### This should be just to speed things up
+    psi_table = psi_table.loc[exons]
+    mrna_table = mrna_table.loc[exons]
+    ########################################################
+    
     print('Running Psix on:')
     print(str(len(psi_table.columns)) + ' cells.')
     print(str(len(exons)) + ' exons.')
