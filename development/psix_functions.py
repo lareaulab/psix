@@ -92,7 +92,7 @@ def L_statistic_vec(psi_o_array, psi_a_array, psi_null, mrna_array, c, min_proba
     return L
     
     
-def calculate_exon_L(PSI_tab, W, mrna_counts, exon, k = 0, c = 0.1, weight_distance=True, randomize = False, seed=0, min_probability = 0.01, psi_var = 1, capture_var = 0.02, times=100):
+def calculate_exon_L(PSI_tab, W, mrna_counts, exon, k = 0, c = 0.1, weight_distance=True, randomize = False, seed=0, min_probability = 0.01, psi_var = 1, capture_var = 0.02, times=100, weight_observations=False):
     
 
 #     try:
@@ -124,8 +124,17 @@ def calculate_exon_L(PSI_tab, W, mrna_counts, exon, k = 0, c = 0.1, weight_dista
 
     L_vec = L_statistic_vec(psi_o_array, psi_a_array, psi_null, mrna_array, c, min_probability, psi_var, capture_var, times)
 
+    if weight_observations:
+        if exon == 'Clta_4':
+            print('weight confirmation')
+        weights = (W.loc[cell_list, cell_list] > 0).sum(axis=1)
+        L = np.average(L_vec, weights=weights)
+        
+    else:
+        L = np.sum(L_vec)/total_cells
+    
     ######
-    return np.sum(L_vec)/total_cells
+    return L
 
 #     except:
 #         print('error')

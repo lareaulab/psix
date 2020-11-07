@@ -71,6 +71,9 @@ parser.add_argument('-cv', '--capture_var', type=float, required=False, default 
 parser.add_argument('-tm', '--times', type=int, required=False, default = 100,
                    help='Sumation times.')
 
+parser.add_argument('-wo', '--weight_observations', action='store_true', required=False,
+                   help='Weight observations by neighbors.')
+
 # psi_var = 1, capture_var = 0.02, times=100
 
 # parser.add_argument('-s', '--sum_times', type=float, required=False, default = 10,
@@ -94,6 +97,7 @@ if __name__ == '__main__':
     
     # Optional arguments
     skip_pvalues = args.skip_pvalues
+    weight_observations = args.weight_observations
     output_name = args.output_name
     c = args.capture_efficiency
     m = args.min_psi
@@ -139,7 +143,8 @@ if __name__ == '__main__':
         pool = mp.Pool(t)
         
         exon_score_array_mp = [pool.apply_async(pr.calculate_exon_L, args=(psi_table, W, mrna_table,          
-                            exon, 0, c, True, False, 0, min_probability, pv, capture_var, times)) for exon in exons]
+                            exon, 0, c, True, False, 0, min_probability, pv, capture_var, times,
+                                                                          weight_observations)) for exon in exons]
         
         exon_score_array = [p.get() for p in tqdm(exon_score_array_mp)]
 
@@ -148,7 +153,8 @@ if __name__ == '__main__':
     
     else:
         exon_score_array = [pr.calculate_exon_L(psi_table, W, mrna_table,          
-                            exon, 0, c, True, False, 0, min_probability, pv, capture_var, times) for exon in tqdm(exons)]
+                            exon, 0, c, True, False, 0, min_probability, pv, capture_var, times, 
+                                                weight_observations) for exon in tqdm(exons)]
 
     L_df = pd.DataFrame()
     L_df['L_score'] = exon_score_array
@@ -224,7 +230,8 @@ if __name__ == '__main__':
                         
                         random_score_array_mp = [pool.apply_async(pr.calculate_exon_L, args=(psi_table, W, mrna_table, 
                                          r_choice[exon], 0, c, True, True, exon, min_probability, pv, 
-                                                                                             capture_var, times)) for exon in range(p)]
+                                                                                             capture_var, times,
+                                                                                            weight_observations)) for exon in range(p)]
 
                         random_score_array = [p.get() for p in tqdm(random_score_array_mp)]
 
@@ -234,7 +241,8 @@ if __name__ == '__main__':
                     else:
                         
                         random_score_array = [pr.calculate_exon_L(psi_table, W, mrna_table,          
-                            r_choice[exon], 0, c, True, True, 0, min_probability, pv, capture_var, times) for exon in tqdm(range(p))]
+                            r_choice[exon], 0, c, True, True, 0, min_probability, pv, capture_var, times,
+                                                                 weight_observations) for exon in tqdm(range(p))]
 
 
                     fh = open(buckets_dir + 'mean_'+str(i+1)+'_var_'+str(j+1)+'.txt', 'w')
