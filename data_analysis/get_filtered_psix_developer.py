@@ -367,34 +367,26 @@ if __name__ == '__main__':
     
 
     
-    psix_comparison, psix_comparison_pvals = compare_psix(tiklova_PSI.loc[tiklova_psix.index], 
-                                                      tiklova_mrna_event.loc[tiklova_psix.index], 
-                                                      tiklova_psix.index,  tiklova_psix.index, range(21), W_tiklova,
-                          '/mnt/lareaulab/cfbuenabadn/psix/development/psix_runs/tiklova_neurogenesis_wo_tm1000_pvals/',
-                                                        b=5, pv=1, times=1000, weight_observations=True)
+#     psix_comparison, psix_comparison_pvals = compare_psix(tiklova_PSI.loc[tiklova_psix.index], 
+#                                                       tiklova_mrna_event.loc[tiklova_psix.index], 
+#                                                       tiklova_psix.index,  tiklova_psix.index, range(21), W_tiklova,
+#                           '/mnt/lareaulab/cfbuenabadn/psix/development/psix_runs/tiklova_neurogenesis_wo_tm1000_pvals/',
+#                                                         b=5, pv=1, times=1000, weight_observations=True)
 
-    psix_comparison.to_csv('tables_developer/tiklova_psix_comparison_wo_tm1000.tab', sep='\t', index=True, header=True)
-    psix_comparison_pvals.to_csv('tables_developer/tiklova_psix_comparison_wo_tm1000_pvals.tab', sep='\t', index=True, header=True)
+#     psix_comparison.to_csv('tables_developer/tiklova_psix_comparison_wo_tm1000.tab', sep='\t', index=True, header=True)
+#     psix_comparison_pvals.to_csv('tables_developer/tiklova_psix_comparison_wo_tm1000_pvals.tab', sep='\t', index=True, header=True)
     
 
+    print('adding times')
     
     
     psix_comparison, psix_comparison_pvals = compare_psix(tiklova_PSI.loc[tiklova_psix.index], 
                                                       tiklova_mrna_event.loc[tiklova_psix.index], 
                                                       tiklova_psix.index,  tiklova_psix.index, range(21), W_tiklova,
                           '/mnt/lareaulab/cfbuenabadn/psix/development/psix_runs/tiklova_neurogenesis_pvals/',
-                                                        b=5, pv=1, times=100, weight_observations=False)
+                                                        b=5, pv=1, times=1000, weight_observations=False)
 
     psix_comparison.to_csv('tables_developer/tiklova_psix_comparison.tab', sep='\t', index=True, header=True)
     psix_comparison_pvals.to_csv('tables_developer/tiklova_psix_comparison_pvals.tab', sep='\t', index=True, header=True)
     
-    
-    tiklova_rd = cluster_rd(tiklova_rd, 5)
-    
-    kw_comparison, kw_comparison_pvals = compare_kw(tiklova_PSI, tiklova_mrna_event, tiklova_psix.index, 
-                           range(21), tiklova_rd.clusters)
-    
-    
-    kw_comparison.to_csv('tables/tiklova_kw_comparison.tab', sep='\t', index=True, header=True)
-    kw_comparison_pvals.to_csv('tables/tiklova_kw_comparison_pvals.tab', sep='\t', index=True, header=True)
-    
+  

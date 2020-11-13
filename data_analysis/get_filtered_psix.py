@@ -289,7 +289,7 @@ def compare_psix(psi_table, mrna_event, exon_list, all_exons, mrna_min_list, W, 
                 psix_score = pr.calculate_exon_L(psi_table.mask(mrna_event < mrna), W, 
                     mrna_event.mask(mrna_event < mrna), exon, k = 0, c = 0.1, 
                     weight_distance=True, randomize = False, seed=0, 
-                    min_probability = 0.01, aproximate=10)
+                    min_probability = 0.01, approximate=10)
                 
                 psix_pval = calculate_pval(psix_score, pvals_df[bin_name])
             
