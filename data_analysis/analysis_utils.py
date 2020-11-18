@@ -249,9 +249,66 @@ def get_discrepant_exons(comparison_exons, top = 10):
 
     
     return rows_good, cols_good
-            
-        
-        
+
+
+def plot_correlations_per_rank(scores_table, comparison_exons, comparison_counts, method = 'spearman', bins=20, 
+                               xlabel = 'rank 1', ylabel='rank 2', title='score comparison', min_obs = 2):
+    
+    correlation_matrix = pd.DataFrame(np.zeros((bins, bins)))
+    correlation_matrix.index = comparison_exons.index
+    correlation_matrix.columns = comparison_exons.columns
+
+    for bin_1 in correlation_matrix.index:
+        for bin_2 in correlation_matrix.columns:
+            exon_list = comparison_exons.loc[bin_1, bin_2]
+            if len(exon_list)>0:
+                corr_list = []
+                for exon in exon_list:
+
+                    if len(scores_table.loc[exon].dropna()) >= min_obs:
+
+                        if method == 'spearman':
+                            corr = spearmanr(range(len(scores_table.loc[exon].dropna())), 
+                                              scores_table.loc[exon].dropna())[0]
+                            cb_label = 'Average Spearman r'
+                            cmap = 'bwr'
+                            vmin=-1
+                        elif method == 'pearson':
+                            corr = pearsonr(range(len(scores_table.loc[exon].dropna())), 
+                                              scores_table.loc[exon].dropna())[0]
+                            cb_label = 'Average Pearson r'
+                            cmap  = 'bwr'
+                            vmin=-1
+                        elif method == 'pvalues':
+                            sig = np.sum(scores_table.loc[exon] <= 0.05)
+                            not_sig = np.sum(scores_table.loc[exon] > 0.05)
+                            corr = sig/(sig+not_sig)
+                            cb_label = '% significant pvals'
+                            cmap = 'viridis'
+                            vmin = 0
+                            
+                        corr_list.append(corr)
+
+                if len(corr_list) == 0:
+                    m = 0
+                else:
+                    m = np.mean(corr_list)
+
+                correlation_matrix.loc[bin_1, bin_2] = m
+                
+    g = sns.heatmap(correlation_matrix, vmin=vmin, vmax=1, cmap=cmap, mask=comparison_counts==0, 
+                    cbar_kws={'label': cb_label}, yticklabels=False, xticklabels=False)
+    g.set_facecolor('lightgray')
+
+
+
+    g.figure.axes[-1].tick_params(labelsize=18)
+    g.figure.axes[-1].yaxis.label.set_size(18)
+
+    plt.title(title, fontsize=18)
+    plt.xlabel(xlabel, fontsize=18)
+    plt.ylabel(ylabel, fontsize=18)
+    plt.show()
 
 if __name__ == '__main__':
     
@@ -269,6 +326,14 @@ if __name__ == '__main__':
                          sep='\t', index_col=0)
     tiklova_geary_C = tiklova_geary_C.loc[tiklova_psix.index & tiklova_geary_C.index]
     tiklova_geary_C.columns = ['C_score', 'pvals']
+    
+    tiklova_psix2 = pd.read_csv('~/psix/development/psix_runs/tiklova_neurogenesis.scores.txt', sep='\t',
+                            index_col=0)
+    
+    tiklova_sj_reads = pd.read_csv('~/data_sc_regulation/tiklova_extended/skipped_exons_SJreads.tab', sep='\t', index_col=0)
+    tiklova_sj_reads_adjusted = tiklova_sj_reads.loc[tiklova_PSI.index, tiklova_PSI.columns] / (1+tiklova_PSI)
+    
+    tiklova_pseudotime = pd.read_csv('~/data_sc_regulation/tiklova/pseudotime.tab', sep='\t', index_col=0)
     
     
     data_dir = '/mnt/lareaulab/cfbuenabadn/data_sc_regulation/data_autocorrelation/'
@@ -358,3 +423,56 @@ if __name__ == '__main__':
     
     pseudotime = pd.read_csv('~/data_sc_regulation/tiklova/pseudotime.tab', sep='\t', index_col=0)
     ordered_cells = pseudotime.loc[tiklova_rd.index].lineage_1_pseudotime.dropna().sort_values().index
+    
+    
+    
+    psix_comparison = pd.read_csv('~/psix/data_analysis/tables/tiklova_psix_comparison.tab',
+                               sep='\t', index_col=0)
+    psix_comparison_pvals = pd.read_csv('~/psix/data_analysis/tables/tiklova_psix_comparison_pvals.tab',
+                                   sep='\t', index_col=0)
+
+    psix2_comparison = pd.read_csv('~/psix/data_analysis/tables_developer/tiklova_psix_comparison_wo_tm1000.tab',
+                                   sep='\t', index_col=0)
+    psix2_comparison_pvals = pd.read_csv('~/psix/data_analysis/tables_developer/tiklova_psix_comparison_wo_tm1000_pvals.tab',
+                                   sep='\t', index_col=0)
+
+    kw_comparison = pd.read_csv('~/psix/data_analysis/tables/tiklova_kw_comparison.tab', sep='\t', index_col=0)
+    kw_comparison_pvals = pd.read_csv('~/psix/data_analysis/tables/tiklova_kw_comparison_pvals.tab', sep='\t', index_col=0)
+
+
+    psix_comparison = psix_comparison[[str(x) for x in range(11)]]
+    psix_comparison_pvals = psix_comparison_pvals[[str(x) for x in range(11)]]
+
+    psix2_comparison = psix2_comparison[[str(x) for x in range(11)]]
+    psix2_comparison_pvals = psix2_comparison_pvals[[str(x) for x in range(11)]]
+
+    kw_comparison = kw_comparison[[str(x) for x in range(11)]]
+    kw_comparison_pvals = kw_comparison_pvals[[str(x) for x in range(11)]]
+
+    kw_comparison = kw_comparison.mask(psix_comparison.isna())
+    kw_comparison_pvals = kw_comparison_pvals.mask(psix_comparison_pvals.isna())
+    
+    psix_comparison_z = psix_comparison.copy()
+    psix2_comparison_z = psix2_comparison.copy()
+    kw_comparison_z = kw_comparison.copy()
+
+    for bucket in [str(y) for y in range(11)]:
+        x = psix_comparison[bucket].dropna().index
+        z = zscore(psix_comparison[bucket].dropna())
+
+        for i in range(len(x)):
+            psix_comparison_z.loc[x[i], bucket] = z[i]
+
+
+        x = psix2_comparison[bucket].dropna().index
+        z = zscore(psix2_comparison[bucket].dropna())
+
+        for i in range(len(x)):
+            psix2_comparison_z.loc[x[i], bucket] = z[i]
+
+
+        x = kw_comparison[bucket].dropna().index
+        z = zscore(kw_comparison[bucket].dropna())
+
+        for i in range(len(x)):
+            kw_comparison_z.loc[x[i], bucket] = z[i]
