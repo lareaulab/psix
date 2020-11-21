@@ -101,11 +101,24 @@ def L_observation(psi_o, psi_a, psi_null, r, c, min_probability, psi_var, captur
     return L
 
 
+def L_num_only(psi_o, psi_a, psi_null, r, c):
+    L_a = psix_v1_continuous(psi_o, psi_a, c, r)
+    L_null = psix_v1_continuous(psi_o, psi_null, c, r)
+    if (not np.isnan(L_a)) and (not np.isnan(L_null)):
+        return (L_a, L_null)
+    else:
+        return (0, 0)
+
+
 def L_statistic_vec(psi_o_array, psi_a_array, psi_null, mrna_array, c, min_probability, psi_var, capture_var, times, version='current'):
     L = []
     psi_a_array = np.array([0.99 if x > 0.99 else 0.01 if x < 0.01 else x for x in psi_a_array])
-
-    func = lambda i: L_observation(psi_o_array[i], psi_a_array[i], psi_null, mrna_array[i], c, min_probability, psi_var, capture_var, times, version=version)
+    
+    if version == 'num_denom':
+        func = lambda i: L_num_only(psi_o_array[i], psi_a_array[i], psi_null, mrna_array[i], c)
+    else:
+        func = lambda i: L_observation(psi_o_array[i], psi_a_array[i], psi_null, mrna_array[i], c, 
+                                       min_probability, psi_var, capture_var, times, version=version)
     x = range(len(psi_o_array))
     x_func = np.vectorize(func)
     L = x_func(x)
@@ -128,7 +141,7 @@ def calculate_exon_L(PSI_tab, W, mrna_counts, exon, k = 0, c = 0.1, weight_dista
 
     psi_o_array = np.array(PSI_tab.loc[exon, shuffled_cells])
 
-    mrna_array = np.array([1 if ((x > 0.1) and (x <= 1)) else x for x in mrna_counts.loc[exon,  shuffled_cells]])
+    mrna_array = np.array([1 if ((x > 0.1) and (x <= 1)) else x for x in mrna_counts.loc[exon, shuffled_cells]])
     mrna_array = np.round(mrna_array).astype(int)
 
     total_cells = round((len(cell_list) - np.sum(mrna_array == 0)))
@@ -143,19 +156,24 @@ def calculate_exon_L(PSI_tab, W, mrna_counts, exon, k = 0, c = 0.1, weight_dista
 
     psi_null = np.mean(psi_o_array)
 
-    L_vec = L_statistic_vec(psi_o_array, psi_a_array, psi_null, mrna_array, c, min_probability, psi_var, capture_var, times, version=version)
-
-    if weight_observations:
-#         if exon == 'Clta_4':
-#             print('weight confirmation')
-        weights = (W.loc[cell_list, cell_list] > 0).sum(axis=1)
-        L = np.average(L_vec, weights=weights)
-        
-    else:
-        L = np.sum(L_vec)/total_cells
+    L_vec = L_statistic_vec(psi_o_array, psi_a_array, psi_null, mrna_array, c, 
+                            min_probability, psi_var, capture_var, times, version=version)
     
-    ######
-    return L
+    if version == 'num_denom':
+        
+        return L_vec, cell_list, total_cells
+    
+    else:
+
+        if weight_observations:
+            weights = (W.loc[cell_list, cell_list] > 0).sum(axis=1)
+            L = np.average(L_vec, weights=weights)
+
+        else:
+            L = np.sum(L_vec)/total_cells
+
+        ######
+        return L
 
 #     except:
 #         print('error')

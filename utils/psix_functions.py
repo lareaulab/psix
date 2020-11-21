@@ -71,17 +71,15 @@ def prob_psi_m_known(psi_o, psi, r, m):
 
 def L_observation(psi_o, psi_a, psi_null, r, c, min_probability, sum_times, approximate):
     
-#     if approximate == 0:
     
     L_a = np.max([min_probability, probability_psi_approx(psi_o, psi_a, c, r)])
     L_null = np.max([min_probability, probability_psi_approx(psi_o, psi_null, c, r)])
-        
-#     else:
-#     L_a = np.max([min_probability, probability_psi_observation(psi_o, psi_a, c, r)])
-#     L_null = np.max([min_probability, probability_psi_observation(psi_o, psi_null, c, r)])
     
-    L_a = np.log10(L_a)
-    L_null = np.log10(L_null)
+    L_a = np.log(L_a)
+    L_null = np.log(L_null)
+        
+#     L_a = np.log10(L_a)
+#     L_null = np.log10(L_null)
         
     if (np.isnan(L_a) or np.isnan(L_null) or np.isnan(L_a - L_null)):
         L = 0
@@ -197,7 +195,7 @@ def calculate_cross_L(PSI_tab, W, mrna_counts, exon1, exon2, k = 0, c = 0.1, wei
     
     
 def get_distance_matrix(pca, k=100):
-    print('winds of change')
+    print('Changed to natural log')
     nbrs = NearestNeighbors(n_neighbors=k).fit(pca)
     distances, indices = nbrs.kneighbors(pca)
     

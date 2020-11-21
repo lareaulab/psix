@@ -317,8 +317,8 @@ if __name__ == '__main__':
     tiklova_mrna_event = pd.read_csv(data_dir + 'tiklova_neurogenesis/mrna_per_event.tab', sep='\t', index_col=0)
     tiklova_rd = pd.read_csv(data_dir + 'tiklova_neurogenesis/rd_pc2.tab', sep='\t', index_col=0)
     tiklova_PSI = pd.read_csv(data_dir + 'tiklova_neurogenesis/skipped_exons_psi.tab', sep='\t', index_col=0)
-    tiklova_psix = pd.read_csv('../psix_runs/tiklova_neurogenesis.scores.txt', sep='\t', index_col=0)
-    tiklova_cross_psix = pd.read_csv('../psix_runs/tiklova_neurogenesis.cross_scores.tab', sep='\t', index_col=0)
+    tiklova_psix = pd.read_csv('~/psix/psix_runs/tiklova_neurogenesis.scores.txt', sep='\t', index_col=0)
+    tiklova_cross_psix = pd.read_csv('~/psix/psix_runs/log10_runs/tiklova_neurogenesis.cross_scores.tab', sep='\t', index_col=0)
     tiklova_kw = pd.read_csv('~/sc_splicing_regulation/sc_neurogenesis/tiklova_neurogenesis_kw.tab', sep='\t', index_col=0)
     tiklova_kw = tiklova_kw.loc[tiklova_psix.index]
     tiklova_kw['qvals'] = multipletests(tiklova_kw.pvals, method='fdr_bh')[1]
@@ -340,8 +340,8 @@ if __name__ == '__main__':
     chen_mrna_event = pd.read_csv(data_dir + 'chen/mrna_per_event.tab', sep='\t', index_col=0)
     chen_rd = pd.read_csv(data_dir + 'chen/rd_pc2.tab', sep='\t', index_col=0)
     chen_PSI = pd.read_csv(data_dir + 'chen/skipped_exons_psi.tab', sep='\t', index_col=0)
-    chen_psix = pd.read_csv('../psix_runs/chen.scores.txt', sep='\t', index_col=0)
-    chen_cross_psix = pd.read_csv('../psix_runs/chen.cross_scores.tab', sep='\t', index_col=0)
+    chen_psix = pd.read_csv('~/psix/psix_runs/chen.scores.txt', sep='\t', index_col=0)
+    chen_cross_psix = pd.read_csv('~/psix/psix_runs/log10_runs/chen.cross_scores.tab', sep='\t', index_col=0)
     chen_kw = pd.read_csv('~/sc_splicing_regulation/sc_neurogenesis/chen_kw.tab', sep='\t', index_col=0)
     chen_kw = chen_kw.loc[chen_psix.index]
     chen_kw['qvals'] = multipletests(chen_kw.pvals, method='fdr_bh')[1]
@@ -355,8 +355,8 @@ if __name__ == '__main__':
     tiklova_all_mrna_event = pd.read_csv(data_dir + 'tiklova/mrna_per_event.tab', sep='\t', index_col=0)
     tiklova_all_rd = pd.read_csv(data_dir + 'tiklova/rd_pc2.tab', sep='\t', index_col=0)
     tiklova_all_PSI = pd.read_csv(data_dir + 'tiklova/skipped_exons_psi.tab', sep='\t', index_col=0)
-    tiklova_all_psix = pd.read_csv('../psix_runs/tiklova.scores.txt', sep='\t', index_col=0)
-    tiklova_all_cross_psix = pd.read_csv('../psix_runs/tiklova.cross_scores.tab', sep='\t', index_col=0)
+    tiklova_all_psix = pd.read_csv('~/psix/psix_runs/tiklova.scores.txt', sep='\t', index_col=0)
+    tiklova_all_cross_psix = pd.read_csv('~/psix/psix_runs/log10_runs/tiklova.cross_scores.tab', sep='\t', index_col=0)
     tiklova_all_kw = pd.read_csv('~/sc_splicing_regulation/sc_neurogenesis/tiklova_kw.tab', sep='\t', index_col=0)
     tiklova_all_kw = tiklova_all_kw.loc[tiklova_all_psix.index]
     tiklova_all_kw['qvals'] = multipletests(tiklova_all_kw.pvals, method='fdr_bh')[1]
@@ -371,8 +371,8 @@ if __name__ == '__main__':
     song_mrna_event = pd.read_csv(data_dir + 'song/mrna_per_event.tab', sep='\t', index_col=0)
     song_rd = pd.read_csv(data_dir + 'song/rd_pc2.tab', sep='\t', index_col=0)
     song_PSI = pd.read_csv(data_dir + 'song/skipped_exons_psi.tab', sep='\t', index_col=0)
-    song_psix = pd.read_csv('../psix_runs/song.scores.txt', sep='\t', index_col=0)
-    song_cross_psix = pd.read_csv('../psix_runs/song.cross_scores.tab', sep='\t', index_col=0)
+    song_psix = pd.read_csv('~/psix/psix_runs/song.scores.txt', sep='\t', index_col=0)
+    song_cross_psix = pd.read_csv('~/psix/psix_runs/log10_runs/song.cross_scores.tab', sep='\t', index_col=0)
     song_kw = pd.read_csv('~/sc_splicing_regulation/sc_neurogenesis/song_kw.tab', sep='\t', index_col=0)
     song_kw = song_kw.loc[song_psix.index]
     song_kw['qvals'] = multipletests(song_kw.pvals, method='fdr_bh')[1]
