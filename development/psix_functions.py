@@ -89,10 +89,13 @@ def L_observation(psi_o, psi_a, psi_null, r, c, min_probability, psi_var, captur
         L_a = np.max([min_probability, psix_v2_discrete(psi_o, psi_a, c, r, psi_var=1, times=times)])
         L_null = np.max([min_probability, psix_v2_discrete(psi_o, psi_null, c, r, psi_var=1, times=times)])
         
+    L_a = np.log(L_a)
+    L_null = np.log(L_null)
+        
         
     
-    L_a = np.log10(L_a)
-    L_null = np.log10(L_null)
+#     L_a = np.log10(L_a)
+#     L_null = np.log10(L_null)
         
     if (np.isnan(L_a) or np.isnan(L_null) or np.isnan(L_a - L_null)):
         L = 0

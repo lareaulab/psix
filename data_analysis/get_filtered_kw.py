@@ -356,7 +356,7 @@ if __name__ == '__main__':
     tiklova_psix_reduced_var = pd.read_csv(
         '/mnt/lareaulab/cfbuenabadn/psix/development/psix_runs/tiklova_neurogenesis_reduced_var.scores.txt', 
                                sep='\t', index_col=0)
-    tiklova_cross_psix = pd.read_csv('../psix_runs/tiklova_neurogenesis.cross_scores.tab', sep='\t', index_col=0)
+#     tiklova_cross_psix = pd.read_csv('../psix_runs/tiklova_neurogenesis.cross_scores.tab', sep='\t', index_col=0)
     tiklova_kw = pd.read_csv('~/sc_splicing_regulation/sc_neurogenesis/tiklova_neurogenesis_kw.tab', sep='\t', index_col=0)
     tiklova_kw = tiklova_kw.loc[tiklova_psix.index]
     tiklova_kw['qvals'] = multipletests(tiklova_kw.pvals, method='fdr_bh')[1]
