@@ -74,8 +74,8 @@ def apply_kruskal_wallis(psi_table, mrna_per_event, pca_clusters, clusters = 5,
     
     for exon in kw_tab.index:
         if exon not in selected_exons:
-            kw_tab.loc[exon, 'KW_score'] = 0
-            kw_tab.loc[exon, 'pvals'] = 1
+            kw_tab.loc[exon, 'KW_score'] = np.nan
+            kw_tab.loc[exon, 'pvals'] = np.nan
     
     return kw_tab
 
@@ -102,9 +102,9 @@ def get_averages_bulk(bulk_tab):
 def elife_test(psi_table, mrna_table, clusters, obs_min, mrna_min = 10, mask_diff = False):
     kw = apply_kruskal_wallis(psi_table, mrna_table, clusters, 
                           obs_min = obs_min, mrna_min=mrna_min, linearize=False)
-    
-    kw['KW_score'] = kw.KW_score.fillna(0)
-    kw['pvals'] = kw.pvals.fillna(1)
+    print('why')
+    kw['KW_score'] = kw.KW_score#.fillna(0)
+    kw['pvals'] = kw.pvals#.fillna(1)
     
     return kw
 
