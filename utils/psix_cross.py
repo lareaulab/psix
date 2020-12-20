@@ -6,7 +6,7 @@ from multiprocessing import Pool
 import scipy.special as special
 from sklearn.utils import shuffle
 # import sys
-import probability_functions as pr
+import psix_functions as pr
 import multiprocessing as mp
 from itertools import combinations
 from tqdm import tqdm
@@ -44,7 +44,7 @@ parser.add_argument('-c', '--capture_efficiency', type=float, required=False, de
 parser.add_argument('-m', '--min_psi', type=float, required=False, default=0.05,
                    help='Consider only exons with avergae global PSI between m and 1-m. Default: m = 0.05.')
 
-parser.add_argument('-n', '--max_missing', type=float, required=False, default = 0,
+parser.add_argument('-n', '--max_missing', type=float, required=False, default = 0.1,
                    help='Maximum percent of missing values per exon.')
 
 parser.add_argument('-t', '--threads', type=int, required=False, default = 1,
@@ -95,6 +95,8 @@ if __name__ == '__main__':
     
     exons = psix_table.loc[(psix_table.L_score > l_min) & (psix_table.qvals <= 0.05)].index
     
+    print(len(exons))
+    
     ### This should be just to speed things up
     psi_table = psi_table.loc[exons]
     mrna_table = mrna_table.loc[exons]
@@ -120,21 +122,8 @@ if __name__ == '__main__':
     
     exon_comb = list(combinations(exons, r=2))
     
-    if t > 1:
-    
-        pool = mp.Pool(t)
-
-        exon_score_array_mp = [pool.apply_async(pr.calculate_cross_L, args=(psi_table, W, mrna_table,          
-                            exon[0], exon[1], 0, c, True, False, 0, min_probability, s, n, a)) for exon in exon_comb]
-
-        exon_score_array = [p.get() for p in tqdm(exon_score_array_mp)]
-
-        pool.terminate()
-        
-    else:
-        
-        exon_score_array = [pr.calculate_cross_L(psi_table, W, mrna_table,          
-                            exon[0], exon[1], 0, c, True, False, 0, min_probability, s, n, a) for exon in tqdm(exon_comb)]
+    exon_score_array = [pr.calculate_cross_L(psi_table, W, mrna_table,          
+                            exon[0], exon[1], c, False, 0, min_probability, s, n) for exon in tqdm(exon_comb)]
 
     print('finished running; storing data...')
     
