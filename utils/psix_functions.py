@@ -100,7 +100,7 @@ def L_statistic_vec(psi_o_array, psi_a_array, psi_null, mrna_array, c, min_proba
     return L
     
     
-def calculate_exon_L(PSI_tab, W, mrna_counts, exon, k = 0, c = 0.1, weight_distance=True, randomize = False, seed=0, min_probability = 0.01, sum_times=10):
+def calculate_exon_L(PSI_tab, W, mrna_counts, exon, k = 0, c = 0.1, weight_distance=True, randomize = False, seed=0, min_probability = 0.01, sum_times=10, return_cell_scores=False):
     
 
     try:
@@ -133,7 +133,10 @@ def calculate_exon_L(PSI_tab, W, mrna_counts, exon, k = 0, c = 0.1, weight_dista
         L_vec = L_statistic_vec(psi_o_array, psi_a_array, psi_null, mrna_array, c, min_probability, sum_times)
 
         ######
-        return np.sum(L_vec)/total_cells
+        if return_cell_scores:
+            return L_vec, cell_list
+        else:
+            return np.sum(L_vec)/total_cells
 
     except:
         print('error')

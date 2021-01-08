@@ -65,8 +65,11 @@ parser.add_argument('-mp', '--min_probability', type=float, required=False, defa
 parser.add_argument('-s', '--sum_times', type=float, required=False, default = 10,
                    help='How many times r/c molecules will be counter for the probability.')
 
-parser.add_argument('-a', '--approximate', type=float, required=False, default = 0,
-                   help='If > 0, it will approximate the probabilities of observations by sampling a times.')
+parser.add_argument('--return_cell_scores', action='store_true', required=False,
+                   help='For each exon, return score for each cell, instead of a single score per exon. Default: single score per exon.')
+
+# parser.add_argument('-a', '--approximate', type=float, required=False, default = 0,
+#                    help='If > 0, it will approximate the probabilities of observations by sampling a times.')
 
 
 if __name__ == '__main__':
@@ -90,7 +93,8 @@ if __name__ == '__main__':
     min_probability = args.min_probability
     s = args.sum_times
     k = args.k_nearest_neighbors
-    a = args.approximate
+    return_cell_scores = args.return_cell_scores
+#     a = args.approximate
     
     if k == 0:
         k = int(round(np.sqrt(len(rd.index))))
@@ -119,167 +123,190 @@ if __name__ == '__main__':
     
     print('Running on {t} threads.'.format(t=str(t)))
     
-    if t > 1:
-        pool = mp.Pool(t)
+    if return_cell_scores:
+        ## This is a temporal fix. If this works for the correlation analysis I'll make it return everything in the future 
+        ## when return_cell_scores == True
         
-        exon_score_array_mp = [pool.apply_async(pr.calculate_exon_L, args=(psi_table, W, mrna_table,          
-                            exon, 0, c, True, False, 0, min_probability, s)) for exon in exons]
+        psix_df = pd.DataFrame()
         
-        exon_score_array = [p.get() for p in tqdm(exon_score_array_mp)]
-
-        
-        pool.terminate()
-    
-    else:
         exon_score_array = [pr.calculate_exon_L(psi_table, W, mrna_table,          
-                            exon, 0, c, True, False, 0, min_probability, s) for exon in tqdm(exons)]
-
-    L_df = pd.DataFrame()
-    L_df['L_score'] = exon_score_array
-    L_df.index = exons
-    
-    print('Successfully ran Psix on exons.')
-    print('...')
-    print('')
-    print('Estimating p-values')
-    
-    express_mean = np.log10(mrna_table.loc[exons]+1).mean(axis=1)
-    x_step = (express_mean.max() - express_mean.min())/b
-    psi_var = psi_table.loc[exons].var(axis=1)
-    p_step = (psi_var.max() - psi_var.min())/b
-
-    bins = {}
-    for i in range(b):
-        mean_bins = {}
-
-        exons_x_small = express_mean.index[express_mean >= express_mean.min() + i*x_step]
-        exons_x_large = express_mean.index[express_mean <= express_mean.min() + (i+1)*x_step]
-        exons_x = exons_x_small.intersection(exons_x_large)
-
-        if i == (b-1):
-            exons_x = exons_x_small
-
-        for j in range(b):
-            exons_var_small = psi_var.index[psi_var >= psi_var.min() + j*p_step]
-            exons_var_large = psi_var.index[psi_var <= psi_var.min() + (j+1)*p_step]
-            exons_var = exons_var_small.intersection(exons_var_large).intersection(exons_x)
-
-            if j == (b-1):
-                exons_var = exons_var_small.intersection(exons_x)
-
-            mean_bins.update({'var_' + str(j+1):exons_var})
-
-        bins.update({'mean_' + str(i+1):mean_bins})
-
-    bin_dir = pd.DataFrame()
-    for mean in bins.keys():
-        for var in bins[mean].keys():
-            for exon in bins[mean][var]:
-                bin_dir[exon] = [mean + '_' + var]
-
-    assert len([x for x in exons if x not in bin_dir.T.index]) == 0
-    
-    buckets_dir = output_name + '_pvals/'
-
-    if not skip_pvalues:
-        print('Running {p} permutations to obtain p-values. This will take a while.'.format(p=str(p)))
-       
-        if not os.path.isdir(buckets_dir):
-            print('Making dir')
-            os.mkdir(buckets_dir)
+                                exon, 0, c, True, False, 0, min_probability, s, True) for exon in tqdm(exons)]
+        
+        print('retrieving exon scores.')
+        for i in tqdm(range(len(exons))):
+            exon_df = pd.DataFrame()
+            exon_df[exons[i]] = exon_score_array[i][0]
+            exon_df.index = exon_score_array[i][1]
             
-        np.random.seed(0)
-        print(str(p) + ' randomized')
-        for i in range(b):
-            for j in range(b):
-                exon_list = bins['mean_'+str(i+1)]['var_'+str(j+1)]
-                if len(exon_list) > 0:
-
-                    
-                    print('mean_'+str(i+1) + ', ' + 'var_'+str(j+1))
-                    
-                    r_choice = np.random.choice(exon_list, p, replace=True)
-                    
-                    if t > 1:
-                    
-                        pool = mp.Pool(t)
-
-
-                        
-                        random_score_array_mp = [pool.apply_async(pr.calculate_exon_L, args=(psi_table, W, mrna_table, 
-                                         r_choice[exon], 0, c, True, True, exon, min_probability, s)) for exon in range(p)]
-
-                        random_score_array = [p.get() for p in tqdm(random_score_array_mp)]
-
-
-                        pool.terminate()
-                        
-                    else:
-                        
-                        random_score_array = [pr.calculate_exon_L(psi_table, W, mrna_table,          
-                            r_choice[exon], 0, c, True, True, 0, min_probability, s) for exon in tqdm(range(p))]
-
-
-                    fh = open(buckets_dir + 'mean_'+str(i+1)+'_var_'+str(j+1)+'.txt', 'w')
-                    fh.writelines([str(x) + '\n' for x in random_score_array])
-                    fh.close()
-                    
-                    
-                    
+            psix_df = pd.concat([psix_df, exon_df], axis=1)
+            
+        #psix_df.index = W.index
+        
+        psix_df.T.to_csv(output_name + '.scores_tab.txt', sep='\t', index=True, header=True)
+        
     else:
-        print('Skipping permutations. Retrieving permutated scores from ' + buckets_dir)
-
-    print('...')
-    print('')
     
-    print('Estimating p-values.')
-    print('...')
-    print('')
+        if t > 1:
+            pool = mp.Pool(t)
 
-    L_dir = pd.DataFrame()
-    for mean in bins.keys():
-        for var in bins[mean].keys():
-            for exon in bins[mean][var]:
-                L_dir[exon] = [mean + '_' + var]
+            exon_score_array_mp = [pool.apply_async(pr.calculate_exon_L, args=(psi_table, W, mrna_table,          
+                                exon, 0, c, True, False, 0, min_probability, s, False)) for exon in exons]
+
+            exon_score_array = [p.get() for p in tqdm(exon_score_array_mp)]
 
 
-    L_dir = L_dir.T
-    L_dir.columns = ['bin']
-    L_dir['L_score'] = np.array(L_df.loc[L_dir.index].L_score)
+            pool.terminate()
+
+        else:
+            exon_score_array = [pr.calculate_exon_L(psi_table, W, mrna_table,          
+                                exon, 0, c, True, False, 0, min_probability, s, False) for exon in tqdm(exons)]
+
+        L_df = pd.DataFrame()
+        L_df['L_score'] = exon_score_array
+        L_df.index = exons
+
+        print('Successfully ran Psix on exons.')
+        print('...')
+        print('')
+        print('Estimating p-values')
+
+        express_mean = np.log10(mrna_table.loc[exons]+1).mean(axis=1)
+        x_step = (express_mean.max() - express_mean.min())/b
+        psi_var = psi_table.loc[exons].var(axis=1)
+        p_step = (psi_var.max() - psi_var.min())/b
+
+        bins = {}
+        for i in range(b):
+            mean_bins = {}
+
+            exons_x_small = express_mean.index[express_mean >= express_mean.min() + i*x_step]
+            exons_x_large = express_mean.index[express_mean <= express_mean.min() + (i+1)*x_step]
+            exons_x = exons_x_small.intersection(exons_x_large)
+
+            if i == (b-1):
+                exons_x = exons_x_small
+
+            for j in range(b):
+                exons_var_small = psi_var.index[psi_var >= psi_var.min() + j*p_step]
+                exons_var_large = psi_var.index[psi_var <= psi_var.min() + (j+1)*p_step]
+                exons_var = exons_var_small.intersection(exons_var_large).intersection(exons_x)
+
+                if j == (b-1):
+                    exons_var = exons_var_small.intersection(exons_x)
+
+                mean_bins.update({'var_' + str(j+1):exons_var})
+
+            bins.update({'mean_' + str(i+1):mean_bins})
+
+        bin_dir = pd.DataFrame()
+        for mean in bins.keys():
+            for var in bins[mean].keys():
+                for exon in bins[mean][var]:
+                    bin_dir[exon] = [mean + '_' + var]
+
+        assert len([x for x in exons if x not in bin_dir.T.index]) == 0
+
+        buckets_dir = output_name + '_pvals/'
+
+        if not skip_pvalues:
+            print('Running {p} permutations to obtain p-values. This will take a while.'.format(p=str(p)))
+
+            if not os.path.isdir(buckets_dir):
+                print('Making dir')
+                os.mkdir(buckets_dir)
+
+            np.random.seed(0)
+            print(str(p) + ' randomized')
+            for i in range(b):
+                for j in range(b):
+                    exon_list = bins['mean_'+str(i+1)]['var_'+str(j+1)]
+                    if len(exon_list) > 0:
 
 
-    bin_randoms = pd.DataFrame()
+                        print('mean_'+str(i+1) + ', ' + 'var_'+str(j+1))
 
-    for mv_bin in L_dir.bin.unique():
-        fh = open(buckets_dir + mv_bin + '.txt', 'r')
-        mv = [float(x.rstrip()) for x in fh.readlines()]
-        bin_randoms[mv_bin] = mv
+                        r_choice = np.random.choice(exon_list, p, replace=True)
+
+                        if t > 1:
+
+                            pool = mp.Pool(t)
 
 
-    pvals = []
-    for idx, row in tqdm(L_dir.iterrows(), position=0, leave=True):
-        mv = row.bin
-        L = row.L_score
-        p = (np.sum(bin_randoms[mv] > L) + 1)/(len(bin_randoms[mv])+1)
-        pvals.append(p)
 
-    L_dir['pvals'] = pvals
+                            random_score_array_mp = [pool.apply_async(pr.calculate_exon_L, args=(psi_table, W, mrna_table, 
+                                             r_choice[exon], 0, c, True, True, exon, min_probability, s)) for exon in range(p)]
 
-    L_dir['qvals'] = multipletests(L_dir.pvals, method='fdr_bh')[1]
-    pvals = []
+                            random_score_array = [p.get() for p in tqdm(random_score_array_mp)]
 
-    for idx, row in tqdm(L_dir.iterrows(), position=0, leave=True):
-        mv = row.bin
-        L = row.L_score
-        norm_mean, norm_var = norm.fit(bin_randoms[mv])
-        p = norm.sf(L, norm_mean, norm_var)
-        pvals.append(p)
 
-    L_dir['norm_pvals'] = pvals
+                            pool.terminate()
 
-    L_dir['norm_qvals'] = multipletests(L_dir.norm_pvals, method='fdr_bh')[1]
-    
-    L_dir.to_csv(output_name + '.scores.txt', sep='\t', index=True, header=True)
+                        else:
+
+                            random_score_array = [pr.calculate_exon_L(psi_table, W, mrna_table,          
+                                r_choice[exon], 0, c, True, True, 0, min_probability, s) for exon in tqdm(range(p))]
+
+
+                        fh = open(buckets_dir + 'mean_'+str(i+1)+'_var_'+str(j+1)+'.txt', 'w')
+                        fh.writelines([str(x) + '\n' for x in random_score_array])
+                        fh.close()
+
+
+
+        else:
+            print('Skipping permutations. Retrieving permutated scores from ' + buckets_dir)
+
+        print('...')
+        print('')
+
+        print('Estimating p-values.')
+        print('...')
+        print('')
+
+        L_dir = pd.DataFrame()
+        for mean in bins.keys():
+            for var in bins[mean].keys():
+                for exon in bins[mean][var]:
+                    L_dir[exon] = [mean + '_' + var]
+
+
+        L_dir = L_dir.T
+        L_dir.columns = ['bin']
+        L_dir['L_score'] = np.array(L_df.loc[L_dir.index].L_score)
+
+
+        bin_randoms = pd.DataFrame()
+
+        for mv_bin in L_dir.bin.unique():
+            fh = open(buckets_dir + mv_bin + '.txt', 'r')
+            mv = [float(x.rstrip()) for x in fh.readlines()]
+            bin_randoms[mv_bin] = mv
+
+
+        pvals = []
+        for idx, row in tqdm(L_dir.iterrows(), position=0, leave=True):
+            mv = row.bin
+            L = row.L_score
+            p = (np.sum(bin_randoms[mv] > L) + 1)/(len(bin_randoms[mv])+1)
+            pvals.append(p)
+
+        L_dir['pvals'] = pvals
+
+        L_dir['qvals'] = multipletests(L_dir.pvals, method='fdr_bh')[1]
+        pvals = []
+
+        for idx, row in tqdm(L_dir.iterrows(), position=0, leave=True):
+            mv = row.bin
+            L = row.L_score
+            norm_mean, norm_var = norm.fit(bin_randoms[mv])
+            p = norm.sf(L, norm_mean, norm_var)
+            pvals.append(p)
+
+        L_dir['norm_pvals'] = pvals
+
+        L_dir['norm_qvals'] = multipletests(L_dir.norm_pvals, method='fdr_bh')[1]
+
+        L_dir.to_csv(output_name + '.scores.txt', sep='\t', index=True, header=True)
 
 
     print('Successfully finished running Psix.')
