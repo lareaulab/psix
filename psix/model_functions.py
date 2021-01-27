@@ -20,9 +20,9 @@ def probability_psi_observation(observed_psi, true_psi, capture_efficiency, capt
     """
     cell_molecules = captured_mrna/capture_efficiency
     if (cell_molecules*true_psi < captured_mrna*observed_psi) or (cell_molecules*(1-true_psi) < captured_mrna*(1-observed_psi)):
-        proba = probability_psi_m_known(observed_psi, true_psi, capture_efficiency, captured_mrna)
+        proba = probability_psi_m_unknown(observed_psi, true_psi, capture_efficiency, captured_mrna)
     else:
-        proba = prob_psi_m_known(observed_psi, true_psi, captured_mrna, cell_molecules)
+        proba = probability_psi_m_known(observed_psi, true_psi, captured_mrna, cell_molecules)
         
     return proba
 
@@ -42,7 +42,7 @@ def probability_psi_m_unknown(observed_psi, true_psi, capture_efficiency, captur
     
     return np.sum(prob_array)
     
-def prob_psi_m_known(observed_psi, true_psi, captured_mrna, cell_molecules):
+def probability_psi_m_known(observed_psi, true_psi, captured_mrna, cell_molecules):
     """
     Pr(observed_PSI | true_PSI, captured_mrna, cell_molecules)
     
@@ -127,43 +127,43 @@ def psix_score(
     seed=0
 ):
     
-    try:
-        cell_list = exon_psi_array.dropna().index
+#     try:
+    cell_list = exon_psi_array.dropna().index
 
-        if randomize:
-            np.random.seed(seed)
-            shuffled_cells = shuffle(cell_list)
+    if randomize:
+        np.random.seed(seed)
+        shuffled_cells = shuffle(cell_list)
 
-        else:
-            shuffled_cells = cell_list
+    else:
+        shuffled_cells = cell_list
 
-        observed_psi_array = np.array(exon_psi_array.loc[shuffled_cells])
+    observed_psi_array = np.array(exon_psi_array.loc[shuffled_cells])
 
-        mrna_array = np.array([1 if ((x > 0.1) and (x <= 1)) else x for x in exon_mrna_array.loc[shuffled_cells]])
-        mrna_array = np.round(mrna_array).astype(int)
+    mrna_array = np.array([1 if ((x > 0.1) and (x <= 1)) else x for x in exon_mrna_array.loc[shuffled_cells]])
+    mrna_array = np.round(mrna_array).astype(int)
 
-        total_cells = round((len(cell_list) - np.sum(mrna_array == 0)))
+    total_cells = round((len(cell_list) - np.sum(mrna_array == 0)))
 
-        if total_cells <= 0:
-            return np.nan
-
-        neighborhood_psi_array = np.array(
-        np.array(pd.DataFrame(
-            np.array(cell_metric.loc[cell_list, cell_list])*observed_psi_array).sum(axis=1)
-        )/np.array(cell_metric.loc[cell_list, cell_list].sum(axis=1)))
-
-        global_psi = np.mean(observed_psi_array)
-
-        L_vec = psi_observations_scores_vec(
-            observed_psi_array, 
-            neighborhood_psi_array, 
-            global_psi, 
-            mrna_array, 
-            capture_efficiency, 
-            min_probability
-        )
-
-        return np.sum(L_vec)/total_cells
-
-    except:
+    if total_cells <= 0:
         return np.nan
+
+    neighborhood_psi_array = np.array(
+    np.array(pd.DataFrame(
+        np.array(cell_metric.loc[cell_list, cell_list])*observed_psi_array).sum(axis=1)
+    )/np.array(cell_metric.loc[cell_list, cell_list].sum(axis=1)))
+
+    global_psi = np.mean(observed_psi_array)
+
+    L_vec = psi_observations_scores_vec(
+        observed_psi_array, 
+        neighborhood_psi_array, 
+        global_psi, 
+        mrna_array, 
+        capture_efficiency, 
+        min_probability
+    )
+
+    return np.sum(L_vec)/total_cells
+
+#     except:
+#         return np.nan
