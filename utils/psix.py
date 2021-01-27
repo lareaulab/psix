@@ -78,8 +78,19 @@ if __name__ == '__main__':
     
     # Required arguments
     rd = pd.read_csv(args.reduced_dimensions, sep='\t', index_col=0)
-    psi_table = pd.read_csv(args.psi_table, sep='\t', index_col=0)[rd.index]
-    mrna_table = pd.read_csv(args.mrna_table, sep='\t', index_col=0)[rd.index]
+    try:
+        psi_table = pd.read_csv(args.psi_table, sep='\t', index_col=0)[rd.index]
+        mrna_table = pd.read_csv(args.mrna_table, sep='\t', index_col=0)[rd.index]
+    except:
+        psi_table = pd.read_csv(args.psi_table, sep='\t', index_col=0)
+        mrna_table = pd.read_csv(args.mrna_table, sep='\t', index_col=0)
+
+        common_idx = psi_table.columns & rd.index & mrna_table.columns
+        
+        rd = rd.loc[common_idx]
+        psi_table = psi_table[common_idx]
+        mrna_table = mrna_table[common_idx]
+
     
     # Optional arguments
     skip_pvalues = args.skip_pvalues
