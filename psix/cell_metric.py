@@ -35,7 +35,7 @@ def compute_cell_metric(
     cells = manifold.index
     n_cells = len(cells)
     
-    knn_neighbors = NearestNeighbors(n_neighbors=n_neighbors).fit(manifold)
+    knn_neighbors = NearestNeighbors(n_neighbors=n_neighbors+1).fit(manifold)
     distances, indices = knn_neighbors.kneighbors(manifold)
     
     cell_metric = pd.DataFrame(np.zeros((n_cells, n_cells)))
@@ -67,7 +67,7 @@ def compute_cell_metric(
 def get_background(self, latent='latent', n_neighbors=100, remove_self=True):
     
     psi = self.adata.uns['psi']
-    manifold = self.adata.obsm['latent']
+    manifold = self.adata.uns['latent']
     exon_list = self.adata.uns['psi'].columns
     
     n_exons = len(exon_list)
