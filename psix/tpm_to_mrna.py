@@ -50,7 +50,7 @@ def tpm2mrna(tpm_file, bw_method='scott', adjust_high = True, remove_outliers=Tr
     cells = tpm_dataset.columns
     tpm_dataset_filtered = tpm_dataset.loc[tpm_dataset.max(axis=1) > 0.1]
     
-    for cell in tqdm(cells):
+    for cell in tqdm(cells, position=0, leave=True):
         cell_mrna = transform_cell(tpm_dataset_filtered[cell], remove_outliers, bw_method, adjust_high)
         if all([x == 0 for x in cell_mrna]):
             continue

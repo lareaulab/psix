@@ -44,7 +44,7 @@ def compute_cell_metric(
     
     if weight_metric:
         
-        for i in tqdm(range(n_cells)):
+        for i in tqdm(range(n_cells), position=0, leave=True):
             cell_i = cells[i]
             sigma = np.max(distances[i])
             for j in range(1, len(distances[i])):
@@ -54,10 +54,59 @@ def compute_cell_metric(
                 cell_metric.loc[cell_i, cell_j] = w
                 
     else:
-        for i in tqdm(range(n_cells)):
+        for i in tqdm(range(n_cells), position=0, leave=True):
             cell_i = cells[i]
             for j in range(1, len(distances[i])):
                 cell_j = cells[indices[i][j]]     
                 cell_metric.loc[cell_i, cell_j] = 1
     
     return cell_metric
+
+
+
+def get_background(self, latent='latent', n_neighbors=100, remove_self=True):
+    
+    psi = self.adata.uns['psi']
+    manifold = self.adata.obsm['latent']
+    exon_list = self.adata.uns['psi'].columns
+    
+    n_exons = len(exon_list)
+    n_cells = len(psi.index)
+    
+    knn_neighbors = NearestNeighbors(n_neighbors=n_neighbors).fit(manifold)
+    distances, indices = knn_neighbors.kneighbors(manifold)
+    
+    if remove_self:
+        distances = distances[:,1:]
+        indices = indices[:,1:]
+
+    sigma_array = np.max(distances, axis=1)
+    
+    weights = np.exp(-(distances**2)/(sigma_array**2).reshape(len(psi.index),1))
+    
+    smooth_psi = pd.DataFrame()
+    
+    print('slicing exons...')
+    pandas_slices = []
+    for idx in indices:
+        pandas_slices.append(psi[exon_list].iloc[idx].to_numpy())
+
+    pandas_slices = np.array(pandas_slices)
+
+    for i in tqdm(range(len(exon_list)), position=0, leave=True):
+        exon = exon_list[i]
+
+        
+        neighbors_psi = pandas_slices[:,:,i]
+        
+
+        background = np.nansum(neighbors_psi*weights, axis=1)/((~np.isnan(np.array(neighbors_psi)))*weights).sum(axis=1)
+
+
+        smooth_psi[exon] = background
+
+    smooth_psi.index = psi.index
+    
+#     self.smooth_psi = smooth_psi.T
+    self.adata.uns['neighbors_psi'] = smooth_psi
+    

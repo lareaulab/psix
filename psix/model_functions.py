@@ -4,6 +4,7 @@ from tqdm import tqdm
 import seaborn as sns
 from scipy.special import comb
 from sklearn.utils import shuffle
+import itertools  
 
 def probability_psi_observation(observed_psi, true_psi, capture_efficiency, captured_mrna):
     """
@@ -64,6 +65,9 @@ def psi_observation_score(
     """
     log Pr(observed_psi | neighborhood_psi) - log Pr(observed_psi | global_psi)
     """
+    
+    if np.isnan(observed_psi):
+        return 0
     
     probability_given_neighborhood = np.max([
         min_probability, probability_psi_observation(observed_psi, neighborhood_psi, capture_efficiency, captured_mrna)
@@ -153,6 +157,44 @@ def psix_score(
     )/np.array(cell_metric.loc[cell_list, cell_list].sum(axis=1)))
 
     global_psi = np.mean(observed_psi_array)
+
+    L_vec = psi_observations_scores_vec(
+        observed_psi_array, 
+        neighborhood_psi_array, 
+        global_psi, 
+        mrna_array, 
+        capture_efficiency, 
+        min_probability
+    )
+
+    return np.sum(L_vec)/total_cells
+
+
+    
+
+def psix_score_precomputed_smooth(
+    observed_psi_array, 
+    exon_mrna_array, 
+    neighborhood_psi_array, 
+    capture_efficiency = 0.1, 
+    min_probability = 0.01,
+):
+    
+#     try:
+    
+#     observed_psi_array = exon_psi_array
+
+    mrna_array = np.array([1 if ((x > 0.1) and (x <= 1)) else x for x in exon_mrna_array])
+    mrna_array = np.round(mrna_array).astype(int)
+
+    total_cells = np.sum(~np.isnan(observed_psi_array) & (mrna_array > 0))#round((len(cell_list) - np.sum(mrna_array == 0)))
+
+    if total_cells <= 0:
+        return np.nan
+
+    
+
+    global_psi = np.nanmean(observed_psi_array)
 
     L_vec = psi_observations_scores_vec(
         observed_psi_array, 
