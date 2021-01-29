@@ -34,10 +34,10 @@ class Psix:
             
                 
     def compute_neighbors_psi(self, latent='latent', n_neighbors=100, remove_self=True):
-        if not latent in self.adata.obsm:
+        if not latent in self.adata.uns:
             try:
                 latent = pd.read_csv(latent, sep='\t', index_col=0)
-                self.adata.obsm['latent'] = latent
+                self.adata.uns['latent'] = latent
                 latent = 'latent'
             except:
                 raise Exception('Latent space "' + latent +'" does not exist.')
@@ -162,17 +162,29 @@ class Psix:
         
         print('Successfully processed smart-seq data')
         
-    def save_psix_object(self, psix_dir = 'psix_object/', compression=None, overwrite = False):
+    def read_psi(self, psi_file):
+        self.adata.uns['psi'] = pd.read_csv(psi_file, sep='\t', index_col=0).T
+        
+    def read_mrna(self, mrna_file):
+        self.adata.uns['mrna_per_event'] = pd.read_csv(mrna_file, sep='\t', index_col=0).T
+        
+    def save_psix_object(self, psix_dir = 'psix_object/', overwrite = False):
         if os.path.isdir(psix_dir):
             if overwrite:
                 sp.run('rm -r ' + psix_dir, shell=True)
             else:
                 raise Exception('Directory ' + psix_dir +' already exists')
         else:
-            self.adata.write(psix_dir, compression=compression)
+            os.mkdir(psix_dir)
+            self.adata.write(psix_dir+'adata_object', compression='gzip')
+            try:
+                self.psix_results.to_csv(psix_dir+'psix_results.tab.gz', sep='\t', index=True, header=True)
+            except:
+                print('No scores to save.')
             
-    def read_psix_object(self, psix_dir = 'psix_object'):
-        self.adata = anndata.read_h5ad(psix_dir)
+    def read_psix_object(self, psix_dir = 'psix_object/'):
+        self.adata = anndata.read_h5ad(psix_dir+'adata_object.gz')
+        self.psix_results = pd.read_csv(psix_dir+'psix_results.tab.gz', sep='\t', index_col=0)
         
     def get_bins(self):
         mrna_table = self.adata.uns['mrna_per_event']
