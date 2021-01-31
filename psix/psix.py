@@ -45,13 +45,17 @@ class Psix:
         get_background(self, latent, n_neighbors=n_neighbors, remove_self=remove_self)
         print('Successfully computed neighbors')
             
-    def compute_psix_scores(self, latent='latent', 
+    def compute_psix_scores(self,
                             n_jobs=1,
                            capture_efficiency = 0.1, 
                                            min_probability = 0.01,
                                            seed=0,
                                            pvals_bins=5,
-                                           n_random_exons = 1000
+                                           n_random_exons = 1000,
+                            
+                            latent='latent', 
+                            n_neighbors = 100, 
+                            weight_metric=True
                            ):
         
         self.capture_efficiency = capture_efficiency
@@ -60,6 +64,12 @@ class Psix:
         self.pvals_bins = pvals_bins
         self.n_random_exons = n_random_exons
         self.n_jobs = n_jobs
+        
+        if not 'cell_metric' in self.adata.uns:
+            print('cell-cell metric not found. Computing metric...')
+            self.get_cell_metric(latent=latent, n_neighbors = n_neighbors, weight_metric=weight_metric)
+        
+        print('Computing Psix score in ' + str(len(self.adata.uns['psi'].columns)) + ' exons')
         
         
         if self.n_jobs == 1:
@@ -92,12 +102,14 @@ class Psix:
         self.psix_results['psix_score'] = exon_score_array
         self.psix_results.index = exon_list
         
-        print('Successfully ran Psix on exons.')
+        print('Successfully computed Psix score of exons.')
         print('...')
         print('')
-        print('Estimating p-values')
+        print('Estimating p-values. This might take a while...')
         
         self.compute_pvalues()
+        
+        print('Successfully estimated p-values')
         
     
               
@@ -124,10 +136,13 @@ class Psix:
             except:
                 raise Exception('Latent space "' + latent +'" does not exist.')
                 
+        print('Obtaining cell-cell neighbors and weights')
+                
         self.adata.uns['cell_metric'] = compute_cell_metric(latent, 
                                                        n_neighbors = n_neighbors, 
                                                        weight_metric = weight_metric
                                                       )        
+        print('Successfully computed cell-cell metric')
         
     def process_smartseq(
         self,
