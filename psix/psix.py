@@ -101,6 +101,7 @@ class Psix:
         self.psix_results = pd.DataFrame()
         self.psix_results['psix_score'] = exon_score_array
         self.psix_results.index = exon_list
+        self.psix_results = self.psix_results.sort_values('psix_score', ascending=False)
         
         print('Successfully computed Psix score of exons.')
         print('...')
@@ -172,8 +173,13 @@ class Psix:
         mrna = tpm2mrna(tpm_file)
         mrna_per_event = get_mrna_per_event(mrna, psi, reads, constitutive_sj_file)
         
-        self.adata.uns['psi'] = psi.T
-        self.adata.uns['mrna_per_event'] = mrna_per_event.T
+        if len(self.adata.obs) > 0:
+            idx = self.adata.obs.index & mrna_per_event.index
+        else:
+            idx = mrna_per_event.index
+        
+        self.adata.uns['psi'] = psi.loc[idx].T
+        self.adata.uns['mrna_per_event'] = mrna_per_event.loc[idx].T
         
         print('Successfully processed smart-seq data')
         
