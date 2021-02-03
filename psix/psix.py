@@ -37,7 +37,7 @@ class Psix:
         if not latent in self.adata.uns:
             try:
                 latent = pd.read_csv(latent, sep='\t', index_col=0)
-                self.adata.uns['latent'] = latent
+                self.adata.uns['latent'] = latent.loc[self.adata.uns['latent'].loc[self.adata.uns['psix'].index]]
                 latent = 'latent'
             except:
                 raise Exception('Latent space "' + latent +'" does not exist.')
@@ -127,13 +127,13 @@ class Psix:
             
     def get_cell_metric(self, latent='latent', n_neighbors = 100, weight_metric=True):
         
-        if latent in self.adata.obsm:
-            latent = self.adata.obsm[latent]
+        if latent in self.adata.uns:
+            latent = self.adata.uns[latent]
             
         else:
             try:
                 latent = pd.read_csv(latent, sep='\t', index_col=0)
-                self.adata.uns['latent'] = latent
+                self.adata.uns['latent'] = latent.loc[self.adata.uns['psi'].index]
             except:
                 raise Exception('Latent space "' + latent +'" does not exist.')
                 
