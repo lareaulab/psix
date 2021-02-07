@@ -24,10 +24,10 @@ class Psix:
     
     def __init__(
         self,
-        adata = anndata.AnnData(),
+        #adata = anndata.AnnData(),
         reads_file = ''
     ):
-        self.adata = adata
+        self.adata = anndata.AnnData()
         
         if os.path.isfile(reads_file):
             self.adata = anndata.read_csv(reads_file, delimiter='\t', first_column_names=True).T
