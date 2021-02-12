@@ -7,7 +7,8 @@ from model_functions import psix_score, psix_score_precomputed_smooth
 from tpm_to_mrna import tpm2mrna
 import anndata
 # from anndata import AnnData
-from smartseq_tools import *
+from rnaseq_tools import *
+
 from statsmodels.stats.multitest import multipletests
 
 
@@ -145,21 +146,23 @@ class Psix:
                                                       )        
         print('Successfully computed cell-cell metric')
         
-    def process_smartseq(
+        
+    def process_rnaseq(
         self,
         exon_sj_file,
-        constitutive_sj_file,
-        tpm_file,
-        minJR = 5,
-        minCell=20,
+        constitutive_sj_file = '',
+        tpm_file = '',
+        minJR = 1,
+        minCell = 1,
         drop_duplicates = False,
         min_psi = 0.05,
-        min_observed = 0.25
+        min_observed = 0.25,
+        tenX = False
     ):
         
         print('Obtaining psi tables...')
             
-        psi, reads = get_psi_table(exon_sj_file, minJR, minCell, drop_duplicates)
+        psi, reads = get_psi_table(exon_sj_file, minJR, minCell, drop_duplicates, tenX=tenX)
         
         alt_exons = psi.index[np.abs(0.5 - psi.mean(axis=1)) <= (0.5-min_psi)]
         obs_exons = psi.index[psi.isna().mean(axis=1) <= 1-min_observed]
@@ -168,11 +171,21 @@ class Psix:
         psi = psi.loc[selected_exons]
         reads = reads.loc[selected_exons]
         
-        print('Reading TPM and transforming to mRNA counts...')
+        if tenX:
+            mrna_per_event = reads
+        else:
         
-        mrna = tpm2mrna(tpm_file)
-        mrna_per_event = get_mrna_per_event(mrna, psi, reads, constitutive_sj_file)
-        
+            print('Reading TPM and transforming to mRNA counts...')
+            
+            tpm_exists = os.path.isfile(tpm_file)
+            constitutive_sj_exists = os.path.isfile(constitutive_sj_file)
+            
+            if not (tpm_exists and constitutive_sj_exists):
+                raise Exception('TPM file and constitutive junctions are required when processing smart-seq data')
+
+            mrna = tpm2mrna(tpm_file)
+            mrna_per_event = get_mrna_per_event(mrna, psi, reads, constitutive_sj_file)
+
         if len(self.adata.obs) > 0:
             idx = self.adata.obs.index & mrna_per_event.index
         else:
@@ -181,7 +194,7 @@ class Psix:
         self.adata.uns['psi'] = psi.loc[idx].T
         self.adata.uns['mrna_per_event'] = mrna_per_event.loc[idx].T
         
-        print('Successfully processed smart-seq data')
+        print('Successfully processed RNA-seq data')
         
     def read_psi(self, psi_file):
         self.adata.uns['psi'] = pd.read_csv(psi_file, sep='\t', index_col=0).T

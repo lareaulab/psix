@@ -21,7 +21,7 @@ def get_mrna_per_event(mrna, psi, reads, constitutive_sj_file):
     return mrna_events
     
 
-def get_psi_table(SJ_table_name, minJR=5, minCell=20, drop_duplicates = False):
+def get_psi_table(SJ_table_name, minJR=5, minCell=20, drop_duplicates = False, tenX = False):
     '''
     
     This functions splits this table into one individual for
@@ -86,10 +86,17 @@ def get_psi_table(SJ_table_name, minJR=5, minCell=20, drop_duplicates = False):
     I2_table = I2_table.loc[filtered_events]
     SE_table = SE_table.loc[filtered_events]
     
-    PSI_table = (I1_table + I2_table) /(2*SE_table + I1_table + I2_table)
-    total_counts = SE_table + I1_table + I2_table
+    if tenX:
+        I_table = pd.concat([I1_table, I2_table]).max(level=0)
+        PSI_table = I_table /(SE_table + I_table)
+        total_counts = SE_table + I2_table
+        
+    else:
+        PSI_table = (I1_table + I2_table) /(2*SE_table + I1_table + I2_table)
+        total_counts = SE_table + I1_table + I2_table
 
     return PSI_table, total_counts
+
 
 import numpy as np
 import pandas as pd
