@@ -3,7 +3,7 @@ import pandas as pd
 import os
 
 from cell_metric import *
-from model_functions import psix_score, psix_score_precomputed_smooth
+from model_functions import psix_score
 from tpm_to_mrna import tpm2mrna
 import anndata
 # from anndata import AnnData
@@ -45,6 +45,8 @@ class Psix:
                 
         get_background(self, latent, n_neighbors=n_neighbors, remove_self=remove_self)
         print('Successfully computed neighbors')
+        
+    
             
     def compute_psix_scores(self,
                             n_jobs=1,
@@ -72,6 +74,8 @@ class Psix:
         
         print('Computing Psix score in ' + str(len(self.adata.uns['psi'].columns)) + ' exons')
         
+            
+        exon_list = self.adata.uns['psi'].columns
         
         if self.n_jobs == 1:
             exon_score_array = [psix_score(self.adata.uns['psi'][exon], 
@@ -83,7 +87,7 @@ class Psix:
                                            seed=0
                                         ) for exon in tqdm(self.adata.uns['psi'].columns, position=0, leave=True)]
         else:
-            exon_list = self.adata.uns['psi'].columns
+            
             
             with Pool(
                 processes=self.n_jobs
@@ -145,6 +149,9 @@ class Psix:
                                                        weight_metric = weight_metric
                                                       )        
         print('Successfully computed cell-cell metric')
+        
+        
+    
         
         
     def process_rnaseq(
@@ -283,7 +290,7 @@ class Psix:
 
         if self.n_jobs == 1:
             for bucket in all_buckets:
-                bucket_scores = compute_random_exons(self, bucket)
+                buckets_scores = self.compute_random_exons(bucket)
                 self.random_scores[bucket[0]][bucket[1]] = buckets_scores
 
         else:

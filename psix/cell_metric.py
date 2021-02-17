@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
 from tqdm import tqdm 
+from numba import jit
 
 
 def compute_cell_metric(
@@ -50,7 +51,8 @@ def compute_cell_metric(
             for j in range(1, len(distances[i])):
                 cell_j = cells[indices[i][j]]
                 d = distances[i][j]
-                w = np.exp(-(d**2)/(sigma**2))        
+                w = compute_weight(d, sigma)
+                #w = np.exp(-(d**2)/(sigma**2))        
                 cell_metric.loc[cell_i, cell_j] = w
                 
     else:
@@ -62,6 +64,9 @@ def compute_cell_metric(
     
     return cell_metric
 
+@jit
+def compute_weight(d, sigma):
+    return np.exp(-(d**2)/(sigma**2)) 
 
 
 def get_background(self, latent='latent', n_neighbors=100, remove_self=True):

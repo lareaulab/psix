@@ -6,6 +6,9 @@ from scipy.special import comb
 from sklearn.utils import shuffle
 import itertools  
 
+from numba import jit
+
+@jit
 def probability_psi_observation(observed_psi, true_psi, capture_efficiency, captured_mrna):
     """
     Calculate Pr(observed_PSI | true_PSI, capture_efficiency, captured_mrna)
@@ -27,6 +30,7 @@ def probability_psi_observation(observed_psi, true_psi, capture_efficiency, capt
         
     return proba
 
+@jit
 def probability_psi_m_unknown(observed_psi, true_psi, capture_efficiency, captured_mrna):
     '''
     
@@ -43,6 +47,7 @@ def probability_psi_m_unknown(observed_psi, true_psi, capture_efficiency, captur
     
     return np.sum(prob_array)
     
+@jit
 def probability_psi_m_known(observed_psi, true_psi, captured_mrna, cell_molecules):
     """
     Pr(observed_PSI | true_PSI, captured_mrna, cell_molecules)
@@ -53,7 +58,7 @@ def probability_psi_m_known(observed_psi, true_psi, captured_mrna, cell_molecule
     comb_3 = comb(cell_molecules, captured_mrna)**(-1)
     return comb_1*comb_2*comb_3
 
-
+@jit
 def psi_observation_score(
     observed_psi, 
     neighborhood_psi, 
@@ -94,7 +99,6 @@ def psi_observation_score(
         return log_probability_neighborhood - log_probability_global
         
 
-
 def psi_observations_scores_vec(
     observed_psi_array, 
     neighborhood_psi_array, 
@@ -120,7 +124,7 @@ def psi_observations_scores_vec(
 
     return psi_scores_vec
     
-    
+
 def psix_score(
     exon_psi_array, 
     exon_mrna_array, 
@@ -172,6 +176,8 @@ def psix_score(
 
     
 
+    
+### Deprecated, do not use. Gives the same result, but slower.
 def psix_score_precomputed_smooth(
     observed_psi_array, 
     exon_mrna_array, 
