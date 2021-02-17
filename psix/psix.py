@@ -3,11 +3,12 @@ import pandas as pd
 import os
 
 from cell_metric import *
-from model_functions import psix_score
+from model_functions import psix_score, psix_score_light
 from tpm_to_mrna import tpm2mrna
 import anndata
 # from anndata import AnnData
 from rnaseq_tools import *
+from turbo_tools import *
 
 from statsmodels.stats.multitest import multipletests
 
@@ -34,16 +35,18 @@ class Psix:
             self.adata = anndata.read_csv(reads_file, delimiter='\t', first_column_names=True).T
             
                 
-    def compute_neighbors_psi(self, latent='latent', n_neighbors=100, remove_self=True):
-        if not latent in self.adata.uns:
+    def compute_neighbors_psi(self, latent='latent', n_neighbors=100, weight_metric=True):
+        if not hasattr(self, 'metric'):
             try:
-                latent = pd.read_csv(latent, sep='\t', index_col=0)
-                self.adata.uns['latent'] = latent.loc[self.adata.uns['latent'].loc[self.adata.uns['psix'].index]]
-                latent = 'latent'
+                self.get_cell_metric(latent=latent, n_neighbors = n_neighbors, weight_metric=weight_metric)
+#                 latent = pd.read_csv(latent, sep='\t', index_col=0)
+#                 self.adata.uns['latent'] = latent.loc[self.adata.uns['psix'].index]
+#                 latent = 'latent'
             except:
                 raise Exception('Latent space "' + latent +'" does not exist.')
+        get_background(self)
                 
-        get_background(self, latent, n_neighbors=n_neighbors, remove_self=remove_self)
+#         get_background(self, latent, n_neighbors=n_neighbors, remove_self=remove_self)
         print('Successfully computed neighbors')
         
     
@@ -58,7 +61,8 @@ class Psix:
                             
                             latent='latent', 
                             n_neighbors = 100, 
-                            weight_metric=True
+                            weight_metric=True,
+                            turbo = False
                            ):
         
         self.capture_efficiency = capture_efficiency
@@ -67,6 +71,12 @@ class Psix:
         self.pvals_bins = pvals_bins
         self.n_random_exons = n_random_exons
         self.n_jobs = n_jobs
+        
+        if turbo:
+            self.turbo = load_turbo(turbo_dir = turbo)
+            
+        else:
+            self.turbo = False
         
         if not 'cell_metric' in self.adata.uns:
             print('cell-cell metric not found. Computing metric...')
@@ -78,14 +88,24 @@ class Psix:
         exon_list = self.adata.uns['psi'].columns
         
         if self.n_jobs == 1:
-            exon_score_array = [psix_score(self.adata.uns['psi'][exon], 
-                                           self.adata.uns['mrna_per_event'][exon], 
-                                           self.adata.uns['cell_metric'], 
+            
+            exon_score_array = [psix_score_light(np.array(self.adata.uns['psi'][exon]), 
+                                           np.array(self.adata.uns['mrna_per_event'][exon]), 
+                                           self.metric, 
                                            capture_efficiency = self.capture_efficiency, 
                                            randomize = False,  
                                            min_probability = self.min_probability,
-                                           seed=0
+                                           seed=0,
+                                           turbo = self.turbo
                                         ) for exon in tqdm(self.adata.uns['psi'].columns, position=0, leave=True)]
+#             exon_score_array = [psix_score(self.adata.uns['psi'][exon], 
+#                                            self.adata.uns['mrna_per_event'][exon], 
+#                                            self.adata.uns['cell_metric'], 
+#                                            capture_efficiency = self.capture_efficiency, 
+#                                            randomize = False,  
+#                                            min_probability = self.min_probability,
+#                                            seed=0
+#                                         ) for exon in tqdm(self.adata.uns['psi'].columns, position=0, leave=True)]
         else:
             
             
@@ -120,35 +140,57 @@ class Psix:
     
               
     def psix_score_parallel(self, exon):
-        return psix_score(self.adata.uns['psi'][exon], 
-                                           self.adata.uns['mrna_per_event'][exon], 
-                                           self.adata.uns['cell_metric'], 
+        ##############
+        
+        return psix_score_light(np.array(self.adata.uns['psi'][exon]), 
+                                           np.array(self.adata.uns['mrna_per_event'][exon]), 
+                                           self.metric, 
                                            capture_efficiency = self.capture_efficiency, 
                                            randomize = False,  
                                            min_probability = self.min_probability,
-                                           seed=self.seed)
+                                           seed=self.seed,
+                                           turbo = self.turbo
+                               )
+        
+        ##############
+#         return psix_score(self.adata.uns['psi'][exon], 
+#                                            self.adata.uns['mrna_per_event'][exon], 
+#                                            self.adata.uns['cell_metric'], 
+#                                            capture_efficiency = self.capture_efficiency, 
+#                                            randomize = False,  
+#                                            min_probability = self.min_probability,
+#                                            seed=self.seed)
         
         
             
     def get_cell_metric(self, latent='latent', n_neighbors = 100, weight_metric=True):
         
-        if latent in self.adata.uns:
-            latent = self.adata.uns[latent]
-            
-        else:
-            try:
-                latent = pd.read_csv(latent, sep='\t', index_col=0)
-                self.adata.uns['latent'] = latent.loc[self.adata.uns['psi'].index]
-            except:
-                raise Exception('Latent space "' + latent +'" does not exist.')
-                
-        print('Obtaining cell-cell neighbors and weights')
-                
-        self.adata.uns['cell_metric'] = compute_cell_metric(latent, 
+        #####################
+        self.latent = pd.read_csv(latent, sep='\t', index_col=0)
+        self.metric = compute_cell_metric_light(self.latent, 
                                                        n_neighbors = n_neighbors, 
                                                        weight_metric = weight_metric
                                                       )        
         print('Successfully computed cell-cell metric')
+        #####################
+        
+#         if latent in self.adata.uns:
+#             latent = self.adata.uns[latent]
+            
+#         else:
+#             try:
+#                 latent = pd.read_csv(latent, sep='\t', index_col=0)
+#                 self.adata.uns['latent'] = latent.loc[self.adata.uns['psi'].index]
+#             except:
+#                 raise Exception('Latent space "' + latent +'" does not exist.')
+                
+#         print('Obtaining cell-cell neighbors and weights')
+                
+#         self.adata.uns['cell_metric'] = compute_cell_metric(latent, 
+#                                                        n_neighbors = n_neighbors, 
+#                                                        weight_metric = weight_metric
+#                                                       )        
+#         print('Successfully computed cell-cell metric')
         
         
     
@@ -347,21 +389,49 @@ class Psix:
             r_choice = np.random.choice(exon_list, self.n_random_exons, replace=True)
 
             if self.n_jobs == 1:
+                
+                
+                ####################
+                output = [psix_score_light(np.array(self.adata.uns['psi'][exon]), 
+                           np.array(self.adata.uns['mrna_per_event'][exon]), 
+                           self.metric, 
+                           capture_efficiency = self.capture_efficiency, 
+                           randomize = True,  
+                           min_probability = self.min_probability,
+                           seed=self.seed,
+                           turbo = self.turbo) for exon in tqdm(r_choice, position=0, leave=True)]
+                ######################
+                
 
-                output = [psix_score(self.adata.uns['psi'][exon], 
-                           self.adata.uns['mrna_per_event'][exon], 
-                           self.adata.uns['cell_metric'], 
-                           capture_efficiency = self.capture_efficiency, 
-                           randomize = True,  
-                           min_probability = self.min_probability,
-                           seed=self.seed) for exon in tqdm(r_choice, position=0, leave=True)]
+#                 output = [psix_score(self.adata.uns['psi'][exon], 
+#                            self.adata.uns['mrna_per_event'][exon], 
+#                            self.adata.uns['cell_metric'], 
+#                            capture_efficiency = self.capture_efficiency, 
+#                            randomize = True,  
+#                            min_probability = self.min_probability,
+#                            seed=self.seed) for exon in tqdm(r_choice, position=0, leave=True)]
             else:
-                output = [psix_score(self.adata.uns['psi'][exon], 
-                           self.adata.uns['mrna_per_event'][exon], 
-                           self.adata.uns['cell_metric'], 
+                ####################
+                output = [psix_score_light(np.array(self.adata.uns['psi'][exon]), 
+                           np.array(self.adata.uns['mrna_per_event'][exon]), 
+                           self.metric, 
                            capture_efficiency = self.capture_efficiency, 
                            randomize = True,  
                            min_probability = self.min_probability,
-                           seed=self.seed) for exon in r_choice]
+                           seed=self.seed,
+                           turbo = self.turbo) for exon in r_choice]
+                ####################
+        
+        
+        
+#                 output = [psix_score(self.adata.uns['psi'][exon], 
+#                            self.adata.uns['mrna_per_event'][exon], 
+#                            self.adata.uns['cell_metric'], 
+#                            capture_efficiency = self.capture_efficiency, 
+#                            randomize = True,  
+#                            min_probability = self.min_probability,
+#                            seed=self.seed) for exon in r_choice]
             return np.array(output)
+
+   
     

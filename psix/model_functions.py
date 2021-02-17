@@ -177,41 +177,133 @@ def psix_score(
     
 
     
-### Deprecated, do not use. Gives the same result, but slower.
-def psix_score_precomputed_smooth(
-    observed_psi_array, 
+##################### Psix light ####################
+
+@jit(nopython=True)
+def get_arrays(observed_psi_array, mrna_obs_array, cell_metric):
+    psi_o_array = []
+    psi_a_array = []
+    mrna_array = []
+    for i in range(len(observed_psi_array)):
+        psi_o = observed_psi_array[i]
+        if not np.isnan(psi_o):
+            
+            psi_o_array.append(psi_o)
+            mrna_array.append(mrna_obs_array[i])
+            
+            neighbors = cell_metric[0][i]
+            weights = cell_metric[1][i]
+
+            psi_sum = 0
+            weight_sum = 0
+            for j in range(1, len(neighbors)):
+                psi_n = observed_psi_array[neighbors[j]]
+                if not np.isnan(psi_n):
+                    psi_sum += (psi_n * weights[j])
+                    weight_sum += weights[j]
+            if weight_sum > 0:
+                psi_a_array.append(psi_sum/weight_sum)
+            else:
+                psi_a_array.append(np.nan)
+                
+    mrna_array = np.array([1 if ((x > 0.1) and (x <= 1)) else x for x in mrna_array])
+    
+    return psi_o_array, psi_a_array, mrna_array
+        
+    
+def psix_score_light(
+    exon_psi_array, 
     exon_mrna_array, 
-    neighborhood_psi_array, 
+    cell_metric, 
     capture_efficiency = 0.1, 
+    randomize = False,  
     min_probability = 0.01,
+    seed=0,
+    turbo = False
 ):
     
-#     try:
+
+    ncells = len(exon_psi_array)
+
+    if randomize:
+        np.random.seed(seed)
+        shuffled_cells = shuffle(range(ncells))
+        exon_psi_array = exon_psi_array[shuffled_cells]
+        exon_mrna_array = exon_mrna_array[shuffled_cells]
+
+
+    observed_psi_array, neighborhood_psi_array, mrna_array = get_arrays(exon_psi_array, exon_mrna_array, cell_metric)
     
-#     observed_psi_array = exon_psi_array
-
-    mrna_array = np.array([1 if ((x > 0.1) and (x <= 1)) else x for x in exon_mrna_array])
     mrna_array = np.round(mrna_array).astype(int)
+    
 
-    total_cells = np.sum(~np.isnan(observed_psi_array) & (mrna_array > 0))#round((len(cell_list) - np.sum(mrna_array == 0)))
+    total_cells = round((len(observed_psi_array) - np.sum(mrna_array == 0)))
 
     if total_cells <= 0:
         return np.nan
 
-    
-
     global_psi = np.nanmean(observed_psi_array)
-
-    L_vec = psi_observations_scores_vec(
-        observed_psi_array, 
-        neighborhood_psi_array, 
-        global_psi, 
-        mrna_array, 
-        capture_efficiency, 
-        min_probability
-    )
+    
+    if turbo:
+        
+        mrna_max = len(turbo)
+        mrna_array = [mrna_max if x >= mrna_max else x for x in mrna_array]
+        
+        L_vec = psi_observations_scores_vec_turbo(
+            observed_psi_array, 
+            neighborhood_psi_array, 
+            global_psi, 
+            mrna_array,
+            turbo
+        )
+        
+    else:
+    
+        L_vec = psi_observations_scores_vec(
+            observed_psi_array, 
+            neighborhood_psi_array, 
+            global_psi, 
+            mrna_array, 
+            capture_efficiency, 
+            min_probability
+        )
 
     return np.sum(L_vec)/total_cells
 
-#     except:
-#         return np.nan
+
+##################### Turbo functions #######################
+
+@jit(nopython=True)
+def psix_turbo(psi_o, psi_a, mrna, turbo_dict):
+    
+    psi_o_idx = np.int(np.round(psi_o*100))
+    psi_a_idx = np.int(np.round(psi_a*100))-1
+    mrna_idx = mrna-1
+    
+    if psi_a_idx < 0:
+        psi_a_idx = 0
+    elif psi_a_idx > 98:
+        psi_a_idx = 98
+    psix_score_out = turbo_dict[mrna_idx][psi_o_idx, psi_a_idx]
+    return psix_score_out
+
+@jit(nopython=True)
+def L_score_turbo(psi_o, psi_a, psi_n, mrna, turbo_dict):
+    L_a = np.log(psix_turbo(psi_o, psi_a, mrna, turbo_dict))
+    L_null = np.log(psix_turbo(psi_o, psi_n, mrna, turbo_dict))
+    
+    return L_a - L_null
+
+@jit(nopython=True)
+def psi_observations_scores_vec_turbo(observed_psi_array, neighborhood_psi_array, global_psi, mrna_array, turbo_dict):
+    L_vec = []
+    
+    for i in range(len(observed_psi_array)):
+        psi_o = observed_psi_array[i]
+        psi_a = neighborhood_psi_array[i]
+        mrna = mrna_array[i]
+        L = L_score_turbo(psi_o, psi_a, global_psi, mrna, turbo_dict)
+        L_vec.append(L)
+    return L_vec
+
+
