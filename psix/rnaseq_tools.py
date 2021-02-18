@@ -60,9 +60,15 @@ def get_psi_table(SJ_table_name, minJR=5, minCell=20, drop_duplicates = False, t
         SJ_counts_table = pd.read_csv(SJ_table_name, sep='\t', index_col=0).drop_duplicates('last')
     else:
         SJ_counts_table = pd.read_csv(SJ_table_name, sep='\t', index_col=0)
+        
+    events_i1 = pd.Index([x[:-3] for x in SJ_counts_table.index if '_I1' in x])
+    events_i2 = pd.Index([x[:-3] for x in SJ_counts_table.index if '_I2' in x])
+    events_se = pd.Index([x[:-3] for x in SJ_counts_table.index if '_SE' in x])
+    
+    events = events_i1 & events_i2 & events_se
     
     
-    events = sorted(set([x[:-3] for x in SJ_counts_table.index]))
+#     events = sorted(set([x[:-3] for x in SJ_counts_table.index]))
     
     i1_events = [x + '_I1' for x in events]
     I1_table = SJ_counts_table.loc[i1_events]
