@@ -257,13 +257,12 @@ class Psix:
                 sp.run('rm -r ' + psix_dir, shell=True)
             else:
                 raise Exception('Directory ' + psix_dir +' already exists')
-        else:
-            os.mkdir(psix_dir)
-            self.adata.write(psix_dir+'adata_object', compression='gzip')
-            try:
-                self.psix_results.to_csv(psix_dir+'psix_results.tab.gz', sep='\t', index=True, header=True)
-            except:
-                print('No scores to save.')
+        os.mkdir(psix_dir)
+        self.adata.write(psix_dir+'adata_object', compression='gzip')
+        try:
+            self.psix_results.to_csv(psix_dir+'psix_results.tab.gz', sep='\t', index=True, header=True)
+        except:
+            print('No scores to save.')
             
     def read_psix_object(self, psix_dir = 'psix_object/'):
         self.adata = anndata.read_h5ad(psix_dir+'adata_object.gz')

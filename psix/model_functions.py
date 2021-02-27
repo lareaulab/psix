@@ -6,7 +6,7 @@ from scipy.special import comb
 from sklearn.utils import shuffle
 import itertools  
 
-from numba import jit
+from numba import jit, njit
 
 @jit
 def probability_psi_observation(observed_psi, true_psi, capture_efficiency, captured_mrna):
@@ -209,6 +209,25 @@ def get_arrays(observed_psi_array, mrna_obs_array, cell_metric):
     mrna_array = np.array([1 if ((x > 0.1) and (x <= 1)) else x for x in mrna_array])
     
     return psi_o_array, psi_a_array, mrna_array
+
+
+@njit
+def permute_array_fix_nan(idx_array):
+
+    idx_non_nan = np.array([i for i in range(len(idx_array)) if not np.isnan(idx_array[i])])
+    idx_permute = np.random.permutation(idx_non_nan)
+
+    new_idx = []
+    j = 0
+    for i in range(len(idx_array)):
+        if np.isnan(idx_array[i]):
+            new_idx.append(i)
+        else:
+            new_idx.append(np.int(idx_permute[j]))
+#             print(np.int(idx_permute[j]))
+            j+=1
+
+    return np.array(new_idx)
         
     
 def psix_score_light(
@@ -227,6 +246,7 @@ def psix_score_light(
 
     if randomize:
         np.random.seed(seed)
+#         shuffled_cells = permute_array_fix_nan(exon_psi_array)
         shuffled_cells = shuffle(range(ncells))
         exon_psi_array = exon_psi_array[shuffled_cells]
         exon_mrna_array = exon_mrna_array[shuffled_cells]
