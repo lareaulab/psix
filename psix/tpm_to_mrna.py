@@ -40,7 +40,7 @@ def transform_cell(cell, remove_outliers, bw_method, adjust_high):
     cell_filtered = cell.loc[cell > 0.1]
     molecules_in_cell = get_transcripts_per_cell(cell_filtered, remove_outliers, bw_method, adjust_high)
     cell_remove_zeros = cell * (cell > 0.1)
-    normalize_lysate = molecules_in_cell / 10**5.5
+    normalize_lysate = molecules_in_cell / 10**6
     cell_transcript_counts = cell_remove_zeros * normalize_lysate
     
     return cell_transcript_counts

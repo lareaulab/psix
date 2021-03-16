@@ -232,7 +232,12 @@ class Psix:
             if not (tpm_exists and constitutive_sj_exists):
                 raise Exception('TPM file and constitutive junctions are required when processing smart-seq data')
 
+            print('mariados')
             mrna = tpm2mrna(tpm_file)
+            ##### New thing
+            cells = psi.columns & mrna.columns
+            mrna = mrna[cells]
+            psi = psi[cells]
             mrna_per_event = get_mrna_per_event(mrna, psi, reads, constitutive_sj_file)
 
         if len(self.adata.obs) > 0:
