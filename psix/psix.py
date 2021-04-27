@@ -4,7 +4,7 @@ import os
 
 from cell_metric import *
 from model_functions import psix_score, psix_score_light
-from tpm_to_mrna import tpm2mrna
+from tpm_to_mrna import *
 import anndata
 # from anndata import AnnData
 from rnaseq_tools import *
@@ -233,7 +233,8 @@ class Psix:
                 raise Exception('TPM file and constitutive junctions are required when processing smart-seq data')
 
             print('mariados')
-            mrna = tpm2mrna(tpm_file)
+            print('luigi')
+            mrna = tpm_to_mrna2(tpm_file)
             ##### New thing
             cells = psi.columns & mrna.columns
             mrna = mrna[cells]

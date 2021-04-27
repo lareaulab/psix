@@ -36,7 +36,7 @@ def get_transcripts_per_cell(cell, remove_outliers, bw_method, adjust_high):
     return molecules_in_cell
         
 @jit    
-def transform_cell(cell, remove_outliers, bw_method, adjust_high):
+def transform_cell2(cell, remove_outliers, bw_method, adjust_high):
     cell_filtered = cell.loc[cell > 0.1]
     molecules_in_cell = get_transcripts_per_cell(cell_filtered, remove_outliers, bw_method, adjust_high)
     cell_remove_zeros = cell * (cell > 0.1)
@@ -46,7 +46,8 @@ def transform_cell(cell, remove_outliers, bw_method, adjust_high):
     return cell_transcript_counts
 
 
-def tpm2mrna(tpm_file, bw_method='scott', adjust_high = True, remove_outliers=True):
+def tpm_to_mrna2(tpm_file, bw_method='scott', adjust_high = True, remove_outliers=True):
+    print('prueba 2')
     tpm_dataset = pd.read_csv(tpm_file, sep='\t', index_col=0)
     mrna_counts = pd.DataFrame()
     mrna_counts_per_cell = []
@@ -54,7 +55,7 @@ def tpm2mrna(tpm_file, bw_method='scott', adjust_high = True, remove_outliers=Tr
     tpm_dataset_filtered = tpm_dataset.loc[tpm_dataset.max(axis=1) > 0.1]
     
     for cell in tqdm(cells, position=0, leave=True):
-        cell_mrna = transform_cell(tpm_dataset_filtered[cell], remove_outliers, bw_method, adjust_high)
+        cell_mrna = transform_cell2(tpm_dataset_filtered[cell], remove_outliers, bw_method, adjust_high)
         if all([x == 0 for x in cell_mrna]):
             continue
         mrna_counts[cell] = cell_mrna

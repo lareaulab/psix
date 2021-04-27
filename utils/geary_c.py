@@ -77,10 +77,10 @@ def make_mock_C_scores(norm_PSI, Ws, exon_list, total_cells, mock=100000):
             
 #             print(mock_score)
 
-            if mock_score >= 0:
-                C_scores.append(mock_score)
-                exon_out_list.append('mock_'+exon+'_'+str(i))
-                mock_run = False
+#             if mock_score >= 0:
+            C_scores.append(mock_score)
+            exon_out_list.append('mock_'+exon+'_'+str(i))
+            mock_run = False
     return exon_out_list, C_scores
                     
 def get_C(exon_score, W):
@@ -101,6 +101,8 @@ def get_C(exon_score, W):
 # Ahora si el bueno
 
 def get_mock_dict(PSI_tab, norm_PSI, Ws, mock=200):
+    
+    print('token')
 
     total_cells = len(PSI_tab.columns)
 
