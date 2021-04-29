@@ -2,7 +2,12 @@ import numpy as np
 import pandas as pd
 import subprocess as sp
 import os
+import anndata
 from tqdm import tqdm
+from scipy.stats import gaussian_kde
+from numpy import random as r
+from tpm_to_mrna import *
+
 
 def get_mrna_per_event(mrna, psi, reads, constitutive_sj_file):
 
@@ -104,14 +109,6 @@ def get_psi_table(SJ_table_name, minJR=5, minCell=20, drop_duplicates = False, t
     return PSI_table, total_counts
 
 
-import numpy as np
-import pandas as pd
-import subprocess as sp
-import os
-from scipy.stats import gaussian_kde
-from numpy import random as r
-from tqdm import tqdm
-
 def normalize_equation(cell, moda):
     n = np.sum(np.log10(cell) <= moda)
     interval = np.sum(cell.loc[np.log10(cell) <= moda])/np.sum(cell)
@@ -165,3 +162,55 @@ def tpm2mrna(tpm_file, bw_method='scott', adjust_high = True, remove_outliers=Tr
     return mrna_counts
 
 
+def process_rnaseq_files(
+    self,
+    exon_sj_file,
+    constitutive_sj_file = '',
+    tpm_file = '',
+    minJR = 1,
+    minCell = 1,
+    drop_duplicates = False,
+    min_psi = 0.05,
+    min_observed = 0.25,
+    tenX = False
+):
+
+    print('Obtaining psi tables...')
+
+    psi, reads = get_psi_table(exon_sj_file, minJR, minCell, drop_duplicates, tenX=tenX)
+
+    alt_exons = psi.index[np.abs(0.5 - psi.mean(axis=1)) <= (0.5-min_psi)]
+    obs_exons = psi.index[psi.isna().mean(axis=1) <= 1-min_observed]
+    selected_exons = alt_exons & obs_exons
+
+    psi = psi.loc[selected_exons]
+    reads = reads.loc[selected_exons]
+
+    if tenX:
+        mrna_per_event = reads
+    else:
+
+        print('Reading TPM and transforming to mRNA counts...')
+
+        tpm_exists = os.path.isfile(tpm_file)
+        constitutive_sj_exists = os.path.isfile(constitutive_sj_file)
+
+        if not (tpm_exists and constitutive_sj_exists):
+            raise Exception('TPM file and constitutive junctions are required when processing smart-seq data')
+
+        mrna = tpm_to_mrna2(tpm_file)
+        ##### New thing
+        cells = psi.columns & mrna.columns
+        mrna = mrna[cells]
+        psi = psi[cells]
+        mrna_per_event = get_mrna_per_event(mrna, psi, reads, constitutive_sj_file)
+
+    if len(self.adata.obs) > 0:
+        idx = self.adata.obs.index & mrna_per_event.index
+    else:
+        idx = mrna_per_event.index
+
+    self.adata.uns['psi'] = psi.loc[idx].T
+    self.adata.uns['mrna_per_event'] = mrna_per_event.loc[idx].T
+
+    print('Successfully processed RNA-seq data')

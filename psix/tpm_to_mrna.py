@@ -47,7 +47,6 @@ def transform_cell2(cell, remove_outliers, bw_method, adjust_high):
 
 
 def tpm_to_mrna2(tpm_file, bw_method='scott', adjust_high = True, remove_outliers=True):
-    print('prueba 2')
     tpm_dataset = pd.read_csv(tpm_file, sep='\t', index_col=0)
     mrna_counts = pd.DataFrame()
     mrna_counts_per_cell = []

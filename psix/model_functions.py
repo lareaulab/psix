@@ -125,53 +125,53 @@ def psi_observations_scores_vec(
     return psi_scores_vec
     
 
-def psix_score(
-    exon_psi_array, 
-    exon_mrna_array, 
-    cell_metric, 
-    capture_efficiency = 0.1, 
-    randomize = False,  
-    min_probability = 0.01,
-    seed=0
-):
+# def psix_score(
+#     exon_psi_array, 
+#     exon_mrna_array, 
+#     cell_metric, 
+#     capture_efficiency = 0.1, 
+#     randomize = False,  
+#     min_probability = 0.01,
+#     seed=0
+# ):
     
-#     try:
-    cell_list = exon_psi_array.dropna().index
+# #     try:
+#     cell_list = exon_psi_array.dropna().index
 
-    if randomize:
-        np.random.seed(seed)
-        shuffled_cells = shuffle(cell_list)
+#     if randomize:
+#         np.random.seed(seed)
+#         shuffled_cells = shuffle(cell_list)
 
-    else:
-        shuffled_cells = cell_list
+#     else:
+#         shuffled_cells = cell_list
 
-    observed_psi_array = np.array(exon_psi_array.loc[shuffled_cells])
+#     observed_psi_array = np.array(exon_psi_array.loc[shuffled_cells])
 
-    mrna_array = np.array([1 if ((x > 0.1) and (x <= 1)) else x for x in exon_mrna_array.loc[shuffled_cells]])
-    mrna_array = np.round(mrna_array).astype(int)
+#     mrna_array = np.array([1 if ((x > 0.1) and (x <= 1)) else x for x in exon_mrna_array.loc[shuffled_cells]])
+#     mrna_array = np.round(mrna_array).astype(int)
 
-    total_cells = round((len(cell_list) - np.sum(mrna_array == 0)))
+#     total_cells = round((len(cell_list) - np.sum(mrna_array == 0)))
 
-    if total_cells <= 0:
-        return np.nan
+#     if total_cells <= 0:
+#         return np.nan
 
-    neighborhood_psi_array = np.array(
-    np.array(pd.DataFrame(
-        np.array(cell_metric.loc[cell_list, cell_list])*observed_psi_array).sum(axis=1)
-    )/np.array(cell_metric.loc[cell_list, cell_list].sum(axis=1)))
+#     neighborhood_psi_array = np.array(
+#     np.array(pd.DataFrame(
+#         np.array(cell_metric.loc[cell_list, cell_list])*observed_psi_array).sum(axis=1)
+#     )/np.array(cell_metric.loc[cell_list, cell_list].sum(axis=1)))
 
-    global_psi = np.mean(observed_psi_array)
+#     global_psi = np.mean(observed_psi_array)
 
-    L_vec = psi_observations_scores_vec(
-        observed_psi_array, 
-        neighborhood_psi_array, 
-        global_psi, 
-        mrna_array, 
-        capture_efficiency, 
-        min_probability
-    )
+#     L_vec = psi_observations_scores_vec(
+#         observed_psi_array, 
+#         neighborhood_psi_array, 
+#         global_psi, 
+#         mrna_array, 
+#         capture_efficiency, 
+#         min_probability
+#     )
 
-    return np.sum(L_vec)/total_cells
+#     return np.sum(L_vec)/total_cells
 
 
     
@@ -230,7 +230,7 @@ def permute_array_fix_nan(idx_array):
     return np.array(new_idx)
         
     
-def psix_score_light(
+def psix_score(
     exon_psi_array, 
     exon_mrna_array, 
     cell_metric, 
