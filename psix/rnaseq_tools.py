@@ -175,7 +175,7 @@ def process_rnaseq_files(
     tenX = False
 ):
 
-    print('Obtaining psi tables...')
+    print('Obtaining PSI tables...')
 
     psi, reads = get_psi_table(exon_sj_file, minJR, minCell, drop_duplicates, tenX=tenX)
 

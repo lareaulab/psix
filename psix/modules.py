@@ -25,6 +25,131 @@ from scipy.cluster.hierarchy import linkage
 from scipy.stats import norm
 from statsmodels.stats.multitest import multipletests
 
+
+# def local_correlation_plot(local_correlation_z, modules, linkage,
+#                            z_cmap='RdBu_r', yticklabels=False,
+#                            plot_name = ''):
+    
+    
+#     ii = leaves_list(linkage)
+
+#     mod_reordered = modules.iloc[ii]
+
+#     mod_map = {}
+#     y = np.arange(modules.size)
+
+#     for x in mod_reordered.unique():
+#         if x == -1:
+#             continue
+
+#         mod_map[x] = y[mod_reordered == x].mean()
+    
+#     mod_relabeled = pd.DataFrame()
+#     mod_idx = []
+#     mod_labels = []
+#     i = 1
+#     for mod, mod_y in mod_map.items():
+# #         plt.text(-.25, y=mod_y, s="Mod {}".format(str(i)),
+# #                  horizontalalignment='right',
+# #                  verticalalignment='center', fontsize=fontsize)
+        
+#         exon_list = list(mod_reordered.loc[mod_reordered == int(mod)].index)
+#         mod_idx.extend(exon_list)
+#         mod_labels.extend([i]*len(exon_list))
+#         i += 1
+        
+#     exon_list = list(mod_reordered.loc[mod_reordered == -1].index)
+#     mod_idx.extend(exon_list)
+#     mod_labels.extend([i]*len(exon_list))
+        
+#     mod_relabeled['Modules'] = mod_labels
+#     mod_relabeled.index = mod_idx
+        
+    
+#     row_colors = None
+#     colors = list(plt.get_cmap('tab10').colors)
+#     module_colors = {i: colors[(i-1) % len(colors)] for i in mod_relabeled.Modules.unique()}
+#     module_colors[-1] = '#ffffff'
+
+#     row_colors1 = pd.Series(
+#         [module_colors[i] for i in mod_relabeled.Modules],
+#         index=local_correlation_z.index,
+#     )
+
+#     row_colors = pd.DataFrame({
+#         "Modules": row_colors1,
+#     })
+    
+    
+#     if plot_name != '':
+#         figsize = (8/2.4, 9/2.4)
+#         fontsize = 8
+        
+#     else:
+#         figsize = (8, 9)
+#         fontsize=20
+    
+#     cm = sns.clustermap(
+#         local_correlation_z,
+#         row_linkage=linkage,
+#         col_linkage=linkage,
+#         vmin=-1,
+#         vmax=1,
+#         cmap=z_cmap,
+#         xticklabels=False,
+#         yticklabels=yticklabels,
+#         row_colors=row_colors,
+#         rasterized=True,
+#         figsize=figsize
+#     )
+
+#     fig = plt.gcf()
+#     plt.sca(cm.ax_heatmap)
+#     plt.ylabel("")
+#     plt.xlabel("")
+
+#     cm.ax_row_dendrogram.remove()
+
+#     # Add 'module X' annotations
+    
+#     plt.sca(cm.ax_row_colors)
+    
+#     i = 1
+#     for mod, mod_y in mod_map.items():
+#         plt.text(-.25, y=mod_y, s="Mod {}".format(str(i)),
+#                  horizontalalignment='right',
+#                  verticalalignment='center', fontsize=fontsize)
+#         i += 1
+        
+    
+#     plt.xticks([])
+
+#     # Find the colorbar 'child' and modify
+#     min_delta = 1e99
+#     min_aa = None
+#     for aa in fig.get_children():
+#         try:
+#             bbox = aa.get_position()
+#             delta = (0-bbox.xmin-2)**2 + (1-bbox.ymax)**2
+#             if delta < min_delta:
+#                 delta = min_delta
+#                 min_aa = aa
+#         except AttributeError:
+#             pass
+
+#     min_aa.set_ylabel('Pearson r', fontsize=fontsize)
+#     min_aa.yaxis.set_label_position("left")
+    
+#     min_aa.tick_params(axis='y',labelsize=fontsize, length=0, direction="in", pad=0)
+    
+#     if plot_name == '':
+#         plt.show()
+#     else:
+#         plt.savefig(plot_name, bbox_inches='tight', res=20000, dpi =2000)
+    
+#     return mod_relabeled#mod_reordered
+
+
 def local_correlation_plot(local_correlation_z, modules, linkage,
                            z_cmap='RdBu_r', yticklabels=False,
                            plot_name = ''):
@@ -44,12 +169,12 @@ def local_correlation_plot(local_correlation_z, modules, linkage,
     })
     
     
-    if plot_name == '':
+    if plot_name != '':
         figsize = (8/2.4, 9/2.4)
         fontsize = 8
         
     else:
-        fontsize = (8, 9)
+        figsize = (8, 9)
         fontsize=20
     
     cm = sns.clustermap(
@@ -88,10 +213,33 @@ def local_correlation_plot(local_correlation_z, modules, linkage,
         mod_map[x] = y[mod_reordered == x].mean()
 
     plt.sca(cm.ax_row_colors)
+    
+    mod_relabeled = pd.DataFrame()
+    mod_idx = []
+    mod_labels = []
+    i = 1
     for mod, mod_y in mod_map.items():
-        plt.text(-.25, y=mod_y, s="Mod {}".format(mod),
+        plt.text(-.25, y=mod_y, s="Mod {}".format(str(i)),
                  horizontalalignment='right',
                  verticalalignment='center', fontsize=fontsize)
+        
+        exon_list = list(mod_reordered.loc[mod_reordered == int(mod)].index)
+        mod_idx.extend(exon_list)
+        mod_labels.extend([i]*len(exon_list))
+        i += 1
+        
+    exon_list = list(mod_reordered.loc[mod_reordered == -1].index)
+    mod_idx.extend(exon_list)
+    mod_labels.extend([i]*len(exon_list))
+        
+    mod_relabeled['Modules'] = mod_labels
+    mod_relabeled.index = mod_idx
+        
+                 
+#         plt.text(-.25, y=mod_y, s="Mod {}".format(mod),
+#                  horizontalalignment='right',
+#                  verticalalignment='center', fontsize=fontsize)
+        
     plt.xticks([])
 
     # Find the colorbar 'child' and modify
@@ -117,7 +265,7 @@ def local_correlation_plot(local_correlation_z, modules, linkage,
     else:
         plt.savefig(plot_name, bbox_inches='tight', res=20000, dpi =2000)
     
-    return mod_reordered
+    return mod_relabeled#mod_reordered
 
 
 def sort_linkage(Z, node_index, node_values):

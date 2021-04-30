@@ -389,7 +389,7 @@ class Psix:
                                  plot_name = '',
                                 ):
         
-        local_correlation_plot(self.exon_correlation, 
+        return local_correlation_plot(self.exon_correlation, 
                                self.modules, self.linkage,
                                z_cmap=z_cmap, yticklabels=yticklabels,
                                plot_name = plot_name
