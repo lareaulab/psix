@@ -7,9 +7,7 @@ import gzip
 import scipy.io
 
 def read_solo_features(solo_features_path):
-    
-    print('Reading solo splice junctions')
-    
+        
     features_solo = pd.read_csv(solo_features_path, sep='\t',
                            names = ['chrom', 'start', 'end', 'strand', 'motif', 'annot', 'unique', 'multimap', 'overlap'])
     intron_list = []
@@ -26,12 +24,10 @@ def read_solo_features(solo_features_path):
     return intron_list
 
 def read_solo_barcodes(solo_barcodes_path):
-    print('getting barcodes')
     barcodes = [row[0] for row in csv.reader(gzip.open(solo_barcodes_path, 'rt'), delimiter="\t")]
     return barcodes
 
 def read_solo_matrix(solo_matrix_path, intron_list, barcodes, cell_list):
-    print('getting matrix')
     matrix = pd.DataFrame.sparse.from_spmatrix(scipy.io.mmread(solo_matrix_path),
                                                index=intron_list, columns=barcodes)
     
@@ -66,7 +62,6 @@ def process_solo(solo_dir, intron_tab, cell_list):
 
 
 def get_psi_table_solo(intron_mtx_exons, minJR=5, minCell=20, tenX = False):
-    print('getting psi table')
     '''
     
     This functions splits this table into one individual for

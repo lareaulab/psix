@@ -19,7 +19,7 @@ def get_mrna_per_event(mrna, psi, reads, constitutive_sj):#constitutive_sj_file)
     mrna_per_junction = mrna.loc[[x.split('_')[0] for x in obs_junctions]]
     mrna_per_junction.index = obs_junctions
 
-    reads_per_junction = (constitutive_sj.loc[obs_junctions] / mrna_per_junction).replace([np.inf, -np.inf], np.nan)
+    reads_per_junction = (constitutive_sj.loc[obs_junctions] / mrna_per_junction).sparse.to_dense().replace([np.inf, -np.inf], np.nan)
     SJ_mean = reads_per_junction.mean()
     
     mrna_events = (reads/(SJ_mean * (1+psi)))
@@ -231,6 +231,7 @@ def process_rnaseq_solo(
     tenX = False
 ):
 
+    print('Processing STARsolo output. This might take a few minutes...')
     intron_mtx_CI, intron_mtx_exons = process_solo(solo_dir, intron_tab, cell_list)
     
     print('Obtaining PSI tables...')
