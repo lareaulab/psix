@@ -169,7 +169,10 @@ class Psix:
         
     def process_rnaseq(
         self,
-        exon_sj_file,
+        solo_dir = '',
+        intron_tab = '',
+        cell_list = [],
+        exon_sj_file = '',
         constitutive_sj_file = '',
         tpm_file = '',
         minJR = 1,
@@ -177,7 +180,7 @@ class Psix:
         drop_duplicates = False,
         min_psi = 0.05,
         min_observed = 0.25,
-        tenX = False
+        tenX = False,
     ):
         process_rnaseq_files(
             self,
@@ -191,6 +194,33 @@ class Psix:
             min_observed = min_observed,
             tenX = tenX
         )
+        
+        
+    def process_rnaseq_solo(
+        self,
+        solo_dir,
+        intron_tab,
+        cell_list = [],
+        tpm_file = '',
+        minJR = 1,
+        minCell = 1,
+        min_psi = 0.05,
+        min_observed = 0.25,
+        tenX = False
+    ):
+        process_rnaseq_solo(
+                self,
+                solo_dir,
+                intron_tab,
+                cell_list,
+                tpm_file = tpm_file,
+                minJR = minJR,
+                minCell = minCell,
+                min_psi = min_psi,
+                min_observed = min_observed,
+                tenX = tenX
+            )
+        
         
 
     def compute_pvalues(self):

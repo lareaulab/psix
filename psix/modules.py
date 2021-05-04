@@ -219,18 +219,20 @@ def local_correlation_plot(local_correlation_z, modules, linkage,
     mod_labels = []
     i = 1
     for mod, mod_y in mod_map.items():
-        plt.text(-.25, y=mod_y, s="Mod {}".format(str(i)),
-                 horizontalalignment='right',
-                 verticalalignment='center', fontsize=fontsize)
         
-        exon_list = list(mod_reordered.loc[mod_reordered == int(mod)].index)
-        mod_idx.extend(exon_list)
-        mod_labels.extend([i]*len(exon_list))
-        i += 1
+        if int(mod) != -1:
+            plt.text(-.25, y=mod_y, s="Mod {}".format(str(i)),
+                     horizontalalignment='right',
+                     verticalalignment='center', fontsize=fontsize)
+
+            exon_list = list(mod_reordered.loc[mod_reordered == int(mod)].index)
+            mod_idx.extend(exon_list)
+            mod_labels.extend([i]*len(exon_list))
+            i += 1
         
     exon_list = list(mod_reordered.loc[mod_reordered == -1].index)
     mod_idx.extend(exon_list)
-    mod_labels.extend([i]*len(exon_list))
+    mod_labels.extend([-1]*len(exon_list))
         
     mod_relabeled['Modules'] = mod_labels
     mod_relabeled.index = mod_idx
