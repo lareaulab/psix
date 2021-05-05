@@ -10,7 +10,7 @@ from tpm_to_mrna import *
 from solo_tools import *
 
 
-def get_mrna_per_event(mrna, psi, reads, constitutive_sj):#constitutive_sj_file):
+def get_mrna_per_event(mrna, psi, reads, constitutive_sj, solo):#constitutive_sj_file):
 
     #constitutive_sj = pd.read_csv(constitutive_sj_file, sep='\t', index_col=0)
     obs_mrna = mrna.index[mrna.median(axis=1) >= 1]
@@ -19,7 +19,11 @@ def get_mrna_per_event(mrna, psi, reads, constitutive_sj):#constitutive_sj_file)
     mrna_per_junction = mrna.loc[[x.split('_')[0] for x in obs_junctions]]
     mrna_per_junction.index = obs_junctions
 
-    reads_per_junction = (constitutive_sj.loc[obs_junctions] / mrna_per_junction).sparse.to_dense().replace([np.inf, -np.inf], np.nan)
+    
+    if solo:
+        reads_per_junction = (constitutive_sj.loc[obs_junctions] / mrna_per_junction).sparse.to_dense().replace([np.inf, -np.inf], np.nan)
+    else:
+        reads_per_junction = (constitutive_sj.loc[obs_junctions] / mrna_per_junction).replace([np.inf, -np.inf], np.nan)
     SJ_mean = reads_per_junction.mean()
     
     mrna_events = (reads/(SJ_mean * (1+psi)))
@@ -204,7 +208,7 @@ def process_rnaseq_files(
         psi = psi[cells]
         
         constitutive_sj = pd.read_csv(constitutive_sj_file, sep='\t', index_col=0)
-        mrna_per_event = get_mrna_per_event(mrna, psi, reads, constitutive_sj) #constitutive_sj_file)
+        mrna_per_event = get_mrna_per_event(mrna, psi, reads, constitutive_sj, solo=False) #constitutive_sj_file)
 
     if len(self.adata.obs) > 0:
         idx = self.adata.obs.index & mrna_per_event.index
@@ -262,7 +266,7 @@ def process_rnaseq_solo(
         mrna = mrna[cells]
         psi = psi[cells]
         
-        mrna_per_event = get_mrna_per_event(mrna, psi, reads, intron_mtx_CI) #constitutive_sj_file)
+        mrna_per_event = get_mrna_per_event(mrna, psi, reads, intron_mtx_CI, solo=True) #constitutive_sj_file)
 
     if len(self.adata.obs) > 0:
         idx = self.adata.obs.index & mrna_per_event.index
