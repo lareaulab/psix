@@ -137,4 +137,58 @@ def get_psi_table_solo(intron_mtx_exons, minJR=5, minCell=20, tenX = False):
     return PSI_table, total_counts
 
     
+def process_rnaseq_solo(
+    self,
+    solo_dir,
+    intron_tab,
+    cell_list = [],
+    tpm_file = '',
+    minJR = 1,
+    minCell = 1,
+    min_psi = 0.05,
+    min_observed = 0.25,
+    tenX = False
+):
+
+    print('Processing STARsolo output. This might take a few minutes...')
+    intron_mtx_CI, intron_mtx_exons = process_solo(solo_dir, intron_tab, cell_list)
     
+    print('Obtaining PSI tables...')
+
+    psi, reads = get_psi_table_solo(intron_mtx_exons, minJR, minCell, tenX=tenX)
+
+    alt_exons = psi.index[np.abs(0.5 - psi.mean(axis=1)) <= (0.5-min_psi)]
+    obs_exons = psi.index[psi.isna().mean(axis=1) <= 1-min_observed]
+    selected_exons = alt_exons & obs_exons
+
+    psi = psi.loc[selected_exons]
+    reads = reads.loc[selected_exons]
+
+    if tenX:
+        mrna_per_event = reads
+    else:
+
+        print('Reading TPM and transforming to mRNA counts...')
+
+        tpm_exists = os.path.isfile(tpm_file)
+
+        if not tpm_exists:
+            raise Exception('TPM file is required when processing smart-seq data')
+
+        mrna = tpm_to_mrna2(tpm_file)
+        ##### New thing
+        cells = psi.columns & mrna.columns
+        mrna = mrna[cells]
+        psi = psi[cells]
+        
+        mrna_per_event = get_mrna_per_event(mrna, psi, reads, intron_mtx_CI, solo=True) #constitutive_sj_file)
+
+    if len(self.adata.obs) > 0:
+        idx = self.adata.obs.index & mrna_per_event.index
+    else:
+        idx = mrna_per_event.index
+
+    self.adata.uns['psi'] = psi.loc[idx].T
+    self.adata.uns['mrna_per_event'] = mrna_per_event.loc[idx].T
+
+    print('Successfully processed RNA-seq data')

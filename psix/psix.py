@@ -10,6 +10,7 @@ import anndata
 # from anndata import AnnData
 from rnaseq_tools import *
 from turbo_tools import *
+from solo_tools import *
 from modules import local_correlation_plot, compute_modules_function
 
 from statsmodels.stats.multitest import multipletests
