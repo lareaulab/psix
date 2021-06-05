@@ -3,11 +3,9 @@ import pandas as pd
 import os
 
 from cell_metric import *
-# from score_functions import *
 from model_functions import psix_score
 from tpm_to_mrna import *
 import anndata
-# from anndata import AnnData
 from rnaseq_tools import *
 from turbo_tools import *
 from solo_tools import *
@@ -36,18 +34,64 @@ warnings.filterwarnings("ignore")
 
 class Psix:
     
-    def __init__(
-        self,
-        reads_file = ''
-    ):
+    def __init__(self):
         self.adata = anndata.AnnData()
         
-        if os.path.isfile(reads_file):
-            self.adata = anndata.read_csv(reads_file, delimiter='\t', first_column_names=True).T
-            
-    def get_cell_metric(self, latent, n_neighbors = 100, weight_metric=True):
+    def process_rnaseq(
+        self,
+        solo_dir = '',
+        intron_tab = '',
+        cell_list = [],
+        sj_file = '',
+        tpm_file = '',
+        minJR = 1,
+        minCell = 1,
+        drop_duplicates = False,
+        min_psi = 0.05,
+        min_observed = 0.25,
+        tenX = False,
+    ):
+        process_rnaseq_files(
+            self,
+            sj_file = sj_file,
+            tpm_file = tpm_file,
+            minJR = minJR,
+            minCell = minCell,
+            drop_duplicates = drop_duplicates,
+            min_psi = min_psi,
+            min_observed = min_observed,
+            tenX = tenX
+        )
         
-        #####################
+    def process_rnaseq_solo(
+        self,
+        solo_dir,
+        intron_tab,
+        cell_list = [],
+        tpm_file = '',
+        minJR = 1,
+        minCell = 1,
+        min_psi = 0.05,
+        min_observed = 0.25,
+        tenX = False
+    ):
+        process_rnaseq_solo(
+                self,
+                solo_dir,
+                intron_tab,
+                cell_list,
+                tpm_file = tpm_file,
+                minJR = minJR,
+                minCell = minCell,
+                min_psi = min_psi,
+                min_observed = min_observed,
+                tenX = tenX
+            )
+        
+        
+    
+        
+    def get_cell_metric(self, latent, n_neighbors = 100, weight_metric=True):
         
         if type(latent) == str:
             self.latent = pd.read_csv(latent, sep='\t', index_col=0)
@@ -165,63 +209,12 @@ class Psix:
                                            seed=self.seed,
                                            turbo = self.turbo
                                )
-        
             
         
-    def process_rnaseq(
-        self,
-        solo_dir = '',
-        intron_tab = '',
-        cell_list = [],
-        exon_sj_file = '',
-        constitutive_sj_file = '',
-        tpm_file = '',
-        minJR = 1,
-        minCell = 1,
-        drop_duplicates = False,
-        min_psi = 0.05,
-        min_observed = 0.25,
-        tenX = False,
-    ):
-        process_rnaseq_files(
-            self,
-            exon_sj_file,
-            constitutive_sj_file = constitutive_sj_file,
-            tpm_file = tpm_file,
-            minJR = minJR,
-            minCell = minCell,
-            drop_duplicates = drop_duplicates,
-            min_psi = min_psi,
-            min_observed = min_observed,
-            tenX = tenX
-        )
+    
         
         
-    def process_rnaseq_solo(
-        self,
-        solo_dir,
-        intron_tab,
-        cell_list = [],
-        tpm_file = '',
-        minJR = 1,
-        minCell = 1,
-        min_psi = 0.05,
-        min_observed = 0.25,
-        tenX = False
-    ):
-        process_rnaseq_solo(
-                self,
-                solo_dir,
-                intron_tab,
-                cell_list,
-                tpm_file = tpm_file,
-                minJR = minJR,
-                minCell = minCell,
-                min_psi = min_psi,
-                min_observed = min_observed,
-                tenX = tenX
-            )
-        
+    
         
 
     def compute_pvalues(self):
