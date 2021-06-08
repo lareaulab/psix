@@ -4,7 +4,8 @@ import os
 
 from cell_metric import *
 from model_functions import psix_score
-from tpm_to_mrna import *
+from mrna_census import *
+# from tpm_to_mrna import *
 import anndata
 from rnaseq_tools import *
 
@@ -57,6 +58,7 @@ class Psix:
         sj_dir,
         intron_file,
         tpm_file,
+        cell_list = [],
         minJR = 1,
         minCell = 1,
         min_psi = 0.05,
@@ -73,7 +75,8 @@ class Psix:
     #     else:
         sj_file = process_SJ_dir(sj_dir,
                                  intron_file,
-                                 save_files_in = save_files_in
+                                 save_files_in = save_files_in,
+                                 cell_list = cell_list
                                 )
 
         print('Obtaining PSI tables...')
@@ -99,7 +102,9 @@ class Psix:
     #         if not (tpm_exists and constitutive_sj_exists):
     #             raise Exception('TPM file and constitutive junctions are required when processing smart-seq data')
 
-            mrna = tpm_to_mrna2(tpm_file)
+            if len(cell_list) == 0:
+                cell_list = psi.columns
+            mrna = tpm2mrna(tpm_file, cell_list)
             ##### New thing
             cells = psi.columns & mrna.columns
             mrna = mrna[cells]
@@ -208,12 +213,11 @@ class Psix:
             
     def compute_psix_scores(self,
                             n_jobs=1,
-                           capture_efficiency = 0.1, 
-                                           min_probability = 0.01,
-                                           seed=0,
-                                           pvals_bins=5,
-                                           n_random_exons = 1000,
-                            
+                            capture_efficiency = 0.1, 
+                            min_probability = 0.01,
+                            seed=0,
+                            pvals_bins=5,
+                            n_random_exons = 2000,
                             latent='latent', 
                             n_neighbors = 100, 
                             weight_metric=True,

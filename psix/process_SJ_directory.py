@@ -9,10 +9,11 @@ import gzip
 
 def process_SJ_dir(rnaseq_dir,
                        intron_file,
-                       save_files_in = ''
+                       save_files_in = '',
+                       cell_list = []
                       ):
     
-    splice_junction_table = get_SJ_table(rnaseq_dir, intron_file)
+    splice_junction_table = get_SJ_table(rnaseq_dir, intron_file, cell_list = cell_list)
     
     if os.path.isdir(save_files_in):
         splice_junction_table.to_csv(save_files_in + '/splice_junctions.tab.gz', sep='\t', header=True, index=True)
@@ -49,9 +50,13 @@ def process_SJ_table(cell_sj_file, cell):
     return cell_series
 
 
-def get_SJ_table(rnaseq_dir, intron_file):
+def get_SJ_table(rnaseq_dir, intron_file, cell_list):
     
-    cells = sorted([x.split('.')[0] for x in os.listdir(rnaseq_dir)])
+    if len(cell_list) > 0:
+        cells = cell_list
+        
+    else:
+        cells = sorted([x.split('.')[0] for x in os.listdir(rnaseq_dir)])
     
     series_list = []
     
