@@ -7,13 +7,13 @@ from model_functions import psix_score
 from mrna_census import *
 # from tpm_to_mrna import *
 import anndata
-from rnaseq_tools import *
+# from rnaseq_tools import *
 
-from mrna_census import *
-from process_SJ_directory import *
+################# from mrna_census import *
+from junctions2psi import *
 
 from turbo_tools import *
-from solo_tools import *
+from solo2psi import *
 from modules import local_correlation_plot, compute_modules_function
 
 from statsmodels.stats.multitest import multipletests
@@ -53,7 +53,7 @@ class Psix:
             self.adata.uns['mrna_per_event'] = mrna_per_event
             
             
-    def process_rnaseq_files(
+    def junctions2psi(
         self,
         sj_dir,
         intron_file,
@@ -61,74 +61,110 @@ class Psix:
         cell_list = [],
         minJR = 1,
         minCell = 1,
-        min_psi = 0.05,
+        minPsi = 0.05,
         min_observed = 0.25,
         tenX = False,
+        solo = False,
         save_files_in = ''
-    ):
-
-        print('Collecting splice junctions...')
-
-    #     if os.path.isfile(sj_file):
-    #         sj_file = pd.read_csv(sj_file, sep='\t', index_col=0)
-
-    #     else:
-        sj_file = process_SJ_dir(sj_dir,
-                                 intron_file,
-                                 save_files_in = save_files_in,
-                                 cell_list = cell_list
-                                )
-
-        print('Obtaining PSI tables...')
-
-        psi, reads, constitutive_sj = get_psi_table(sj_file, minJR, minCell, tenX=tenX)
-
-        alt_exons = psi.index[np.abs(0.5 - psi.mean(axis=1)) <= (0.5-min_psi)]
-        obs_exons = psi.index[psi.isna().mean(axis=1) <= 1-min_observed]
-        selected_exons = alt_exons & obs_exons
-
-        psi = psi.loc[selected_exons]
-        reads = reads.loc[selected_exons]
-
-        if tenX:
-            mrna_per_event = reads
+       ):
+        
+        if (len(save_files_in) > 0) and not os.path.isdir(save_files_in):
+            os.mkdir(save_files_in)
+            
+        if solo:
+            solo_to_psi(
+                self,
+                solo_dir = sj_dir,
+                intron_file = intron_file,
+                tpm_file = tpm_file,
+                cell_list = cell_list,
+                minJR = minJR,
+                minCell = minCell,
+                minPsi = minPsi,
+                min_observed = min_observed,
+                tenX = tenX
+               )
+            
         else:
+            junctions_dir_to_psi(
+                self,
+                sj_dir = sj_dir,
+                intron_file = intron_file,
+                tpm_file = tpm_file,
+                cell_list = cell_list,
+                minJR = minJR,
+                minCell = minCell,
+                minPsi = minPsi,
+                min_observed = min_observed,
+                tenX = tenX,
+                save_files_in = save_files_in
+               )
+        
+#         if (len(save_files_in) > 0) and not os.path.isdir(save_files_in):
+#             os.mkdir(save_files_in)
 
-            print('Reading TPM and transforming to mRNA counts...')
+#         print('Collecting splice junctions...')
 
-            tpm_exists = os.path.isfile(tpm_file)
-    #         constitutive_sj_exists = os.path.isfile(constitutive_sj_file)
+#     #     if os.path.isfile(sj_file):
+#     #         sj_file = pd.read_csv(sj_file, sep='\t', index_col=0)
 
-    #         if not (tpm_exists and constitutive_sj_exists):
-    #             raise Exception('TPM file and constitutive junctions are required when processing smart-seq data')
+#     #     else:
+#         sj_file = process_SJ_dir(sj_dir,
+#                                  intron_file,
+#                                  save_files_in = save_files_in,
+#                                  cell_list = cell_list
+#                                 )
 
-            if len(cell_list) == 0:
-                cell_list = psi.columns
-            mrna = tpm2mrna(tpm_file, cell_list)
-            ##### New thing
-            cells = psi.columns & mrna.columns
-            mrna = mrna[cells]
-            psi = psi[cells]
-            constitutive_sj = constitutive_sj[cells]
+#         print('Obtaining PSI tables...')
 
-    #         constitutive_sj = pd.read_csv(constitutive_sj_file, sep='\t', index_col=0)
-            mrna_per_event = get_mrna_per_event(mrna, psi, reads, constitutive_sj, solo=False) #constitutive_sj_file)
+#         psi, reads, constitutive_sj = get_psi_table(sj_file, minJR, minCell, tenX=tenX)
 
-        if len(self.adata.obs) > 0:
-            idx = self.adata.obs.index & mrna_per_event.index
-        else:
-            idx = mrna_per_event.index
+#         alt_exons = psi.index[np.abs(0.5 - psi.mean(axis=1)) <= (0.5-minPsi)]
+#         obs_exons = psi.index[psi.isna().mean(axis=1) <= 1-min_observed]
+#         selected_exons = alt_exons & obs_exons
 
-        if os.path.isdir(save_files_in):
-            psi.loc[idx].to_csv(save_files_in + '/psi.tab.gz', sep='\t', 
-                       index=True, header=True)
-            mrna_per_event.loc[idx].to_csv(save_files_in + '/mrna.tab.gz', sep='\t', 
-                       index=True, header=True)
+#         psi = psi.loc[selected_exons]
+#         reads = reads.loc[selected_exons]
 
-        self.adata.uns['psi'] = psi.loc[idx].T
-        self.adata.uns['mrna_per_event'] = mrna_per_event.loc[idx].T
+#         if tenX:
+#             mrna_per_event = reads
+#         else:
 
-        print('Successfully processed RNA-seq data')
+#             print('Reading TPM and transforming to mRNA counts...')
+
+#             tpm_exists = os.path.isfile(tpm_file)
+#     #         constitutive_sj_exists = os.path.isfile(constitutive_sj_file)
+
+#     #         if not (tpm_exists and constitutive_sj_exists):
+#     #             raise Exception('TPM file and constitutive junctions are required when processing smart-seq data')
+
+#             if len(cell_list) == 0:
+#                 cell_list = psi.columns
+#             mrna = tpm2mrna(tpm_file, cell_list)
+#             ##### New thing
+#             cells = psi.columns & mrna.columns
+#             mrna = mrna[cells]
+#             psi = psi[cells]
+#             constitutive_sj = constitutive_sj[cells]
+
+#     #         constitutive_sj = pd.read_csv(constitutive_sj_file, sep='\t', index_col=0)
+#             mrna_per_event = get_mrna_per_event(mrna, psi, reads, constitutive_sj, solo=False) #constitutive_sj_file)
+
+#         if len(self.adata.obs) > 0:
+#             idx = self.adata.obs.index & mrna_per_event.index
+#         else:
+#             idx = mrna_per_event.index
+
+#         if os.path.isdir(save_files_in):
+#             psi.loc[idx].to_csv(save_files_in + '/psi.tab.gz', sep='\t', 
+#                        index=True, header=True)
+#             mrna_per_event.loc[idx].to_csv(save_files_in + '/mrna.tab.gz', sep='\t', 
+#                        index=True, header=True)
+
+#         self.adata.uns['psi'] = psi.loc[idx].T
+#         self.adata.uns['mrna_per_event'] = mrna_per_event.loc[idx].T
+
+#         print('Successfully processed RNA-seq data')
 
         
 #     def process_rnaseq(
@@ -141,7 +177,7 @@ class Psix:
 #         minJR = 1,
 #         minCell = 1,
 #         drop_duplicates = False,
-#         min_psi = 0.05,
+#         minPsi = 0.05,
 #         min_observed = 0.25,
 #         tenX = False,
 #     ):
@@ -152,36 +188,91 @@ class Psix:
 #             minJR = minJR,
 #             minCell = minCell,
 #             drop_duplicates = drop_duplicates,
-#             min_psi = min_psi,
+#             minPsi = minPsi,
 #             min_observed = min_observed,
 #             tenX = tenX
 #         )
         
-    def process_rnaseq_solo(
-        self,
-        solo_dir,
-        intron_tab,
-        cell_list = [],
-        tpm_file = '',
-        minJR = 1,
-        minCell = 1,
-        min_psi = 0.05,
-        min_observed = 0.25,
-        tenX = False
-    ):
-        process_rnaseq_solo(
-                self,
-                solo_dir,
-                intron_tab,
-                cell_list,
-                tpm_file = tpm_file,
-                minJR = minJR,
-                minCell = minCell,
-                min_psi = min_psi,
-                min_observed = min_observed,
-                tenX = tenX
-            )
+#     def process_rnaseq_solo(
+#         self,
+#         solo_dir,
+#         intron_tab,
+#         cell_list = [],
+#         tpm_file = '',
+#         minJR = 1,
+#         minCell = 1,
+#         minPsi = 0.05,
+#         min_observed = 0.25,
+#         tenX = False
+#     ):
+#         process_rnaseq_solo(
+#                 self,
+#                 solo_dir,
+#                 intron_tab,
+#                 cell_list,
+#                 tpm_file = tpm_file,
+#                 minJR = minJR,
+#                 minCell = minCell,
+#                 minPsi = minPsi,
+#                 min_observed = min_observed,
+#                 tenX = tenX
+#             )
         
+#     def process_rnaseq_solo(
+#         self,
+#         solo_dir,
+#         intron_tab,
+#         cell_list = [],
+#         tpm_file = '',
+#         minJR = 1,
+#         minCell = 1,
+#         minPsi = 0.05,
+#         min_observed = 0.25,
+#         tenX = False
+#     ):
+
+#         print('Processing STARsolo output. This might take a few minutes...')
+#         intron_mtx_CI, intron_mtx_exons = process_solo(solo_dir, intron_tab, cell_list)
+
+#         print('Obtaining PSI tables...')
+
+#         psi, reads = get_psi_table_solo(intron_mtx_exons, minJR, minCell, tenX=tenX)
+
+#         alt_exons = psi.index[np.abs(0.5 - psi.mean(axis=1)) <= (0.5-minPsi)]
+#         obs_exons = psi.index[psi.isna().mean(axis=1) <= 1-min_observed]
+#         selected_exons = alt_exons & obs_exons
+
+#         psi = psi.loc[selected_exons]
+#         reads = reads.loc[selected_exons]
+
+#         if tenX:
+#             mrna_per_event = reads
+#         else:
+
+#             print('Reading TPM and transforming to mRNA counts...')
+
+#             tpm_exists = os.path.isfile(tpm_file)
+
+#             if not tpm_exists:
+#                 raise Exception('TPM file is required when processing smart-seq data')
+
+#             mrna = tpm_to_mrna2(tpm_file)
+#             ##### New thing
+#             cells = psi.columns & mrna.columns
+#             mrna = mrna[cells]
+#             psi = psi[cells]
+
+#             mrna_per_event = get_mrna_per_event(mrna, psi, reads, intron_mtx_CI, solo=True) #constitutive_sj_file)
+
+#         if len(self.adata.obs) > 0:
+#             idx = self.adata.obs.index & mrna_per_event.index
+#         else:
+#             idx = mrna_per_event.index
+
+#         self.adata.uns['psi'] = psi.loc[idx].T
+#         self.adata.uns['mrna_per_event'] = mrna_per_event.loc[idx].T
+
+#         print('Successfully processed RNA-seq data')
         
     
         
@@ -224,7 +315,6 @@ class Psix:
                             turbo = False
                            ):
         
-        
         self.capture_efficiency = capture_efficiency
         self.min_probability = min_probability
         self.seed = seed
@@ -243,7 +333,6 @@ class Psix:
             self.get_cell_metric(latent=latent, n_neighbors = n_neighbors, weight_metric=weight_metric)
         
         print('Computing Psix score in ' + str(len(self.adata.uns['psi'].columns)) + ' exons')
-        
             
         exon_list = self.adata.uns['psi'].columns
         
@@ -261,7 +350,6 @@ class Psix:
 
             
         else:
-            
             
             with Pool(
                 processes=self.n_jobs

@@ -4,14 +4,11 @@ import subprocess as sp
 import os
 from tqdm import tqdm
 import gzip
+from mrna_census import *
 
 
 
-def process_SJ_dir(rnaseq_dir,
-                       intron_file,
-                       save_files_in = '',
-                       cell_list = []
-                      ):
+def process_SJ_dir(rnaseq_dir, intron_file, save_files_in = '', cell_list = []):
     
     splice_junction_table = get_SJ_table(rnaseq_dir, intron_file, cell_list = cell_list)
     
@@ -26,24 +23,36 @@ def read_intron_file(intron_file):
     return intron_table[['intron']]
 
 
+def process_SJ_line(line, idx, sj_counts):
+    line = line.decode().rstrip().split('\t')
+
+    if line[3] == '1':
+        strand = '+'
+    elif line[3] == '2':
+        strand = '-'
+    else:
+        return idx, sj_counts
+
+    intron_idx = line[0] + ':' + line[1] + '-' + line[2] + ':' + strand
+    idx.append(intron_idx)
+    sj_counts.append(int(line[6]))
+    
+    return idx, sj_counts
+
+
 def process_SJ_table(cell_sj_file, cell):
     
     idx = []
     sj_counts = []
-    with gzip.open(cell_sj_file, 'rb') as fh:#open(sj_file, 'r') as fh:
-        for line in fh:
-            line = line.decode().rstrip().split('\t')
-            
-            if line[3] == '1':
-                strand = '+'
-            elif line[3] == '2':
-                strand = '-'
-            else:
-                continue
-            
-            intron_idx = line[0] + ':' + line[1] + '-' + line[2] + ':' + strand
-            idx.append(intron_idx)
-            sj_counts.append(int(line[6]))
+    
+    if cell_sj_file[-3:] == '.gz':
+        with gzip.open(cell_sj_file, 'rb') as fh:#open(sj_file, 'r') as fh:
+            for line in fh:
+                idx, sj_counts = process_SJ_line(line, idx, sj_counts)
+    else:
+        with open(sj_file, 'r') as fh:
+            for line in fh:
+                idx, sj_counts = process_SJ_line(line, idx, sj_counts)
             
     cell_series = pd.Series(sj_counts, index=idx, name=cell)
     
@@ -70,7 +79,8 @@ def get_SJ_table(rnaseq_dir, intron_file, cell_list):
     
     intron_table = read_intron_file(intron_file)
     
-    sj_table = pd.merge(intron_table, sj_table, left_on='intron', how='left', right_index=True).fillna(0).drop('intron', axis=1)
+    sj_table = pd.merge(intron_table, sj_table, left_on='intron', 
+                        how='left', right_index=True).fillna(0).drop('intron', axis=1)
     
     return sj_table
 
@@ -109,11 +119,6 @@ def get_psi_table(SJ_counts_table, minJR=1, minCell=1, tenX = False):
     - total_counts (DF) SE + (I1 + I2)
     
     '''
-    
-#     if drop_duplicates:
-#         SJ_counts_table = pd.read_csv(SJ_table_name, sep='\t', index_col=0).drop_duplicates('last')
-#     else:
-#         SJ_counts_table = pd.read_csv(SJ_table_name, sep='\t', index_col=0)
         
     events_i1 = pd.Index([x[:-3] for x in SJ_counts_table.index if '_I1' in x])
     events_i2 = pd.Index([x[:-3] for x in SJ_counts_table.index if '_I2' in x])
@@ -158,3 +163,83 @@ def get_psi_table(SJ_counts_table, minJR=1, minCell=1, tenX = False):
         total_counts = SE_table + I1_table + I2_table
 
     return PSI_table, total_counts, constitutive_sj
+
+
+def junctions_dir_to_psi(
+        self,
+        sj_dir,
+        intron_file,
+        tpm_file,
+        cell_list = [],
+        minJR = 1,
+        minCell = 1,
+        minPsi = 0.05,
+        min_observed = 0.25,
+        tenX = False,
+        save_files_in = ''
+    ):
+        
+    
+
+    print('Collecting splice junctions...', flush=True)
+
+#     if os.path.isfile(sj_file):
+#         sj_file = pd.read_csv(sj_file, sep='\t', index_col=0)
+
+#     else:
+    sj_file = process_SJ_dir(sj_dir,
+                             intron_file,
+                             save_files_in = save_files_in,
+                             cell_list = cell_list
+                            )
+
+    print('Obtaining PSI tables...')
+
+    psi, reads, constitutive_sj = get_psi_table(sj_file, minJR, minCell, tenX=tenX)
+
+    alt_exons = psi.index[np.abs(0.5 - psi.mean(axis=1)) <= (0.5-minPsi)]
+    obs_exons = psi.index[psi.isna().mean(axis=1) <= 1-min_observed]
+    selected_exons = alt_exons & obs_exons
+
+    psi = psi.loc[selected_exons]
+    reads = reads.loc[selected_exons]
+
+    if tenX:
+        mrna_per_event = reads
+    else:
+
+        print('Reading TPM and transforming to mRNA counts...')
+
+        tpm_exists = os.path.isfile(tpm_file)
+#         constitutive_sj_exists = os.path.isfile(constitutive_sj_file)
+
+#         if not (tpm_exists and constitutive_sj_exists):
+#             raise Exception('TPM file and constitutive junctions are required when processing smart-seq data')
+
+        if len(cell_list) == 0:
+            cell_list = psi.columns
+        mrna = tpm2mrna(tpm_file, cell_list)
+        ##### New thing
+        cells = psi.columns & mrna.columns
+        mrna = mrna[cells]
+        psi = psi[cells]
+        constitutive_sj = constitutive_sj[cells]
+
+#         constitutive_sj = pd.read_csv(constitutive_sj_file, sep='\t', index_col=0)
+        mrna_per_event = get_mrna_per_event(mrna, psi, reads, constitutive_sj, solo=False) #constitutive_sj_file)
+
+    if len(self.adata.obs) > 0:
+        idx = self.adata.obs.index & mrna_per_event.index
+    else:
+        idx = mrna_per_event.index
+
+    if os.path.isdir(save_files_in):
+        psi.loc[idx].to_csv(save_files_in + '/psi.tab.gz', sep='\t', 
+                   index=True, header=True)
+        mrna_per_event.loc[idx].to_csv(save_files_in + '/mrna.tab.gz', sep='\t', 
+                   index=True, header=True)
+
+    self.adata.uns['psi'] = psi.loc[idx].T
+    self.adata.uns['mrna_per_event'] = mrna_per_event.loc[idx].T
+
+    print('Successfully processed RNA-seq data')
