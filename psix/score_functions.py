@@ -3,19 +3,18 @@ import pandas as pd
 import os
 from statsmodels.stats.multitest import multipletests
 from model_functions import psix_score
-
-
+from functools import partial
 from multiprocessing import Pool
 from tqdm import tqdm
 import itertools  
 
-def compute_psix_scores_func(self,
+def compute_psix_scores(self,
                         n_jobs=1,
                         capture_efficiency = 0.1, 
                         min_probability = 0.01,
                         seed=0,
                         pvals_bins=5,
-                        n_random_exons = 1000,
+                        n_random_exons = 2000,
                         latent='latent', 
                         n_neighbors = 100, 
                         weight_metric=True,
@@ -46,18 +45,13 @@ def compute_psix_scores_func(self,
 
     if self.n_jobs == 1:
 
-        exon_score_array = [psix_score(np.array(self.adata.uns['psi'][exon]), 
-                                       np.array(self.adata.uns['mrna_per_event'][exon]), 
-                                       self.metric, 
-                                       capture_efficiency = self.capture_efficiency, 
-                                       randomize = False,  
-                                       min_probability = self.min_probability,
-                                       seed=0,
-                                       turbo = self.turbo
-                                    ) for exon in tqdm(self.adata.uns['psi'].columns, position=0, leave=True)]
+        exon_score_array = [run_psix_exon(exon, self) for exon in tqdm(self.adata.uns['psi'].columns, position=0, leave=True)]
 
 
     else:
+        
+        psix_score_parallel=partial(run_psix_exon, self=self)
+
 
 
         with Pool(
@@ -68,7 +62,8 @@ def compute_psix_scores_func(self,
 
             exon_score_array = list(
                 tqdm(
-                    pool.imap(self.psix_score_parallel, exon_list, chunksize=chunksize),
+                    pool.imap(psix_score_parallel, exon_list, chunksize=chunksize),
+#                     pool.imap(self.psix_score_parallel, exon_list, chunksize=chunksize),
                     total=len(exon_list), position=0, leave=True
                 )
             )
@@ -82,13 +77,14 @@ def compute_psix_scores_func(self,
     print('Successfully computed Psix score of exons.')
     print('Estimating p-values. This might take a while...')
 
-    self.compute_pvalues()
+    compute_pvalues(self)
 
     print('Successfully estimated p-values')
 
 
-
-def psix_score_parallel(self, exon):
+    
+    
+def run_psix_exon(exon, self):
     ##############
 
     return psix_score(np.array(self.adata.uns['psi'][exon]), 
@@ -101,8 +97,11 @@ def psix_score_parallel(self, exon):
                                        turbo = self.turbo
                            )
 
+
+
+
 def compute_pvalues(self):
-    self.get_bins()
+    get_bins(self)
 
     np.random.seed(self.seed)
 
@@ -119,10 +118,12 @@ def compute_pvalues(self):
 
     if self.n_jobs == 1:
         for bucket in all_buckets:
-            buckets_scores = self.compute_random_exons(bucket)
+            buckets_scores = compute_random_exons(bucket, self)
             self.random_scores[bucket[0]][bucket[1]] = buckets_scores
 
     else:
+        
+        random_exons_parallel=partial(compute_random_exons, self=self)
 
         with Pool(
             processes=self.n_jobs
@@ -132,7 +133,7 @@ def compute_pvalues(self):
 
             results = list(
                 tqdm(
-                    pool.imap(self.compute_random_exons, all_buckets, chunksize=chunksize),
+                    pool.imap(random_exons_parallel, all_buckets, chunksize=chunksize),
                     total=len(all_buckets), position=0, leave=True
                 )
             )
@@ -147,7 +148,7 @@ def compute_pvalues(self):
     for mean in self.bins.keys():
         for var in self.bins[mean].keys():
             for exon in self.bins[mean][var]:
-                pval = self.calculate_exon_pvalue(exon, mean, var)
+                pval = calculate_exon_pvalue(self, exon, mean, var)
                 self.psix_results.loc[exon, 'pvals'] = pval
 
     self.psix_results['qvals'] = multipletests(self.psix_results.pvals, method='fdr_bh')[1]
@@ -165,7 +166,7 @@ def calculate_exon_pvalue(self, exon, mean, var):
 
 
 
-def compute_random_exons(self, bucket):
+def compute_random_exons(bucket, self):
 
     exon_list = self.bins[bucket[0]][bucket[1]]
 
