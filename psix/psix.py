@@ -2,19 +2,19 @@ import numpy as np
 import pandas as pd
 import os
 
-from cell_metric import *
-from model_functions import psix_score
-from mrna_census import *
+from .cell_metric import *
+from .model_functions import psix_score
+from .mrna_census import *
 # from tpm_to_mrna import *
 import anndata
 # from rnaseq_tools import *
 
 ################# from mrna_census import *
-from junctions2psi import *
-from score_functions import *
-from turbo_tools import *
-from solo2psi import *
-from modules import local_correlation_plot, compute_modules_function
+from .junctions2psi import *
+from .score_functions import *
+from .turbo_tools import *
+from .solo2psi import *
+from .modules import local_correlation_plot, compute_modules_function
 
 
 

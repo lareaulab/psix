@@ -4,7 +4,7 @@ import subprocess as sp
 import os
 from tqdm import tqdm
 import gzip
-from mrna_census import *
+from .mrna_census import *
 
 
 

@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from model_functions import probability_psi_observation
+from .model_functions import probability_psi_observation
 from tqdm import tqdm
 
 

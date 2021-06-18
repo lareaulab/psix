@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import os
 from statsmodels.stats.multitest import multipletests
-from model_functions import psix_score
+from .model_functions import psix_score
 from functools import partial
 from multiprocessing import Pool
 from tqdm import tqdm

@@ -5,7 +5,7 @@ import os
 import csv
 import gzip
 import scipy.io
-from mrna_census import *
+from .mrna_census import *
 
 def read_solo_features(solo_features_path):
         

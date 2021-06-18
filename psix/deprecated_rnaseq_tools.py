@@ -6,7 +6,7 @@ import anndata
 from tqdm import tqdm
 from scipy.stats import gaussian_kde
 from numpy import random as r
-from mrna_census import *
+from .mrna_census import *
 # from solo_tools import *
 
 
