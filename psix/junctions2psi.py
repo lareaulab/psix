@@ -187,7 +187,12 @@ def junctions_dir_to_psi(
 #         sj_file = pd.read_csv(sj_file, sep='\t', index_col=0)
 
 #     else:
-    sj_file = process_SJ_dir(sj_dir,
+
+    if os.path.isfile(sj_dir):
+        sj_file = pd.read_csv(sj_dir, sep='\t', index_col=0)
+        
+    else:
+        sj_file = process_SJ_dir(sj_dir,
                              intron_file,
                              save_files_in = save_files_in,
                              cell_list = cell_list

@@ -32,7 +32,23 @@ def local_correlation_plot(local_correlation_z, modules, linkage,
     
     row_colors = None
     colors = list(plt.get_cmap('tab10').colors)
-    module_colors = {i: colors[(i-1) % len(colors)] for i in modules.unique()}
+    
+    ii = leaves_list(linkage)
+
+    mod_reordered = modules.iloc[ii]
+    
+    
+    col_idx = {}
+    
+    
+    counter = 0
+    for i in mod_reordered:
+        
+        if (i not in col_idx.keys()) and (i != -1):
+            col_idx.update({i:counter})
+            counter += 1
+
+    module_colors = {i: colors[(col_idx[i]) % len(colors)] for i in col_idx.keys()}
     module_colors[-1] = '#ffffff'
 
     row_colors1 = pd.Series(
@@ -75,9 +91,9 @@ def local_correlation_plot(local_correlation_z, modules, linkage,
     cm.ax_row_dendrogram.remove()
 
     # Add 'module X' annotations
-    ii = leaves_list(linkage)
+#     ii = leaves_list(linkage)
 
-    mod_reordered = modules.iloc[ii]
+#     mod_reordered = modules.iloc[ii]
 
     mod_map = {}
     y = np.arange(modules.size)
@@ -120,7 +136,6 @@ def local_correlation_plot(local_correlation_z, modules, linkage,
         
     plt.xticks([])
 
-    # Find the colorbar 'child' and modify
     min_delta = 1e99
     min_aa = None
     for aa in fig.get_children():
