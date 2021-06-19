@@ -30,21 +30,21 @@ Psix requires four inputs from the user:
 
 ### Mapping and preprocessing scRNA-seq data
 
-#### SJ.out.tab files
+##### 1. SJ.out.tab files
 
 We recommend mapping raw scRNA-seq reads using STAR version $\geq 2.5.3a$. Psix uses the ```SJ.out.tab``` files from the STAR aligner. Individual files from each single cell should be stored in the same directory with the following naming format: ```cellID.SJ.out.tab```. The files can be gzipped or uncompressed. If you are using STARsolo, go to **Running Psix with STARsolo**.
 
-#### TPM matrix for smart-seq2 only
+##### 2. TPM matrix for smart-seq2 only
 
 The TPM matrix of **gene** expression can be obtained running different methods. We use RSEM version $\geq 1.2.31$ because it can be run using STAR as the aligner. Other methods such as Kallisto can also be used to generate this matrix. This is only required for smart-seq2 data. Go to **Running Psix in UMI data** to see .
 
-#### Low-dimensional cell space
+##### 3. Low-dimensional cell space
 
 A low-dimensional cell space is provided by the user, since Psix does not perform dimensionality reduction. In principle Psix can run with any metric. However, we recommend using interpretable dimensionality reduction methods such as PCA over the normalized gene expression, while avoiding non-interpretable methods such as tSNE except for visualization. 
 
 For small smart-seq2 datasets (fewer than 5000 cells), we recommend using SCONE to select the best normalization method before applying a linear dimensionality reduction such as PCA. Alternatively, other methods such as ZINB-Wave can be used on this data. For larger datasets, we recommend using the latent space of scVI as the low-dimensional cell space.
 
-#### Cassette exon annotation
+##### 4. Cassette exon annotation
 
 This consists on a table specifying the location (chromosome, start and end) of splice junctions. Splice junctions are annotated as supporting the inclusion of a cassette exon (\_I1 and \_I2), supporting its exclusion (\_SE), or constitutive (\_CI). You can download ready-to-use mouse (mm10) and human (hg38) annotations [here](http://github.com/laeraulab/psix/annotations/). For creating your own cassette exon annotation, see **HERE INSERT LINK TO ANNOTATION PROCESSING**.
 
