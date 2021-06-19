@@ -23,17 +23,7 @@ pip install git+https://github.com/lareaulab/psix.git
 
 Missing package dependencies will be automatically installed.
 
-## Getting started
-
-This section was written with smart-seq2 data in mind, but running Psix on UMI data is not much different. For the specifics on running Psix on UMI-based scRNA-seq data, go to **Running Psix in UMI data**.
-
-Psix requires four inputs from the user:
-* A directory containing SJ.out.tab files from STAR. This is used to calculate the exon's observed $\hat{\Psi}$.
-* A matrix of gene expression in transcripts per million (TPM; for smart-seq2 data only). This is used to estimate the captured mRNA molecules per observation.
-* A low-dimensional cell space; e.g., a PCA projection of normalized gene expression. This is used to define cell neighborhoods.
-* A cassette exon annotation of splice junctions. Ready-to-use mouse (mm10) and human (hg38) annotations are provided [here](http://github.com/laeraulab/psix/annotations/).
-
-### Mapping and preprocessing scRNA-seq data
+## Psix input
 
 ##### 1. SJ.out.tab files
 
@@ -53,9 +43,17 @@ For small smart-seq2 datasets (fewer than 5000 cells), we recommend using SCONE 
 
 This consists on a table specifying the location (chromosome, start and end) of splice junctions. Splice junctions are annotated as supporting the inclusion of a cassette exon (\_I1 and \_I2), supporting its exclusion (\_SE), or constitutive (\_CI). You can download ready-to-use mouse (mm10) and human (hg38) annotations [here](http://github.com/laeraulab/psix/annotations/). For creating your own cassette exon annotation, see **HERE INSERT LINK TO ANNOTATION PROCESSING**.
 
-### Running Psix on smart-seq2 data
+## Getting started
 
-#### Creating a Psix object
+This section was written with smart-seq2 data in mind, but running Psix on UMI data is not much different. For the specifics on running Psix on UMI-based scRNA-seq data, go to **Running Psix in UMI data**.
+
+Psix requires four inputs from the user:
+* A directory containing SJ.out.tab files from STAR. This is used to calculate the exon's observed $\hat{\Psi}$.
+* A matrix of gene expression in transcripts per million (TPM; for smart-seq2 data only). This is used to estimate the captured mRNA molecules per observation.
+* A low-dimensional cell space; e.g., a PCA projection of normalized gene expression. This is used to define cell neighborhoods.
+* A cassette exon annotation of splice junctions. Ready-to-use mouse (mm10) and human (hg38) annotations are provided [here](http://github.com/laeraulab/psix/annotations/).
+
+### Creating a Psix object with smart-seq2 data
 
 You can import Psix and create a Psix object by running:
 
@@ -83,7 +81,7 @@ psix_object = Psix(psi_table = 'psix_output/psi.tab.gz',
                    mrna_table = 'psix_output/mrna.tab.gz')
 ```
 
-#### Getting cell-state associated exons
+### Getting cell-state associated exons
 
 After creating a Psix object, we can obtain the Psix scores of each exon by running:
 
@@ -111,7 +109,7 @@ Gabrg2_1 | 1.896363 | 0.0005 | 0.001879
 
 Notice that the empirical $p$-values are estimated with exon permutations. For this reason, the Psix score is a better value for ranking exons with very low $p$-values, than the $p$-values themselves.
 
-#### Modules of correlated exons
+### Modules of correlated exons
 
 Psix uses
 
