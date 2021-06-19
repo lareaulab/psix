@@ -22,10 +22,11 @@ Missing package dependencies will be automatically installed.
 
 This section was written with smart-seq2 data in mind, but running Psix on UMI data is not much different. For the specifics on running Psix on UMI-based scRNA-seq data, go to **Running Psix in UMI data**.
 
-Psix requires three inputs from the user:
+Psix requires four inputs from the user:
 * A directory containing SJ.out.tab files from STAR. This is used to calculate the exon's observed $\hat{\Psi}$.
 * A matrix of gene expression in transcripts per million (TPM; for smart-seq2 data only). This is used to estimate the captured mRNA molecules per observation.
 * A low-dimensional cell space; e.g., a PCA projection of normalized gene expression. This is used to define cell neighborhoods.
+* A cassette exon annotation of splice junctions. Ready-to-use mouse (mm10) and human (hg38) annotations are provided [here](http://github.com/laeraulab/psix/annotations/).
 
 ### Mapping and preprocessing scRNA-seq data
 
@@ -43,8 +44,57 @@ A low-dimensional cell space is provided by the user, since Psix does not perfor
 
 For small smart-seq2 datasets (fewer than 5000 cells), we recommend using SCONE to select the best normalization method before applying a linear dimensionality reduction such as PCA. Alternatively, other methods such as ZINB-Wave can be used on this data. For larger datasets, we recommend using the latent space of scVI as the low-dimensional cell space.
 
-### Running Psix
+#### Cassette exon annotation
 
-You can import psix to python simply by running:
+This consists on a table specifying the location (chromosome, start and end) of splice junctions. Splice junctions are annotated as supporting the inclusion of a cassette exon (\_I1 and \_I2), supporting its exclusion (\_SE), or constitutive (\_CI). You can download ready-to-use mouse (mm10) and human (hg38) annotations [here](http://github.com/laeraulab/psix/annotations/). For creating your own cassette exon annotation, see **HERE INSERT LINK TO ANNOTATION PROCESSING**.
 
-```import psix```
+### Running Psix on smart-seq2 data
+
+#### Creating a Psix object
+
+You can import Psix and create a Psix object by running:
+
+```
+from psix import Psix
+psix_object = Psix()
+```
+
+This will create an empty Psix object. To run Psix, we have to first calculate the observed $\hat{\Psi}$ and estimate the number of mRNA molecules captured per observation. We can do that by simply running:
+
+```
+psix_object.junctions2psi(
+        sj_dir='/path/to/SJ_files/directory/',
+        intron_file='/path/to/cassette_exon_annotation.tab',
+        tpm_file='/path/to/gene_expression/tpm_file.tab',
+        save_files_in='psix_output/'
+    )
+```
+
+The optional argument ```save_files_in``` will create a directory where Psix will store the $\hat{\Psi}$ and mRNA counts matrices for future use. Saving the files allows us to skip this step after running ```junctions2psi``` for the first time. This is done by specifying the location of the $\hat{\Psi}$ and mRNA counts matrices when creating a Psix object:
+
+```
+from psix import Psix
+psix_object = Psix(psi_table = 'psix_output/psi.tab.gz',
+                   mrna_table = 'psix_output/mrna.tab.gz')
+```
+
+#### Running Psix
+
+After creating a Psix object, we can obtain the Psix scores of each exon by running:
+
+```
+psix_object.run_psix(latent='/path/to/low_dimensional_space.tab', 
+                     n_random_exons=2000, 
+                     n_neighbors=100
+                     )
+```
+
+Estimating the empirical $p$-values of exons is the most time consuming step of Psix, specially in large datasets. To speed things up, you can run Psix on parallele simply by specifying the number of threads $t$ by passing the argument ```n_jobs=t```.
+
+The results of Psix can be found at ```psix_object.psix_results``` in the form of a dataframe with the following information:
+
+
+
+
+
+
