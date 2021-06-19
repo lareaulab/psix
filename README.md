@@ -4,9 +4,14 @@ Psix is a computational tool for identifying cell-state associated alternative s
 
 Inspired in auto-correlation approaches, Psix will tell you if an exon's splicing is significantly associated with a cell-metric that shows the relationships between single cells. In practice, this map could be a low-dimensional representation of the gene expression of a single cell population. Psix also identified modules of potentially co-regulated exons.
 
-[Coverage dependent biases](https://elifesciences.org/articles/54603) add unwanted technical variation to splicing observations in single cells. Psix uses a probabilistic approach to determined if the observed variance of an exon accross a phenptypic landscape is biological, or if it's the result of these biases.
+[Coverage dependent biases](https://elifesciences.org/articles/54603) add unwanted technical variation to splicing observations in single cells. Psix uses a probabilistic approach to fit two models for each exon: 
 
-ADD LINKS TO EXAMPLES, INCLUDING FOR THE PAPER, HERE
+* Model 1: exon usage is cell-state associated. Under this model, each cell's $\hat{\Psi}$ is more likely to be similar to the average of it's neighbors, than to the global average.
+* Model 2: exon usage is independent of cell-state. Under this model, each cell's $\hat{\Psi}$ is equally likely to be similar to the average of it's neighbors, than to the global average.
+
+By comparing the probability of the observations given each model, Psix estimates a score $\Psi_\xi$. The hoghest the $\Psi_\xi$ score of an exon, the more confident we are that the exon is cell-state associated.
+
+<ADD LINKS TO EXAMPLES, INCLUDING FOR THE PAPER, HERE>
 
 ## Installation
 
@@ -78,7 +83,7 @@ psix_object = Psix(psi_table = 'psix_output/psi.tab.gz',
                    mrna_table = 'psix_output/mrna.tab.gz')
 ```
 
-#### Running Psix
+#### Getting cell-state associated exons
 
 After creating a Psix object, we can obtain the Psix scores of each exon by running:
 
@@ -103,5 +108,11 @@ Mapt_3 | 1.964202 | 0.0005 | 0.001879
 Gabrg2_1 | 1.896363 | 0.0005 | 0.001879
 ... | ... | ... | ...
 
+
+Notice that the empirical $p$-values are estimated with exon permutations. For this reason, the Psix score is a better value for ranking exons with very low $p$-values, than the $p$-values themselves.
+
+#### Modules of correlated exons
+
+Psix uses
 
 
