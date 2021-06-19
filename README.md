@@ -1,8 +1,8 @@
 # Psix
 
-Psix is a computational tool for identifying cassette exons with informative biological variation in a single-cell dataset.
+Psix is a computational tool for identifying cell-state associated alternative splicing events in single cell RNA-seq (scRNA-seq) data.
 
-Inspired in auto-correlation approaches, Psix will tell you if an exon's splicing is significantly associated with a cell-metric that shows the relationships between single cells. In practice, this map could be a low-dimensional representation of the gene expression of a single cell population. 
+Inspired in auto-correlation approaches, Psix will tell you if an exon's splicing is significantly associated with a cell-metric that shows the relationships between single cells. In practice, this map could be a low-dimensional representation of the gene expression of a single cell population. Psix also identified modules of potentially co-regulated exons.
 
 [Coverage dependent biases](https://elifesciences.org/articles/54603) add unwanted technical variation to splicing observations in single cells. Psix uses a probabilistic approach to determined if the observed variance of an exon accross a phenptypic landscape is biological, or if it's the result of these biases.
 
@@ -94,7 +94,14 @@ Estimating the empirical $p$-values of exons is the most time consuming step of 
 The results of Psix can be found at ```psix_object.psix_results``` in the form of a dataframe with the following information:
 
 
-
+Exon | psix_score | pvals | qvals
+---- | ---- | ---- | ---- 
+Mapt_1 | 2.709381 | 0.0005 | 0.001879
+Ndrg4_1 | 2.359093 | 0.0005 | 0.001879
+Dbn1_1 | 2.302729 | 0.0005 | 0.001879
+Mapt_3 | 1.964202 | 0.0005 | 0.001879
+Gabrg2_1 | 1.896363 | 0.0005 | 0.001879
+... | ... | ... | ...
 
 
 
