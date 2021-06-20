@@ -97,7 +97,7 @@ Estimating the empirical $p$-values of exons is the most time consuming step of 
 The results of Psix can be found at ```psix_object.psix_results``` in the form of a dataframe with the following information:
 
 
- | psix_score | pvals | qvals
+Exon | psix_score | pvals | qvals
 ---- | ---- | ---- | ---- 
 Mapt_1 | 2.709381 | 0.0005 | 0.001879
 Ndrg4_1 | 2.359093 | 0.0005 | 0.001879
