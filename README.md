@@ -7,7 +7,7 @@ Inspired in auto-correlation approaches, Psix will tell you if an exon's splicin
 [Coverage dependent biases](https://elifesciences.org/articles/54603) add unwanted technical variation to splicing observations in single cells. Psix uses a probabilistic approach to fit two models for each exon: 
 
 * Model 1: exon usage is cell-state associated. Under this model, each cell's $`\hat{\Psi}`$ is more likely to be similar to the average of it's neighbors, than to the global average.
-* Model 2: exon usage is independent of cell-state. Under this model, each cell's <img src="https://render.githubusercontent.com/render/math?math=\hat{\Psi}"> is equally likely to be similar to the average of it's neighbors, than to the global average.
+* Model 2: exon usage is independent of cell-state. Under this model, each cell's <img src="https://render.githubusercontent.com/render/math?math=\hat{\\Psi}"> is equally likely to be similar to the average of it's neighbors, than to the global average.
 
 By comparing the probability of the observations given each model, Psix estimates a score $`\Psi_\xi`$. The hoghest the $`\Psi_\xi`$ score of an exon, the more confident we are that the exon is cell-state associated.
 
