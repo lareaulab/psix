@@ -77,25 +77,6 @@ psix_object.junctions2psi(
     )
 ```
 
-    Collecting splice junctions...
-
-
-    100%|██████████| 1067/1067 [02:48<00:00,  6.32it/s]
-
-
-    Obtaining PSI tables...
-    Reading TPM and transforming to mRNA counts...
-
-
-    100%|██████████| 1067/1067 [00:47<00:00, 22.58it/s]
-
-
-    Successfully processed RNA-seq data
-
-
-
-
-
 The optional argument ```save_files_in``` will create a directory where Psix will store the $\hat{\Psi}$ and mRNA counts matrices for future use. Saving the files allows us to skip this step after running ```junctions2psi``` for the first time. This is done by specifying the location of the $\hat{\Psi}$ and mRNA counts matrices when creating a Psix object:
 
 ```python
@@ -114,28 +95,6 @@ psix_object.run_psix(latent='/path/to/low_dimensional_space.tab',
                      n_neighbors=100
                      )
 ```
-
-    Computing cell-cell metric...
-
-
-    100%|██████████| 1067/1067 [00:00<00:00, 2854.51it/s]
-
-    Successfully computed cell-cell metric
-    Computing Psix score in 2087 exons
-
-
-    
-    100%|██████████| 2087/2087 [00:20<00:00, 103.95it/s]
-
-
-    Successfully computed Psix score of exons.
-    Estimating p-values. This might take a while...
-
-
-    100%|██████████| 25/25 [08:29<00:00, 20.37s/it]  
-
-
-    Successfully estimated p-values
 
 
 By default, Psix divides the exons into 25 sets according to their variance (five bins) and averge (five bins) $\hat{\Psi}$ to calculate the empirical $p$-values. Estimating the empirical $p$-values of exons is the most time consuming step of Psix, specially in large datasets. To speed things up, you can run Psix on parallele simply by specifying the number of threads $t$ by passing the argument ```n_jobs=t```.
@@ -166,33 +125,20 @@ psix_object.compute_modules(plot = True)
 
 ![png](docs/_images/midbrain_modules.png)
 
+The modules can be accessed in ```python psix_object.modules```.
 
+### Saving and loading a Psix object
 
-```python
-psix_object.modules
-```
-
-
-
-
-    Mapt_1            1
-    Ndrg4_1           1
-    Dbn1_1            1
-    Mapt_3            1
-    Gabrg2_1          1
-                     ..
-    Dlg4_3            1
-    Hnrnpd_nmdSE_1    8
-    Oaz2_1            6
-    Dmtf1_7           6
-    Arfgap1_5         2
-    Name: Module, Length: 798, dtype: int64
-    
+We can save out Psix object for future uses. This will allow us to skip all the preprocessing, scoring and clustering steps. We can save out object by running the following command:
     
 
 ```python
-psix_object.save_psix_object(psix_dir = 'psix_output', overwrite=True)
+psix_object.save_psix_object(psix_dir = 'psix_output')
 ```
+
+This will create a directory named ```psix_output``` where it will store the Psix object. By default, Psix will not overwrite an existing Psix oject with the same name. If you want to overwrite an existing Psix object, you should use the ```overwrite=True``` argument when running ```save_psix_object```.
+
+We can load an existing Psix object as follows:
 
 
 ```python
