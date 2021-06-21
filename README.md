@@ -63,8 +63,6 @@ psix_object = psix.Psix()
 ```
 
 
-
-
 This will create an empty Psix object. To run Psix, we have to first calculate the observed $\hat{\Psi}$ and estimate the number of mRNA molecules captured per observation. We can do that by simply running:
 
 
@@ -144,3 +142,11 @@ We can load an existing Psix object as follows:
 ```python
 psix_object = psix.Psix(psix_object = 'psix_output')
 ```
+
+## Runing Psix on STARsolo output
+
+In progress...
+
+## Runing Psix on UMI data
+
+In progress...
