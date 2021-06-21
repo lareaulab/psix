@@ -162,7 +162,7 @@ class Psix:
             
     
     def compute_modules(self,
-                        min_gene_threshold=20, 
+                        min_gene_threshold=30, 
                         fdr_threshold=None, 
                         z_threshold=0.3, 
                         core_only=False,
