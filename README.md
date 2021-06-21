@@ -57,10 +57,19 @@ Psix requires four inputs from the user:
 
 You can import Psix and create a Psix object by running:
 
+```python
+import psix
+psix_object = psix.Psix()
+psix_object
 ```
-from psix import Psix
-psix_object = Psix()
-```
+
+
+
+
+    <psix.psix.Psix at 0x7f87a8981490>
+
+
+
 
 This will create an empty Psix object. To run Psix, we have to first calculate the observed $\hat{\Psi}$ and estimate the number of mRNA molecules captured per observation. We can do that by simply running:
 
