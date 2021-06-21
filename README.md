@@ -60,20 +60,15 @@ You can import Psix and create a Psix object by running:
 ```python
 import psix
 psix_object = psix.Psix()
-psix_object
 ```
-
-
-
-
-    <psix.psix.Psix at 0x7f87a8981490>
 
 
 
 
 This will create an empty Psix object. To run Psix, we have to first calculate the observed $\hat{\Psi}$ and estimate the number of mRNA molecules captured per observation. We can do that by simply running:
 
-```
+
+```python
 psix_object.junctions2psi(
         sj_dir='/path/to/SJ_files/directory/',
         intron_file='/path/to/cassette_exon_annotation.tab',
@@ -82,9 +77,28 @@ psix_object.junctions2psi(
     )
 ```
 
+    Collecting splice junctions...
+
+
+    100%|██████████| 1067/1067 [02:48<00:00,  6.32it/s]
+
+
+    Obtaining PSI tables...
+    Reading TPM and transforming to mRNA counts...
+
+
+    100%|██████████| 1067/1067 [00:47<00:00, 22.58it/s]
+
+
+    Successfully processed RNA-seq data
+
+
+
+
+
 The optional argument ```save_files_in``` will create a directory where Psix will store the $\hat{\Psi}$ and mRNA counts matrices for future use. Saving the files allows us to skip this step after running ```junctions2psi``` for the first time. This is done by specifying the location of the $\hat{\Psi}$ and mRNA counts matrices when creating a Psix object:
 
-```
+```python
 from psix import Psix
 psix_object = Psix(psi_table = 'psix_output/psi.tab.gz',
                    mrna_table = 'psix_output/mrna.tab.gz')
@@ -94,14 +108,37 @@ psix_object = Psix(psi_table = 'psix_output/psi.tab.gz',
 
 After creating a Psix object, we can obtain the Psix scores of each exon by running:
 
-```
+```python
 psix_object.run_psix(latent='/path/to/low_dimensional_space.tab', 
                      n_random_exons=2000, 
                      n_neighbors=100
                      )
 ```
 
-Estimating the empirical $p$-values of exons is the most time consuming step of Psix, specially in large datasets. To speed things up, you can run Psix on parallele simply by specifying the number of threads $t$ by passing the argument ```n_jobs=t```.
+    Computing cell-cell metric...
+
+
+    100%|██████████| 1067/1067 [00:00<00:00, 2854.51it/s]
+
+    Successfully computed cell-cell metric
+    Computing Psix score in 2087 exons
+
+
+    
+    100%|██████████| 2087/2087 [00:20<00:00, 103.95it/s]
+
+
+    Successfully computed Psix score of exons.
+    Estimating p-values. This might take a while...
+
+
+    100%|██████████| 25/25 [08:29<00:00, 20.37s/it]  
+
+
+    Successfully estimated p-values
+
+
+By default, Psix divides the exons into 25 sets according to their variance (five bins) and averge (five bins) $\hat{\Psi}$ to calculate the empirical $p$-values. Estimating the empirical $p$-values of exons is the most time consuming step of Psix, specially in large datasets. To speed things up, you can run Psix on parallele simply by specifying the number of threads $t$ by passing the argument ```n_jobs=t```.
 
 The results of Psix can be found at ```psix_object.psix_results``` in the form of a dataframe with the following information:
 
@@ -120,6 +157,44 @@ Notice that the empirical $p$-values are estimated with exon permutations. For t
 
 ### Modules of correlated exons
 
-Psix uses
+Psix can find modules of correlated exons by using the neighbor average $\bar{\Psi}$ previously used for fitting the model in which an exon is cell-state associated. Using the neighbor average greatly reduces unwanted noise from the raw data. We can obtain these modules as follows:
+
+```python
+psix_object.compute_modules(plot = True)
+```
 
 
+![png](docs/_images/midbrain_modules.png)
+
+
+
+```python
+psix_object.modules
+```
+
+
+
+
+    Mapt_1            1
+    Ndrg4_1           1
+    Dbn1_1            1
+    Mapt_3            1
+    Gabrg2_1          1
+                     ..
+    Dlg4_3            1
+    Hnrnpd_nmdSE_1    8
+    Oaz2_1            6
+    Dmtf1_7           6
+    Arfgap1_5         2
+    Name: Module, Length: 798, dtype: int64
+    
+    
+
+```python
+psix_object.save_psix_object(psix_dir = 'psix_output', overwrite=True)
+```
+
+
+```python
+psix_object = psix.Psix(psix_object = 'psix_output')
+```
