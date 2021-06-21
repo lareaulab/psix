@@ -123,7 +123,7 @@ psix_object.compute_modules(plot = True)
 
 ![png](docs/_images/midbrain_modules.png)
 
-The modules can be accessed in ```python psix_object.modules```.
+The modules can be accessed in ```psix_object.modules```.
 
 ### Saving and loading a Psix object
 
