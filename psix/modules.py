@@ -66,7 +66,7 @@ def local_correlation_plot(local_correlation_z, modules, linkage,
         fontsize = 8
         
     else:
-        figsize = (8, 9)
+        figsize = (8.4, 9)
         fontsize=20
     
     cm = sns.clustermap(
@@ -424,7 +424,7 @@ def assign_modules_core(Z, leaf_labels, offset, MIN_THRESHOLD=10, Z_THRESHOLD=3)
     return out_clusters
 
 
-def compute_modules_function(exon_correlation, min_gene_threshold=20, fdr_threshold=None, z_threshold=None, core_only=False):
+def compute_modules_function(exon_correlation, min_gene_threshold=30, fdr_threshold=None, z_threshold=None, core_only=False):
     """
     Assigns modules from the gene pair-wise Z-scores
     Parameters
