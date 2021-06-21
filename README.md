@@ -27,11 +27,11 @@ Missing package dependencies will be automatically installed.
 
 ##### 1. SJ.out.tab files
 
-We recommend mapping raw scRNA-seq reads using STAR version<img src="https://render.githubusercontent.com/render/math?math=\geq"> 2.5.3a. Psix uses the ```SJ.out.tab``` files from the STAR aligner. Individual files from each single cell should be stored in the same directory with the following naming format: ```cellID.SJ.out.tab```. The files can be gzipped or uncompressed. If you are using STARsolo, go to **Running Psix with STARsolo**.
+We recommend mapping raw scRNA-seq reads using STAR version ≥ 2.5.3a. Psix uses the ```SJ.out.tab``` files from the STAR aligner. Individual files from each single cell should be stored in the same directory with the following naming format: ```cellID.SJ.out.tab```. The files can be gzipped or uncompressed. If you are using STARsolo, go to **Running Psix with STARsolo**.
 
 ##### 2. TPM matrix for smart-seq2 only
 
-The TPM matrix of **gene** expression can be obtained running different methods. We use RSEM version <img src="https://render.githubusercontent.com/render/math?math=\geq"> 1.2.31 because it can be run using STAR as the aligner. Other methods such as Kallisto can also be used to generate this matrix. This is only required for smart-seq2 data. Go to **Running Psix in UMI data** to see .
+The TPM matrix of **gene** expression can be obtained running different methods. We use RSEM version ≥ 1.2.31 because it can be run using STAR as the aligner. Other methods such as Kallisto can also be used to generate this matrix. This is only required for smart-seq2 data. Go to **Running Psix in UMI data** to see .
 
 ##### 3. Low-dimensional cell space
 
