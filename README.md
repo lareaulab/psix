@@ -1,12 +1,17 @@
 # Psix
 
-Psix is a computational tool for identifying cassette exons with informative biological variation in a single-cell dataset.
+Psix is a computational tool for identifying cell-state associated alternative splicing events in single cell RNA-seq (scRNA-seq) data.
 
-Inspired in auto-correlation approaches, Psix will tell you if an exon's splicing is significantly associated with a cell-metric that shows the relationships between single cells. In practice, this map could be a low-dimensional representation of the gene expression of a single cell population. 
+Inspired in auto-correlation approaches, Psix will tell you if an exon's splicing is significantly associated with a cell-metric that shows the relationships between single cells. In practice, this map could be a low-dimensional representation of the gene expression of a single cell population. Psix also identified modules of potentially co-regulated exons.
 
-[Coverage dependent biases](https://elifesciences.org/articles/54603) add unwanted technical variation to splicing observations in single cells. Psix uses a probabilistic approach to determined if the observed variance of an exon accross a phenptypic landscape is biological, or if it's the result of these biases.
+[Coverage dependent biases](https://elifesciences.org/articles/54603) add unwanted technical variation to splicing observations in single cells. Psix uses a probabilistic approach to fit two models for each exon: 
 
-ADD LINKS TO EXAMPLES, INCLUDING FOR THE PAPER, HERE
+* Model 1: exon usage is cell-state associated. Under this model, each cell's $\hat{\Psi}$ is more likely to be similar to the average of it's neighbors, than to the global average.
+* Model 2: exon usage is independent of cell-state. Under this model, each cell's $\hat{\Psi}$ is equally likely to be similar to the average of it's neighbors, than to the global average.
+
+By comparing the probability of the observations given each model, Psix estimates a score $\Psi_\xi$. The hoghest the $\Psi_\xi$ score of an exon, the more confident we are that the exon is cell-state associated.
+
+<ADD LINKS TO EXAMPLES, INCLUDING FOR THE PAPER, HERE>
 
 ## Installation
 
@@ -18,17 +23,7 @@ pip install git+https://github.com/lareaulab/psix.git
 
 Missing package dependencies will be automatically installed.
 
-## Getting started
-
-This section was written with smart-seq2 data in mind, but running Psix on UMI data is not much different. For the specifics on running Psix on UMI-based scRNA-seq data, go to **Running Psix in UMI data**.
-
-Psix requires four inputs from the user:
-* A directory containing SJ.out.tab files from STAR. This is used to calculate the exon's observed $\hat{\Psi}$.
-* A matrix of gene expression in transcripts per million (TPM; for smart-seq2 data only). This is used to estimate the captured mRNA molecules per observation.
-* A low-dimensional cell space; e.g., a PCA projection of normalized gene expression. This is used to define cell neighborhoods.
-* A cassette exon annotation of splice junctions. Ready-to-use mouse (mm10) and human (hg38) annotations are provided [here](http://github.com/laeraulab/psix/annotations/).
-
-### Mapping and preprocessing scRNA-seq data
+## Psix input
 
 ##### 1. SJ.out.tab files
 
@@ -48,9 +43,17 @@ For small smart-seq2 datasets (fewer than 5000 cells), we recommend using SCONE 
 
 This consists on a table specifying the location (chromosome, start and end) of splice junctions. Splice junctions are annotated as supporting the inclusion of a cassette exon (\_I1 and \_I2), supporting its exclusion (\_SE), or constitutive (\_CI). You can download ready-to-use mouse (mm10) and human (hg38) annotations [here](http://github.com/laeraulab/psix/annotations/). For creating your own cassette exon annotation, see **HERE INSERT LINK TO ANNOTATION PROCESSING**.
 
-### Running Psix on smart-seq2 data
+## Getting started
 
-#### Creating a Psix object
+This section was written with smart-seq2 data in mind, but running Psix on UMI data is not much different. For the specifics on running Psix on UMI-based scRNA-seq data, go to **Running Psix in UMI data**.
+
+Psix requires four inputs from the user:
+* A directory containing SJ.out.tab files from STAR. This is used to calculate the exon's observed $\hat{\Psi}$.
+* A matrix of gene expression in transcripts per million (TPM; for smart-seq2 data only). This is used to estimate the captured mRNA molecules per observation.
+* A low-dimensional cell space; e.g., a PCA projection of normalized gene expression. This is used to define cell neighborhoods.
+* A cassette exon annotation of splice junctions. Ready-to-use mouse (mm10) and human (hg38) annotations are provided [here](http://github.com/laeraulab/psix/annotations/).
+
+### Creating a Psix object with smart-seq2 data
 
 You can import Psix and create a Psix object by running:
 
@@ -78,7 +81,7 @@ psix_object = Psix(psi_table = 'psix_output/psi.tab.gz',
                    mrna_table = 'psix_output/mrna.tab.gz')
 ```
 
-#### Running Psix
+### Getting cell-state associated exons
 
 After creating a Psix object, we can obtain the Psix scores of each exon by running:
 
@@ -94,7 +97,20 @@ Estimating the empirical $p$-values of exons is the most time consuming step of 
 The results of Psix can be found at ```psix_object.psix_results``` in the form of a dataframe with the following information:
 
 
+Exon | psix_score | pvals | qvals
+---- | ---- | ---- | ---- 
+Mapt_1 | 2.709381 | 0.0005 | 0.001879
+Ndrg4_1 | 2.359093 | 0.0005 | 0.001879
+Dbn1_1 | 2.302729 | 0.0005 | 0.001879
+Mapt_3 | 1.964202 | 0.0005 | 0.001879
+Gabrg2_1 | 1.896363 | 0.0005 | 0.001879
+... | ... | ... | ...
 
 
+Notice that the empirical $p$-values are estimated with exon permutations. For this reason, the Psix score is a better value for ranking exons with very low $p$-values, than the $p$-values themselves.
+
+### Modules of correlated exons
+
+Psix uses
 
 
