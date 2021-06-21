@@ -95,7 +95,7 @@ psix_object.run_psix(latent='/path/to/low_dimensional_space.tab',
 ```
 
 
-By default, Psix divides the exons into 25 sets according to their variance (five bins) and averge (five bins) <img src="https://render.githubusercontent.com/render/math?math=\hat{\Psi}"> to calculate the empirical p-values. Estimating the empirical p-values of exons is the most time consuming step of Psix, specially in large datasets. To speed things up, you can run Psix in parallel simply by specifying the number of threads <img src="https://render.githubusercontent.com/render/math?math=t"> by passing the argument ```n_jobs=t```.
+By default, Psix divides the exons into 25 sets according to their variance (five bins) and averge (five bins) <img src="https://render.githubusercontent.com/render/math?math=\hat{\Psi}"> to calculate the empirical p-values. Estimating the empirical p-values of exons is the most time consuming step of Psix, specially in large datasets. To speed things up, you can run Psix in parallel simply by specifying the number of threads _t_ by passing the argument ```n_jobs=t```.
 
 The results of Psix can be found at ```psix_object.psix_results``` in the form of a dataframe with the following information:
 
