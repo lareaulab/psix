@@ -50,7 +50,7 @@ class Psix:
         
         
         if os.path.isdir(psix_object):
-            self.adata = anndata.read_h5ad(psix_object+'/adata')
+            self.adata = anndata.read_h5ad(psix_object+'/adata.gz')
             self.psix_results = pd.read_csv(psix_object+'/psix_results.tab.gz', sep='\t', index_col=0)
             self.modules = pd.read_csv(psix_object+'/modules.tab.gz', sep='\t', index_col=0).Modules
             
