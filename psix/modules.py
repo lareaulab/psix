@@ -50,22 +50,6 @@ def local_correlation_plot(local_correlation_z, modules, linkage,
 
     module_colors = {i: colors[(col_idx[i]) % len(colors)] for i in col_idx.keys()}
     module_colors[-1] = '#ffffff'
-    
-    
-    
-    mod_relabeled_mod = []
-    
-    for i in mod_reordered:        
-        if (i != -1):
-            mod_relabeled_mod.append(col_idx[i] + 1)
-        else:
-            mod_relabeled_mod.append(-1)
-            
-    mod_relabeled = pd.DataFrame()
-    mod_relabeled['Modules'] = mod_relabeled_mod
-    mod_relabeled.index = mod_reordered.index
-    
-    
 
     row_colors1 = pd.Series(
         [module_colors[i] for i in modules],
@@ -122,7 +106,7 @@ def local_correlation_plot(local_correlation_z, modules, linkage,
 
     plt.sca(cm.ax_row_colors)
     
-    
+    mod_relabeled = pd.DataFrame()
     mod_idx = []
     mod_labels = []
     i = 1
@@ -142,7 +126,8 @@ def local_correlation_plot(local_correlation_z, modules, linkage,
     mod_idx.extend(exon_list)
     mod_labels.extend([-1]*len(exon_list))
         
-    
+    mod_relabeled['Modules'] = mod_labels
+    mod_relabeled.index = mod_idx
         
                  
 #         plt.text(-.25, y=mod_y, s="Mod {}".format(mod),
@@ -498,41 +483,7 @@ def compute_modules_function(exon_correlation, min_gene_threshold=30, fdr_thresh
     calc_mean_dists(Z, Z.shape[0]-1, mean_dists)
     linkage_out = Z.copy()
     sort_linkage(linkage_out, Z.shape[0]-1, mean_dists)
-    
-    
-    
-    
-    
-    
-    
-    ii = leaves_list(linkage)
-    mod_reordered = out_clusters.iloc[ii]
-    
-    col_idx = {}
-    
-    counter = 0
-    for i in mod_reordered:
-        
-        if (i not in col_idx.keys()) and (i != -1):
-            col_idx.update({i:counter})
-            counter += 1
 
-    module_colors = {i: colors[(col_idx[i]) % len(colors)] for i in col_idx.keys()}
-    module_colors[-1] = '#ffffff'
-    
-    
-    
-    mod_relabeled_mod = []
-    
-    for i in mod_reordered:        
-        if (i != -1):
-            mod_relabeled_mod.append(col_idx[i] + 1)
-        else:
-            mod_relabeled_mod.append(-1)
-            
-    mod_relabeled = pd.Series(mod_relabeled_mod)
-    mod_relabeled.index = mod_reordered.index
-    
-    mod_relabeled.name = 'Modules'
+    out_clusters.name = 'Module'
 
-    return mod_relabeled, linkage_out
+    return out_clusters, linkage_out

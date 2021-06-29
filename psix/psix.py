@@ -197,7 +197,7 @@ class Psix:
                                      fdr_threshold=fdr_threshold, z_threshold=z_threshold, core_only=core_only)
         
         if plot:
-             local_correlation_plot(self.exon_correlation, self.modules, self.linkage,
+             self.modules = local_correlation_plot(self.exon_correlation, self.modules, self.linkage,
                                     z_cmap=z_cmap, yticklabels=yticklabels, plot_name = plot_name)
         
         
