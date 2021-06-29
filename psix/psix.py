@@ -149,22 +149,27 @@ class Psix:
         
 
     def save_psix_object(self, psix_dir = 'psix_object', overwrite = False):
-        if os.path.isdir(psix_dir):
-            if overwrite:
-                sp.run('rm -r ' + psix_dir, shell=True)
-            else:
-                raise Exception('Directory ' + psix_dir +' already exists. If you want to overwrite it, set overwrite = True')
-        os.mkdir(psix_dir)
-        self.adata.write(psix_dir+'/adata', compression='gzip')
-        try:
-            self.psix_results.to_csv(psix_dir+'/psix_results.tab.gz', sep='\t', index=True, header=True)
-        except:
-            print('No scores to save.')
+#         if os.path.isdir(psix_dir):
+#             if overwrite:
+#                 sp.run('rm -r ' + psix_dir, shell=True)
+#                 os.mkdir(psix_dir)
+        if not os.path.isdir(psix_dir):
+            os.mkdir(psix_dir)
+        
+        if (not os.path.isfile(psix_dir+'/adata.gz')) or overwrite:
+            self.adata.write(psix_dir+'/adata.gz', compression='gzip')
             
-        try:
-            pd.DataFrame(self.modules).to_csv(psix_dir+'/modules.tab.gz', sep='\t', index=True, header=True)
-        except:
-            print('No modules to save.')
+        if (not os.path.isfile(psix_dir+'/psix_results.tab.gz')) or overwrite:
+            try:
+                self.psix_results.to_csv(psix_dir+'/psix_results.tab.gz', sep='\t', index=True, header=True)
+            except:
+                print('No scores to save.')
+            
+        if (not os.path.isfile(psix_dir+'/modules.tab.gz')) or overwrite:
+            try:
+                pd.DataFrame(self.modules).to_csv(psix_dir+'/modules.tab.gz', sep='\t', index=True, header=True)
+            except:
+                print('No modules to save.')
             
     
     def compute_modules(self,
