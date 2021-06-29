@@ -498,7 +498,41 @@ def compute_modules_function(exon_correlation, min_gene_threshold=30, fdr_thresh
     calc_mean_dists(Z, Z.shape[0]-1, mean_dists)
     linkage_out = Z.copy()
     sort_linkage(linkage_out, Z.shape[0]-1, mean_dists)
+    
+    
+    
+    
+    
+    
+    
+    ii = leaves_list(linkage)
+    mod_reordered = out_clusters.iloc[ii]
+    
+    col_idx = {}
+    
+    counter = 0
+    for i in mod_reordered:
+        
+        if (i not in col_idx.keys()) and (i != -1):
+            col_idx.update({i:counter})
+            counter += 1
 
-    out_clusters.name = 'Module'
+    module_colors = {i: colors[(col_idx[i]) % len(colors)] for i in col_idx.keys()}
+    module_colors[-1] = '#ffffff'
+    
+    
+    
+    mod_relabeled_mod = []
+    
+    for i in mod_reordered:        
+        if (i != -1):
+            mod_relabeled_mod.append(col_idx[i] + 1)
+        else:
+            mod_relabeled_mod.append(-1)
+            
+    mod_relabeled = pd.Series(mod_relabeled_mod)
+    mod_relabeled.index = mod_reordered.index
+    
+    mod_relabeled.name = 'Modules'
 
-    return out_clusters, linkage_out
+    return mod_relabeled, linkage_out
