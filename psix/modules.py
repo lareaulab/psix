@@ -50,6 +50,22 @@ def local_correlation_plot(local_correlation_z, modules, linkage,
 
     module_colors = {i: colors[(col_idx[i]) % len(colors)] for i in col_idx.keys()}
     module_colors[-1] = '#ffffff'
+    
+    
+    
+    mod_relabeled_mod = []
+    
+    for i in mod_reordered:        
+        if (i != -1):
+            mod_relabeled_mod.append(col_idx[i] + 1)
+        else:
+            mod_relabeled_mod.append(-1)
+            
+    mod_relabeled = pd.DataFrame()
+    mod_relabeled['Modules'] = mod_relabeled_mod
+    mod_relabeled.index = mod_reordered.index
+    
+    
 
     row_colors1 = pd.Series(
         [module_colors[i] for i in modules],
@@ -106,7 +122,7 @@ def local_correlation_plot(local_correlation_z, modules, linkage,
 
     plt.sca(cm.ax_row_colors)
     
-    mod_relabeled = pd.DataFrame()
+    
     mod_idx = []
     mod_labels = []
     i = 1
@@ -126,8 +142,7 @@ def local_correlation_plot(local_correlation_z, modules, linkage,
     mod_idx.extend(exon_list)
     mod_labels.extend([-1]*len(exon_list))
         
-    mod_relabeled['Modules'] = mod_labels
-    mod_relabeled.index = mod_idx
+    
         
                  
 #         plt.text(-.25, y=mod_y, s="Mod {}".format(mod),
@@ -158,7 +173,7 @@ def local_correlation_plot(local_correlation_z, modules, linkage,
     else:
         plt.savefig(plot_name, bbox_inches='tight', res=20000, dpi =2000)
     
-    return mod_reordered
+    return mod_relabeled#mod_reordered
 
 
 def sort_linkage(Z, node_index, node_values):
