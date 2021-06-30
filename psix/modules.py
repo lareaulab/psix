@@ -158,7 +158,7 @@ def local_correlation_plot(local_correlation_z, modules, linkage,
     else:
         plt.savefig(plot_name, bbox_inches='tight', res=20000, dpi =2000)
     
-    return mod_relabeled#mod_reordered
+    return mod_relabeled.Modules#mod_reordered
 
 
 def sort_linkage(Z, node_index, node_values):
