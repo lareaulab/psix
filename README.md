@@ -123,7 +123,7 @@ psix_object.compute_modules(plot = True)
 
 ![png](docs/_images/midbrain_modules.png)
 
-The modules can be accessed in ```psix_object.modules```.
+The modules for each cell-state associated exon can be found at ```psix_object.modules```. Each module is assigned an integer. Exons that are not assigned to any module are labeled with -1.
 
 ### Saving and loading a Psix object
 
@@ -134,10 +134,9 @@ We can save out Psix object for future uses. This will allow us to skip all the 
 psix_object.save_psix_object(psix_dir = 'psix_output')
 ```
 
-This will create a directory named ```psix_output``` where it will store the Psix object. By default, Psix will not overwrite an existing Psix oject with the same name. If you want to overwrite an existing Psix object, you should use the ```overwrite=True``` argument when running ```save_psix_object```.
+This will create a directory named ```psix_output``` (if it doesn't exist already), where it will store the Psix object. By default, Psix will not overwrite an existing Psix oject with the same name. If you want to overwrite an existing Psix object, you should use the ```overwrite=True``` argument when running ```save_psix_object```.
 
-We can load an existing Psix object as follows:
-
+Next time we need to run Psix, we can load the results of the previous run (including the $\hat{\Psi}$ and mRNA tables, the Psix scores, and modules) by creating a new Psix object as follows:
 
 ```python
 psix_object = psix.Psix(psix_object = 'psix_output')
