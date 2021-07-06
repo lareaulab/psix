@@ -11,7 +11,7 @@ Inspired by autocorrelation approaches, Psix will tell you if an exon's splicing
 
 By comparing the probability of the observations given each model, Psix estimates a score <img src="https://render.githubusercontent.com/render/math?math=\Psi_\xi">. The higher the <img src="https://render.githubusercontent.com/render/math?math=\Psi_\xi"> score of an exon, the more confident we are that the exon is cell-state associated.
 
-<ADD LINKS TO EXAMPLES, INCLUDING FOR THE PAPER, HERE>
+* [Mouse midbrain development](https://github.com/lareaulab/analysis_psix/blob/main/midbrain_development/midbrain_development.ipynb)
 
 ## Installation
 
