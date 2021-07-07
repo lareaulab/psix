@@ -176,7 +176,7 @@ def solo_to_psi(
         if not tpm_exists:
             raise Exception('TPM file is required when processing smart-seq data')
 
-        mrna = tpm_to_mrna2(tpm_file)
+        mrna = tpm2mrna(tpm_file)
         ##### New thing
         cells = psi.columns & mrna.columns
         mrna = mrna[cells]
