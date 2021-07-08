@@ -6,8 +6,6 @@ import anndata
 from tqdm import tqdm
 from scipy.stats import gaussian_kde
 from numpy import random as r
-# from tpm_to_mrna import *
-#from .solo2psi import *
 
 
 def get_mrna_per_event(mrna, psi, reads, constitutive_sj, solo):#constitutive_sj_file):

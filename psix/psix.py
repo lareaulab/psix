@@ -16,13 +16,6 @@ from .turbo_tools import *
 from .solo2psi import *
 from .modules import local_correlation_plot, compute_modules_function
 
-
-
-# from deprecated_rnaseq_tools import *
-
-
-
-
 from tqdm import tqdm
 import itertools  
 
@@ -199,47 +192,5 @@ class Psix:
         if plot:
              self.modules = local_correlation_plot(self.exon_correlation, self.modules, self.linkage,
                                     z_cmap=z_cmap, yticklabels=yticklabels, plot_name = plot_name)
-        
-        
-    #### DEPRECATED
-        
-#     def process_rnaseq(
-#         self,
-#         solo_dir = '',
-#         intron_tab = '',
-#         cell_list = [],
-#         exon_sj_file = '',
-#         constitutive_sj_file = '',
-#         tpm_file = '',
-#         minJR = 1,
-#         minCell = 1,
-#         drop_duplicates = False,
-#         min_psi = 0.05,
-#         min_observed = 0.25,
-#         tenX = False,
-#     ):
-#         process_rnaseq_files(
-#             self,
-#             exon_sj_file,
-#             constitutive_sj_file = constitutive_sj_file,
-#             tpm_file = tpm_file,
-#             minJR = minJR,
-#             minCell = minCell,
-#             drop_duplicates = drop_duplicates,
-#             min_psi = min_psi,
-#             min_observed = min_observed,
-#             tenX = tenX
-#         )
-#     def plot_correlation_modules(self,
-#                                  z_cmap='RdBu_r', 
-#                                  yticklabels=False,
-#                                  plot_name = ''
-#                                 ):
-        
-#         return local_correlation_plot(self.exon_correlation, 
-#                                self.modules, self.linkage,
-#                                z_cmap=z_cmap, yticklabels=yticklabels,
-#                                plot_name = plot_name
-#                               )
         
         
