@@ -151,10 +151,10 @@ def solo_to_psi(
     tenX = False
 ):
 
-    print('Processing STARsolo output. This might take a few minutes...')
+    print('Processing STARsolo output. This might take a few minutes.....')
     intron_mtx_CI, intron_mtx_exons = process_solo(solo_dir, intron_file, cell_list)
 
-    print('Obtaining PSI tables.....')
+    print('Obtaining PSI tables...')
 
     psi, reads = get_psi_table_solo(intron_mtx_exons, minJR, minCell, tenX=tenX)
 
@@ -176,7 +176,9 @@ def solo_to_psi(
         if not tpm_exists:
             raise Exception('TPM file is required when processing smart-seq data')
 
-        mrna = tpm2mrna(tpm_file)
+        if len(cell_list) == 0:
+            cell_list = psi.columns
+        mrna = tpm2mrna(tpm_file, cell_list)
         ##### New thing
         cells = psi.columns & mrna.columns
         mrna = mrna[cells]
