@@ -151,7 +151,7 @@ def solo_to_psi(
     tenX = False
 ):
 
-    print('Processing STARsolo output. This might take a few minutes.....')
+    print('Processing STARsolo output. This might take a few minutes...')
     intron_mtx_CI, intron_mtx_exons = process_solo(solo_dir, intron_file, cell_list)
 
     print('Obtaining PSI tables...')
