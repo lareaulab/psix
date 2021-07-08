@@ -154,7 +154,7 @@ def solo_to_psi(
     print('Processing STARsolo output. This might take a few minutes...')
     intron_mtx_CI, intron_mtx_exons = process_solo(solo_dir, intron_file, cell_list)
 
-    print('Obtaining PSI tables...')
+    print('Obtaining PSI tables.....')
 
     psi, reads = get_psi_table_solo(intron_mtx_exons, minJR, minCell, tenX=tenX)
 
@@ -193,3 +193,4 @@ def solo_to_psi(
     self.adata.uns['mrna_per_event'] = mrna_per_event.loc[idx].T
 
     print('Successfully processed RNA-seq data')
+    
