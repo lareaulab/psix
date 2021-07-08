@@ -28,9 +28,9 @@ Missing package dependencies will be automatically installed.
 
 ## Psix input
 
-##### 1. SJ.out.tab files
+##### 1. SJ.out.tab files OR STARsolo SJ features
 
-We recommend mapping raw scRNA-seq reads using STAR version ≥ 2.5.3a. Psix uses the ```SJ.out.tab``` files from the STAR aligner. Individual files from each single cell should be stored in the same directory with the following naming format: ```cellID.SJ.out.tab```. The files can be gzipped (ending with ```.gz```), or uncompressed. If you are using STARsolo, go to **Running Psix with STARsolo**.
+We recommend mapping raw scRNA-seq reads using STAR version ≥ 2.5.3a. Psix uses the ```SJ.out.tab``` files from the STAR aligner. Individual files from each single cell should be stored in the same directory with the following naming format: ```cellID.SJ.out.tab```. The files can be gzipped (ending with ```.gz```), or uncompressed. Additionally, Psix can also work with the output of STARsolo when passing the argument ```--soloFeatures SJ```.
 
 ##### 2. TPM matrix for smart-seq2 only
 
