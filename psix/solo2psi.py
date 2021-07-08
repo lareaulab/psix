@@ -29,7 +29,7 @@ def read_solo_barcodes(solo_barcodes_path):
         barcodes = [row[0] for row in csv.reader(gzip.open(solo_barcodes_path, 'rt'), delimiter="\t")]
     else:
         barcodes = []
-        while open(solo_barcodes_path, 'r') as fh:
+        with open(solo_barcodes_path, 'r') as fh:
             for row in fh:
                 barcodes.append(row.rstrip())
     return barcodes
