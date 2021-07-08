@@ -11,7 +11,10 @@ Inspired by autocorrelation approaches, Psix will tell you if an exon's splicing
 
 By comparing the probability of the observations given each model, Psix estimates a score <img src="https://render.githubusercontent.com/render/math?math=\Psi_\xi">. The higher the <img src="https://render.githubusercontent.com/render/math?math=\Psi_\xi"> score of an exon, the more confident we are that the exon is cell-state associated.
 
+#### A few examples of running Psix in smart-seq2 data:
+
 * [Mouse midbrain development](https://github.com/lareaulab/analysis_psix/blob/main/midbrain_development/midbrain_development.ipynb)
+* [iPS cells neurogenesis](https://github.com/lareaulab/analysis_psix/blob/main/ipsc_neurogenesis/ipsc_neurogenesis.ipynb)
 
 ## Installation
 
@@ -25,9 +28,9 @@ Missing package dependencies will be automatically installed.
 
 ## Psix input
 
-##### 1. SJ.out.tab files
+##### 1. SJ.out.tab files OR STARsolo SJ features
 
-We recommend mapping raw scRNA-seq reads using STAR version ≥ 2.5.3a. Psix uses the ```SJ.out.tab``` files from the STAR aligner. Individual files from each single cell should be stored in the same directory with the following naming format: ```cellID.SJ.out.tab```. The files can be gzipped (ending with ```.gz```), or uncompressed. If you are using STARsolo, go to **Running Psix with STARsolo**.
+We recommend mapping raw scRNA-seq reads using STAR version ≥ 2.5.3a. Psix uses the ```SJ.out.tab``` files from the STAR aligner. Individual files from each single cell should be stored in the same directory with the following naming format: ```cellID.SJ.out.tab```. The files can be gzipped (ending with ```.gz```), or uncompressed. Additionally, Psix can also work with the output of STARsolo when passing the argument ```--soloFeatures SJ```.
 
 ##### 2. TPM matrix for smart-seq2 only
 
@@ -41,7 +44,7 @@ For small smart-seq2 datasets (fewer than 5000 cells), we recommend using SCONE 
 
 ##### 4. Cassette exon annotation
 
-This consists of a table specifying the location (chromosome, start and end) of splice junctions. Splice junctions are annotated as supporting the inclusion of a cassette exon (\_I1 and \_I2), supporting its exclusion (\_SE), or constitutive (\_CI). You can download ready-to-use mouse (mm10) and human (hg38) annotations [here](http://github.com/laeraulab/psix/annotations/). For creating your own cassette exon annotation, see **HERE INSERT LINK TO ANNOTATION PROCESSING**.
+This consists of a table specifying the location (chromosome, start and end) of splice junctions. Splice junctions are annotated as supporting the inclusion of a cassette exon (\_I1 and \_I2), supporting its exclusion (\_SE), or constitutive (\_CI). You can download ready-to-use mouse (mm10) and human (hg38) annotations [here](http://github.com/laeraulab/psix/annotation/). For creating your own cassette exon annotation, see **HERE INSERT LINK TO ANNOTATION PROCESSING**.
 
 ## Getting started
 
