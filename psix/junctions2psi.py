@@ -189,12 +189,8 @@ def junctions_dir_to_psi(
         
     
 
-    print('Collecting splice junctions...', flush=True)
+    print('Collecting splice junctions....', flush=True)
 
-#     if os.path.isfile(sj_file):
-#         sj_file = pd.read_csv(sj_file, sep='\t', index_col=0)
-
-#     else:
 
     if os.path.isfile(sj_dir):
         sj_file = pd.read_csv(sj_dir, sep='\t', index_col=0)
