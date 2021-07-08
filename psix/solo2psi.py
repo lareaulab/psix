@@ -25,7 +25,13 @@ def read_solo_features(solo_features_path):
     return intron_list
 
 def read_solo_barcodes(solo_barcodes_path):
-    barcodes = [row[0] for row in csv.reader(gzip.open(solo_barcodes_path, 'rt'), delimiter="\t")]
+    if solo_barcodes_path[-3:] == '.gz':
+        barcodes = [row[0] for row in csv.reader(gzip.open(solo_barcodes_path, 'rt'), delimiter="\t")]
+    else:
+        barcodes = []
+        while open(solo_barcodes_path, 'r') as fh:
+            for row in fh:
+                barcodes.append(row.rstrip())
     return barcodes
 
 def read_solo_matrix(solo_matrix_path, intron_list, barcodes, cell_list):
@@ -40,9 +46,26 @@ def read_solo_matrix(solo_matrix_path, intron_list, barcodes, cell_list):
 
 def process_solo(solo_dir, intron_file, cell_list):
     
-    solo_features_path = solo_dir + '/features.tsv.gz'
-    solo_barcodes_path = solo_dir + '/barcodes.tsv.gz'
-    solo_matrix_path = solo_dir + '/matrix.mtx.gz'
+    if os.path.isfile(solo_dir + '/features.tsv.gz'):
+        solo_features_path = solo_dir + '/features.tsv.gz'
+    elif os.path.isfile(solo_dir + '/features.tsv'):
+        solo_features_path = solo_dir + '/features.tsv'
+    else:
+        raise Exception('features file not found in solo directory')
+        
+    if os.path.isfile(solo_dir + '/barcodes.tsv.gz'):
+        solo_barcodes_path = solo_dir + '/barcodes.tsv.gz'
+    elif os.path.isfile(solo_dir + '/barcodes.tsv'):
+        solo_barcodes_path = solo_dir + '/barcodes.tsv'
+    else:
+        raise Exception('barcodes file not found in solo directory')
+        
+    if os.path.isfile(solo_dir + '/matrix.mtx.gz'):
+        solo_matrix_path = solo_dir + '/matrix.mtx.gz'
+    elif os.path.isfile(solo_dir + '/matrix.mtx.gz'):
+        solo_matrix_path = solo_dir + '/matrix.mtx'
+    else:
+        raise Exception('matrix file not found in solo directory')
     
     intron_list = read_solo_features(solo_features_path)
     barcodes = read_solo_barcodes(solo_barcodes_path)

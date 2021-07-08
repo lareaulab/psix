@@ -71,7 +71,15 @@ def get_SJ_table(rnaseq_dir, intron_file, cell_list):
     
     for cell in tqdm(cells, position = 0, leave=True):
         
-        cell_sj_file = sj_file = rnaseq_dir + '/' + cell + '.SJ.out.tab.gz'
+        
+        if os.path.isfile(rnaseq_dir + '/' + cell + '.SJ.out.tab.gz'):
+        
+            cell_sj_file = sj_file = rnaseq_dir + '/' + cell + '.SJ.out.tab.gz'
+        elif os.path.isfile(rnaseq_dir + '/' + cell + '.SJ.out.tab'):
+            cell_sj_file = sj_file = rnaseq_dir + '/' + cell + '.SJ.out.tab'
+        else:
+            raise Exception('Missing ' + cell + ' SJ.out.tab file')
+            
         cell_series = process_SJ_table(cell_sj_file, cell)
         series_list.append(cell_series)
         
