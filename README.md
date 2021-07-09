@@ -149,7 +149,7 @@ psix_object.compute_modules(plot = True)
 
 ![png](docs/_images/midbrain_modules.png)
 
-The modules for each cell-state associated exon can be found at ```psix_object.modules```. Each module is assigned an integer. Exons that are not assigned to any module are labeled with -1.
+The modules for each cell-state associated exon can be found at ```psix_object.modules```. This is a pandas Series that maps each exon to the number of the module to which they belong. Each module is assigned an integer. Exons that are not assigned to any module are labeled with -1.
 
 ### Saving and loading a Psix object
 
