@@ -62,7 +62,7 @@ class Psix:
         self,
         sj_dir,
         intron_file,
-        tpm_file,
+        tpm_file='',
         cell_list = [],
         minJR = 1,
         minCell = 1,
