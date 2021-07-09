@@ -14,7 +14,10 @@ By comparing the probability of the observations given each model, Psix estimate
 #### A few examples of running Psix in smart-seq2 data:
 
 * [Mouse midbrain development](https://github.com/lareaulab/analysis_psix/blob/main/midbrain_development/midbrain_development.ipynb)
+* [Mouse midbrain development (STARsolo)](https://github.com/lareaulab/analysis_psix/blob/main/midbrain_development/midbrain_development_STARsolo.ipynb)
 * [iPS cells neurogenesis](https://github.com/lareaulab/analysis_psix/blob/main/ipsc_neurogenesis/ipsc_neurogenesis.ipynb)
+* [mES cells neurogenesis](https://github.com/lareaulab/analysis_psix/blob/main/mesc_neurogenesis/mesc_neurogenesis.ipynb)
+* [Tabula Muris, Brain (in progress...)](https://github.com/lareaulab/analysis_psix/blob/main/tabula_muris_brain/tabula_muris_brain.ipynb)
 
 ## Installation
 
