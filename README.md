@@ -33,21 +33,21 @@ Missing package dependencies will be automatically installed.
 
 ##### 1. SJ.out.tab files OR STARsolo SJ features
 
-We recommend mapping raw scRNA-seq reads using STAR version ≥ 2.5.3a. Psix uses the ```SJ.out.tab``` files from the STAR aligner. Individual files from each single cell should be stored in the same directory with the following naming format: ```cellID.SJ.out.tab```. The files can be gzipped (ending with ```.gz```), or uncompressed. Additionally, Psix can also work with the output of STARsolo when passing the argument ```--soloFeatures SJ```.
+For calculating the matrix of exon <img src="https://render.githubusercontent.com/render/math?math=\hat{\Psi}">. We recommend mapping raw scRNA-seq reads using STAR version ≥ 2.5.3a. Psix uses the ```SJ.out.tab``` files from the STAR aligner. Individual files from each single cell should be stored in the same directory with the following naming format: ```cellID.SJ.out.tab```. The files can be gzipped (ending with ```.gz```), or uncompressed. Additionally, Psix can also work with the output of STARsolo when passing the argument ```--soloFeatures SJ```.
 
-##### 2. TPM matrix for smart-seq2 only
-
-The TPM matrix of **gene** expression can be obtained running different methods. We use RSEM version ≥ 1.2.31 because it can be run using STAR as the aligner. Other methods such as Kallisto can also be used to generate this matrix. This is only required for smart-seq2 data. Go to **Running Psix in UMI data** to see .
-
-##### 3. Low-dimensional cell space
-
-A low-dimensional cell space is provided by the user, since Psix does not perform dimensionality reduction. In principle Psix can run with any metric. However, we recommend using interpretable dimensionality reduction methods such as PCA over the normalized gene expression, while avoiding non-interpretable methods such as tSNE except for visualization. 
-
-For small smart-seq2 datasets (fewer than 5000 cells), we recommend using SCONE to select the best normalization method before applying a linear dimensionality reduction such as PCA. Alternatively, other methods such as ZINB-Wave can be used on this data. For larger datasets, we recommend using the latent space of scVI as the low-dimensional cell space.
-
-##### 4. Cassette exon annotation
+##### 2. Cassette exon annotation
 
 This consists of a table specifying the location (chromosome, start and end) of splice junctions. Splice junctions are annotated as supporting the inclusion of a cassette exon (\_I1 and \_I2), supporting its exclusion (\_SE), or constitutive (\_CI). You can download ready-to-use mouse (mm10) and human (hg38) annotations [here](http://github.com/laeraulab/psix/annotation/). For creating your own cassette exon annotation, see **HERE INSERT LINK TO ANNOTATION PROCESSING**.
+
+##### 3. TPM matrix (for smart-seq2 only)
+
+For estimating the number of mRNA molecules captured per observation, using the normalization described in [Qiu et al., 2017](https://www.nature.com/articles/nmeth.4150) and in [Buen Abad Najar et al., 2020](https://elifesciences.org/articles/54603). The TPM matrix of **gene** expression can be obtained running different methods. We use RSEM version ≥ 1.2.31 because it can be run using STAR as the aligner. Other methods such as Kallisto can also be used to generate this matrix. This is only required for smart-seq2 data. Go to **Running Psix in UMI data** to see the details about running Psix on UMI data.
+
+##### 4. Low-dimensional cell space
+
+To obtain a metric of phenotypic similarity between single cells. A low-dimensional cell space is provided by the user, since Psix does not perform dimensionality reduction. In principle Psix can run with any metric. However, we recommend using interpretable dimensionality reduction methods such as PCA over the normalized gene expression, while avoiding non-interpretable methods such as tSNE except for visualization. 
+
+For small smart-seq2 datasets (fewer than 5000 cells), we recommend using SCONE to select the best normalization method before applying a linear dimensionality reduction such as PCA. Alternatively, other methods such as ZINB-Wave can be used on this data. For larger datasets, we recommend using the latent space of scVI as the low-dimensional cell space.
 
 ## Getting started
 
@@ -171,9 +171,26 @@ Next time we need to run Psix, we can load the results of the previous run (incl
 psix_object = psix.Psix(psix_object = 'psix_output')
 ```
 
-## Runing Psix on UMI data
+### Creating a Psix from UMI data (Beta)
 
-In progress...
+Unique molecular identifier (UMI) based sequencing methods, such as 10X, provide an accurate estimate of how many mRNA molecules are captured per gene. For this reason, when running Psix on such data, we do not need to approximate the number of mRNA molecules by normalizing TPM counts. We specify to Psix that we are working with UMI data on the ```junctions2psi``` function:
+
+```python
+import psix
+
+psix_object = psix.Psix()
+psix_object.junctions2psi(
+        sj_dir='/path/to/SJ_files/directory/',
+        intron_file='/path/to/cassette_exon_annotation.tab',
+        save_files_in='psix_output/',
+        tenX = True
+    )
+```
+
+The ```TenX = True``` argument will let Psix know that it is working with UMI data. Notice that the ```tpm_file``` argument is not included; passing anything when ```tenX=True``` will be ignored. Not specifying a ```tpm_file``` when ```tenX=False``` (by default) will result in an error.
+
+After running ```junctions2psi```, the rest of the analysis is the same as when working with smart-seq2 data, including saving the processed tables, and the Psix object.
+
 
 ## Psix turbo
 
