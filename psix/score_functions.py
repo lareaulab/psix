@@ -7,6 +7,7 @@ from functools import partial
 from multiprocessing import Pool
 from tqdm import tqdm
 import itertools  
+from .turbo_tools import *
 
 def compute_psix_scores(self,
                         n_jobs=1,
