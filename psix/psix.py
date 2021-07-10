@@ -14,7 +14,7 @@ from .junctions2psi import *
 from .score_functions import *
 from .turbo_tools import *
 from .solo2psi import *
-from .modules import local_correlation_plot, compute_modules_function, plot_modules
+from .modules import local_correlation_plot, compute_modules_function, plot_modules_function
 from .turbo_tools import make_turbo
 
 from tqdm import tqdm
@@ -60,6 +60,7 @@ class Psix:
         
         if os.path.isdir(psix_object):
             self.adata = anndata.read_h5ad(psix_object+'/adata.gz')
+            self.latent = pd.read_csv(psix_object+'/latent.tab.gz', sep='\t', index_col=0)
             self.psix_results = pd.read_csv(psix_object+'/psix_results.tab.gz', sep='\t', index_col=0)
             self.modules = pd.read_csv(psix_object+'/modules.tab.gz', sep='\t', index_col=0).Modules
             
@@ -167,6 +168,12 @@ class Psix:
         
         if (not os.path.isfile(psix_dir+'/adata.gz')) or overwrite:
             self.adata.write(psix_dir+'/adata.gz', compression='gzip')
+            
+        if (not os.path.isfile(psix_dir+'/latent.tab.gz')) or overwrite:
+            try:
+                self.latent.to_csv(psix_dir+'/latent.tab.gz', sep='\t', index=True, header=True)
+            except:
+                print('No latent space to save.')
             
         if (not os.path.isfile(psix_dir+'/psix_results.tab.gz')) or overwrite:
             try:
