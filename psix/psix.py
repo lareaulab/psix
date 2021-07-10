@@ -221,6 +221,6 @@ class Psix:
                                     z_cmap=z_cmap, yticklabels=yticklabels, plot_name = plot_name)
                 
                 
-    def plot_modules(self):
-        plot_modules_function(self)
+    def plot_modules(self, save_plots=''):
+        plot_modules_function(self, save_plots)
         
