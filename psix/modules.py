@@ -516,7 +516,7 @@ def plot_modules_function(self):
         cb.outline.set_visible(False)
 
 
-        plt.title('Module '+str(mod), fontsize=8)
+        plt.title('Module '+str(mod), fontsize=12)
 
         ax.xaxis.pane.fill = False
         ax.yaxis.pane.fill = False
