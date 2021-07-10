@@ -37,7 +37,7 @@ For calculating the matrix of exon <img src="https://render.githubusercontent.co
 
 ##### 2. Cassette exon annotation
 
-This consists of a table specifying the location (chromosome, start and end) of splice junctions. Splice junctions are annotated as supporting the inclusion of a cassette exon (\_I1 and \_I2), supporting its exclusion (\_SE), or constitutive (\_CI). You can download ready-to-use mouse (mm10) and human (hg38) annotations [here](http://github.com/laeraulab/psix/annotation/). For creating your own cassette exon annotation, see **HERE INSERT LINK TO ANNOTATION PROCESSING**.
+This consists of a table specifying the location (chromosome, start and end) of splice junctions. Splice junctions are annotated as supporting the inclusion of a cassette exon (\_I1 and \_I2), supporting its exclusion (\_SE), or constitutive (\_CI). You can download ready-to-use mouse (mm10) and human (hg38) annotations [here](https://github.com/lareaulab/psix/tree/master/annotation). For creating your own cassette exon annotation from GTF files, see [GTF2psi](https://github.com/cfbuenabadn/sc_splicing_tools).
 
 ##### 3. TPM matrix (for smart-seq2 only)
 
