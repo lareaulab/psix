@@ -14,7 +14,7 @@ from .junctions2psi import *
 from .score_functions import *
 from .turbo_tools import *
 from .solo2psi import *
-from .modules import local_correlation_plot, compute_modules_function
+from .modules import local_correlation_plot, compute_modules_function, plot_modules
 
 from tqdm import tqdm
 import itertools  
@@ -192,5 +192,9 @@ class Psix:
         if plot:
              self.modules = local_correlation_plot(self.exon_correlation, self.modules, self.linkage,
                                     z_cmap=z_cmap, yticklabels=yticklabels, plot_name = plot_name)
+                
+                
+    def plot_modules(self):
+        plot_modules_function(self)
         
         

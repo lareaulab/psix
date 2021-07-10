@@ -8,6 +8,7 @@ import os
 cm = 1/2.54
 import matplotlib as mpl
 from matplotlib import pyplot as plt
+from scipy.stats import zscore
 
 plt.rcParams["axes.edgecolor"] = "black"
 plt.rcParams["axes.linewidth"] = 1
@@ -487,3 +488,50 @@ def compute_modules_function(exon_correlation, min_gene_threshold=30, fdr_thresh
     out_clusters.name = 'Module'
 
     return out_clusters, linkage_out
+
+
+def plot_modules_function(self)
+    background_psi = self.adata.uns['neighbors_psi'].T
+
+    for mod in range(1, 11):
+
+        mad_df = pd.DataFrame()
+        for exon in self.modules.index[self.modules==mod]:
+            mad_df[exon] = zscore(background_psi.loc[exon])
+        mad_df.index= self.adata.uns['psi'].index
+
+        fig = plt.figure(figsize=(4.5, 3))
+        ax = fig.add_subplot(111, projection='3d')
+        ax.patch.set_visible(False)
+
+        sc = ax.scatter(self.latent.PC_1, 
+                        self.latent.PC_2,
+                        self.latent.PC_3,
+                        c=mad_df.mean(axis=1), cmap='viridis', s=20, alpha=0.9, linewidth=0)
+
+        cb = plt.colorbar(sc, shrink = 0.5, aspect=5)
+        cb.set_label(label='normalized $\hat{\Psi}$',size=8)
+        cb.ax.tick_params(labelsize=8, length=2)
+
+        cb.outline.set_visible(False)
+
+
+        plt.title('Module '+str(mod), fontsize=8)
+
+        ax.xaxis.pane.fill = False
+        ax.yaxis.pane.fill = False
+        ax.zaxis.pane.fill = False
+
+        # Now set color to white (or whatever is "invisible")
+        ax.xaxis.pane.set_edgecolor('w')
+        ax.yaxis.pane.set_edgecolor('w')
+        ax.zaxis.pane.set_edgecolor('w')
+
+        ax.axis("off")
+
+        ax.spines["right"].set_visible(False)
+        ax.spines["top"].set_visible(False)
+        ax.tick_params(labelsize=0, length=0)
+        ax.grid(False)
+        plt.show()
+
