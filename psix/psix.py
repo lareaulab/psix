@@ -15,7 +15,7 @@ from .score_functions import *
 from .turbo_tools import *
 from .solo2psi import *
 from .modules import local_correlation_plot, compute_modules_function, plot_modules_function
-from .turbo_tools import make_turbo
+from .turbo_tools import make_turbo_function
 
 from tqdm import tqdm
 import itertools  
