@@ -15,6 +15,7 @@ from .score_functions import *
 from .turbo_tools import *
 from .solo2psi import *
 from .modules import local_correlation_plot, compute_modules_function, plot_modules
+from .turbo_tools import make_turbo
 
 from tqdm import tqdm
 import itertools  
@@ -31,6 +32,21 @@ mpl.rcParams['pdf.fonttype'] = 42
 
 import warnings
 warnings.filterwarnings("ignore")
+
+
+def make_turbo(out_dir = 'psix_turbo/', 
+                   granularity = 0.01, 
+                   max_mrna = 20, 
+                   capture_efficiency = 0.1, 
+                   min_probability = 0.01
+                  ):
+        
+    make_turbo_function(out_dir = out_dir, 
+                        granularity = granularity, 
+                        max_mrna = max_mrna, 
+                        capture_efficiency = capture_efficiency, 
+                        min_probability = min_probability
+                       )
 
 
 class Psix:
@@ -196,5 +212,4 @@ class Psix:
                 
     def plot_modules(self):
         plot_modules_function(self)
-        
         

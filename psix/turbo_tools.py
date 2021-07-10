@@ -14,7 +14,7 @@ def load_turbo(turbo_dir = 'psix_turbo/'):
     return turbo_dict
 
 
-def make_turbo(out_dir = 'psix_turbo/', granularity = 0.01, max_mrna = 20, capture_efficiency=0.1, min_probability=0.01):
+def make_turbo_function(out_dir = 'psix_turbo/', granularity = 0.01, max_mrna = 20, capture_efficiency=0.1, min_probability=0.01):
     if not os.path.isdir(out_dir):
         os.mkdir(out_dir)
     observed_range = np.arange(0, 1+granularity, granularity)
