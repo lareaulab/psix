@@ -59,10 +59,14 @@ class Psix:
         
         
         if os.path.isdir(psix_object):
-            self.adata = anndata.read_h5ad(psix_object+'/adata.gz')
-            self.latent = pd.read_csv(psix_object+'/latent.tab.gz', sep='\t', index_col=0)
-            self.psix_results = pd.read_csv(psix_object+'/psix_results.tab.gz', sep='\t', index_col=0)
-            self.modules = pd.read_csv(psix_object+'/modules.tab.gz', sep='\t', index_col=0).Modules
+            if os.path.isfile(psix_object+'/adata.gz'):
+                self.adata = anndata.read_h5ad(psix_object+'/adata.gz')
+            if os.path.isfile(psix_object+'/latent.tab.gz'):
+                self.latent = pd.read_csv(psix_object+'/latent.tab.gz', sep='\t', index_col=0)
+            if os.path.isfile(psix_object+'/psix_results.tab.gz'):
+                self.psix_results = pd.read_csv(psix_object+'/psix_results.tab.gz', sep='\t', index_col=0)
+            if os.path.isfile(psix_object+'/modules.tab.gz'):
+                self.modules = pd.read_csv(psix_object+'/modules.tab.gz', sep='\t', index_col=0).Modules
             
         else:
             self.adata = anndata.AnnData()
