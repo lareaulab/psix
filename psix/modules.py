@@ -490,7 +490,7 @@ def compute_modules_function(exon_correlation, min_gene_threshold=30, fdr_thresh
     return out_clusters, linkage_out
 
 
-def plot_modules_function(self):
+def plot_modules_function(self, save_plots):
     background_psi = self.adata.uns['neighbors_psi'].T
 
     for mod in range(1, 11):
@@ -533,5 +533,9 @@ def plot_modules_function(self):
         ax.spines["top"].set_visible(False)
         ax.tick_params(labelsize=0, length=0)
         ax.grid(False)
-        plt.show()
+        
+        if os.path.isdir(save_plots):
+            plt.savefig(save_plots + '/module_'+str(mod), bbox_inches='tight', res=20000, dpi =2000)
+        else:
+            plt.show()
 
