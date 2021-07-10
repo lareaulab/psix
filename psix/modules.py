@@ -490,7 +490,7 @@ def compute_modules_function(exon_correlation, min_gene_threshold=30, fdr_thresh
     return out_clusters, linkage_out
 
 
-def plot_modules_function(self)
+def plot_modules_function(self):
     background_psi = self.adata.uns['neighbors_psi'].T
 
     for mod in range(1, 11):
