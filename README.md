@@ -154,6 +154,8 @@ psix_object.compute_modules(plot = True)
 
 The modules for each cell-state associated exon can be found at ```psix_object.modules```. This is a pandas Series that maps each exon to the number of the module to which they belong. Each module is assigned an integer. Exons that are not assigned to any module are labeled with -1.
 
+### ADD PLOTTING MODULES, add it as 2D as well
+
 ### Saving and loading a Psix object
 
 We can save out Psix object for future uses. This will allow us to skip all the preprocessing, scoring and clustering steps. We can save out object by running the following command:
@@ -194,6 +196,29 @@ After running ```junctions2psi```, the rest of the analysis is the same as when 
 
 ## Psix turbo
 
-The most time consuming step of Psix is calculating the Psix score of each cell. When estimating the score of large datasets, specially when estimating the $p$-values, this can make Psix take a few hours to run. To work around these time limitations, we implemented a Turbo functionality for Psix. Psix Turbo uses predefined look-up tables to efficiently assign a Psix score to each cell at a minor cost in accuracy.
+The most time consuming step of Psix is calculating the Psix score of each cell. When estimating the score of large datasets, specially when estimating the p-values, this can make Psix take a few hours to run. To work around these time limitations, we implemented a turbo functionality for Psix. Psix Turbo uses predefined look-up tables to efficiently assign a Psix score to each cell at a minor cost in accuracy.
 
-In progress...
+To use Psix turbo, we need to pre-compute look-up tables first as follows:
+
+```python
+import psix
+psix.make_turbo(out_dir = 'psix_turbo/', 
+                granularity = 0.01, 
+                max_mrna = 20, 
+                capture_efficiency = 0.1, 
+                min_probability = 0.01
+               )
+```
+
+This will create a directory with the look-up tables at ```psix_turbo/```. You can download a pre-computed directory of look-up tables [here](https://github.com/lareaulab/psix/tree/master/psix/psix_turbo). 
+
+Once we have out look-up table index, we can tun Psix turbo simply by specifying the location of this directory when running ```run_psix```:
+
+```python
+psix_object.run_psix(atent='/path/to/low_dimensional_space.tab', 
+                     n_random_exons=2000, 
+                     n_neighbors=100, 
+                     turbo='psix_turbo/')
+```
+
+This will cut the runtime several orders of magnitude shorter at a small cost in accuracy.
