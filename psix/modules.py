@@ -501,33 +501,61 @@ def plot_modules_function(self, save_plots):
         mad_df.index= self.adata.uns['psi'].index
 
         fig = plt.figure(figsize=(4.5, 3))
-        ax = fig.add_subplot(111, projection='3d')
-        ax.patch.set_visible(False)
+        
+        dimensions = self.latent.columns
+        
+        d1 = dimensions[0]
+        
+        if len(dimensions) == 1:
+            
+            ax = fig.add_subplot(111)
+            ax.scatter(self.latent[d1], 
+                       mad_df.mean(axis=1), c='navy', s=20, alpha=0.9, linewidth=0)
+        else:
+            
+            if len(dimensions) == 2:
+                d2 = dimensions[1]
+                ax = fig.add_subplot(111)
+                ax.scatter(self.latent[d1], 
+                           self.latent[d2],
+                           c = mad_df.mean(axis=1), cmap='viridis', s=20, alpha=0.9, linewidth=0)
 
-        sc = ax.scatter(self.latent.PC_1, 
-                        self.latent.PC_2,
-                        self.latent.PC_3,
-                        c=mad_df.mean(axis=1), cmap='viridis', s=20, alpha=0.9, linewidth=0)
+            else:
+                d2 = dimensions[1]
+                d3 = dimensions[2]
+                ax = fig.add_subplot(111, projection='3d')
+                ax.patch.set_visible(False)
 
-        cb = plt.colorbar(sc, shrink = 0.5, aspect=5)
-        cb.set_label(label='normalized $\hat{\Psi}$',size=8)
-        cb.ax.tick_params(labelsize=8, length=2)
 
-        cb.outline.set_visible(False)
+
+                sc = ax.scatter(self.latent[d1], 
+                                self.latent[d2],
+                                self.latent[d3],
+                                c=mad_df.mean(axis=1), cmap='viridis', s=20, alpha=0.9, linewidth=0)
+
+                ax.xaxis.pane.fill = False
+                ax.yaxis.pane.fill = False
+                ax.zaxis.pane.fill = False
+
+                ax.xaxis.pane.set_edgecolor('w')
+                ax.yaxis.pane.set_edgecolor('w')
+                ax.zaxis.pane.set_edgecolor('w')
+
+                ax.axis("off")
+
+
+
+            cb = plt.colorbar(sc, shrink = 0.5, aspect=5)
+            cb.set_label(label='normalized $\hat{\Psi}$',size=8)
+            cb.ax.tick_params(labelsize=8, length=2)
+
+            cb.outline.set_visible(False)
 
 
         plt.title('Module '+str(mod), fontsize=12)
 
-        ax.xaxis.pane.fill = False
-        ax.yaxis.pane.fill = False
-        ax.zaxis.pane.fill = False
-
-        # Now set color to white (or whatever is "invisible")
-        ax.xaxis.pane.set_edgecolor('w')
-        ax.yaxis.pane.set_edgecolor('w')
-        ax.zaxis.pane.set_edgecolor('w')
-
-        ax.axis("off")
+        
+        
 
         ax.spines["right"].set_visible(False)
         ax.spines["top"].set_visible(False)
