@@ -511,12 +511,15 @@ def plot_modules_function(self, save_plots):
             ax = fig.add_subplot(111)
             ax.scatter(self.latent[d1], 
                        mad_df.mean(axis=1), c='navy', s=20, alpha=0.9, linewidth=0)
+            
+            ax.set_xlabel(d1, size = 12)
+            ax.set_ylabel('normalized $\hat{\Psi}$', size = 12)
         else:
             
             if len(dimensions) == 2:
                 d2 = dimensions[1]
                 ax = fig.add_subplot(111)
-                ax.scatter(self.latent[d1], 
+                sc = ax.scatter(self.latent[d1], 
                            self.latent[d2],
                            c = mad_df.mean(axis=1), cmap='viridis', s=20, alpha=0.9, linewidth=0)
 
@@ -546,10 +549,13 @@ def plot_modules_function(self, save_plots):
 
 
             cb = plt.colorbar(sc, shrink = 0.5, aspect=5)
-            cb.set_label(label='normalized $\hat{\Psi}$',size=8)
+            cb.set_label(label='normalized $\hat{\Psi}$',size=12)
             cb.ax.tick_params(labelsize=8, length=2)
 
             cb.outline.set_visible(False)
+            
+            ax.spines["left"].set_visible(False)
+            ax.spines["bottom"].set_visible(False)
 
 
         plt.title('Module '+str(mod), fontsize=12)
@@ -559,6 +565,8 @@ def plot_modules_function(self, save_plots):
 
         ax.spines["right"].set_visible(False)
         ax.spines["top"].set_visible(False)
+        
+        
         ax.tick_params(labelsize=0, length=0)
         ax.grid(False)
         
