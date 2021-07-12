@@ -493,7 +493,9 @@ def compute_modules_function(exon_correlation, min_gene_threshold=30, fdr_thresh
 def plot_modules_function(self, save_plots):
     background_psi = self.adata.uns['neighbors_psi'].T
 
-    for mod in range(1, 11):
+    
+    modules = self.modules.unique()
+    for mod in range(1, len(modules)):
 
         mad_df = pd.DataFrame()
         for exon in self.modules.index[self.modules==mod]:
