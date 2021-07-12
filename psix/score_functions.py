@@ -39,7 +39,7 @@ def compute_psix_scores(self,
         print('Computing cell-cell metric...', flush=True)
         self.get_cell_metric(latent=latent, n_neighbors = n_neighbors, weight_metric=weight_metric)
 
-    print('Computing Psix score in ' + str(len(self.adata.uns['psi'].columns)) + ' exons')
+    print('Computing Psix score in ' + str(len(self.adata.uns['psi'].columns)) + ' exons', flush=True)
 
 
     exon_list = self.adata.uns['psi'].columns
@@ -73,12 +73,12 @@ def compute_psix_scores(self,
     self.psix_results.index = exon_list
     self.psix_results = self.psix_results.sort_values('psix_score', ascending=False)
 
-    print('Successfully computed Psix score of exons.')
-    print('Estimating p-values. This might take a while...')
+    print('Successfully computed Psix score of exons.', flush=True)
+    print('Estimating p-values. This might take a while...', flush=True)
 
     compute_pvalues(self)
 
-    print('Successfully estimated p-values')
+    print('Successfully estimated p-values', flush=True)
 
 
     
