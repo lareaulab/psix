@@ -64,11 +64,9 @@ def compute_psix_scores(self,
             exon_score_array = list(
                 tqdm(
                     pool.imap(psix_score_parallel, exon_list, chunksize=chunksize),
-#                     pool.imap(self.psix_score_parallel, exon_list, chunksize=chunksize),
                     total=len(exon_list), position=0, leave=True
                 )
             )
-#              = results
 
     self.psix_results = pd.DataFrame()
     self.psix_results['psix_score'] = exon_score_array
@@ -118,7 +116,7 @@ def compute_pvalues(self):
     all_buckets = list(itertools.product(mean_list, var_list))
 
     if self.n_jobs == 1:
-        for bucket in all_buckets:
+        for bucket in tqdm(all_buckets, position=0, leave=True):
             buckets_scores = compute_random_exons(bucket, self)
             self.random_scores[bucket[0]][bucket[1]] = buckets_scores
 
@@ -188,7 +186,7 @@ def compute_random_exons(bucket, self):
                        randomize = True,  
                        min_probability = self.min_probability,
                        seed=self.seed,
-                       turbo = self.turbo) for exon in tqdm(r_choice, position=0, leave=True)]
+                       turbo = self.turbo) for exon in r_choice]
             ######################
 
 
