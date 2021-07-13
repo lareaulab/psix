@@ -149,8 +149,7 @@ Psix can find modules of correlated exons by using the neighbor average <img src
 psix_object.compute_modules(plot = True)
 ```
 
-
-![png](docs/_images/midbrain_modules.png)
+<img src="docs/_images/midbrain_modules.png" width="500"/>
 
 The modules for each cell-state associated exon can be found at ```psix_object.modules```. This is a pandas Series that maps each exon to the number of the module to which they belong. Each module is assigned an integer. Exons that are not assigned to any module are labeled with -1.
 
@@ -159,6 +158,8 @@ We can also visualize the average normalized splicing of the labeled modules in 
 ```python
 psix_object.plot_modules(save_plots='plots/')
 ```
+
+Here we show a few examples:
 
 <img src="docs/_images/module_1.png" width="200"/>
 <img src="docs/_images/module_2.png" width="200"/>
