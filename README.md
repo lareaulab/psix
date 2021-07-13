@@ -159,10 +159,11 @@ We can also visualize the average normalized splicing of the labeled modules in 
 ```python
 psix_object.plot_modules(save_plots='plots/')
 ```
-![png](docs/_images/module_1.png)
-![png](docs/_images/module_2.png)
-![png](docs/_images/module_8.png)
-![png](docs/_images/module_9.png)
+
+<img src="docs/_images/module_1.png" width="200"/>
+<img src="docs/_images/module_2.png" width="200"/>
+<img src="docs/_images/module_8.png" width="200"/>
+<img src="docs/_images/module_9.png" width="200"/>
 
 The argument ```save_plots``` indicates a directory where the plots are saved in PNG format. Leaving the argument empty (default) will only show the plots, without saving them.
 
