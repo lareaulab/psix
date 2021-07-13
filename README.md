@@ -154,7 +154,17 @@ psix_object.compute_modules(plot = True)
 
 The modules for each cell-state associated exon can be found at ```psix_object.modules```. This is a pandas Series that maps each exon to the number of the module to which they belong. Each module is assigned an integer. Exons that are not assigned to any module are labeled with -1.
 
-### ADD PLOTTING MODULES, add it as 2D as well
+We can also visualize the average normalized splicing of the labeled modules in the single cell population as follows:
+
+```python
+psix_object.plot_modules(save_plots='plots/')
+```
+![png](docs/_images/module_1.png)
+![png](docs/_images/module_2.png)
+![png](docs/_images/module_8.png)
+![png](docs/_images/module_9.png)
+
+The argument ```save_plots``` indicates a directory where the plots are saved in PNG format. Leaving the argument empty (default) will only show the plots, without saving them.
 
 ### Saving and loading a Psix object
 
