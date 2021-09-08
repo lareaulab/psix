@@ -62,7 +62,7 @@ def process_solo(solo_dir, intron_file, cell_list):
         
     if os.path.isfile(solo_dir + '/matrix.mtx.gz'):
         solo_matrix_path = solo_dir + '/matrix.mtx.gz'
-    elif os.path.isfile(solo_dir + '/matrix.mtx.gz'):
+    elif os.path.isfile(solo_dir + '/matrix.mtx'):
         solo_matrix_path = solo_dir + '/matrix.mtx'
     else:
         raise Exception('matrix file not found in solo directory')
