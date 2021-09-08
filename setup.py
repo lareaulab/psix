@@ -14,7 +14,7 @@ setup(
 
     install_requires=[
         'matplotlib>=3.2.1',
-        'numba>=0.49.0',
+        'numba>=0.43.1',
         'numpy>=1.18.1',
         'seaborn>=0.10.0',
         'scipy>=1.4.1',
@@ -24,9 +24,6 @@ setup(
         'scikit-learn>=0.22.2',
         'anndata>=0.7.5',
     ],
-#     extras_require=dict(
-#         test=['pytest>=5.0.0'],
-#     ),
 
     include_package_data=True,
 

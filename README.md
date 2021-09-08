@@ -9,9 +9,9 @@ Inspired by autocorrelation approaches, Psix will tell you if an exon's splicing
 * Model 1: exon usage is cell-state associated. Under this model, each cell's <img src="https://render.githubusercontent.com/render/math?math=\hat{\Psi}"> is more likely to be similar to the average of its neighbors, than to the global average.
 * Model 2: exon usage is independent of cell state. Under this model, each cell's <img src="https://render.githubusercontent.com/render/math?math=\hat{\Psi}"> is equally likely to be similar to the average of its neighbors, than to the global average.
 
-By comparing the probability of the observations given each model, Psix estimates a score <img src="https://render.githubusercontent.com/render/math?math=\Psi_\xi">. The higher the <img src="https://render.githubusercontent.com/render/math?math=\Psi_\xi"> score of an exon, the more confident we are that the exon is cell-state associated.
+By comparing the probability of the observations given each model, Psix estimates a score. The higher the score of an exon, the more confident we are that the exon is cell-state associated.
 
-#### A few examples of running Psix in smart-seq2 data:
+#### A few examples of running Psix on smart-seq2 data:
 
 * [Mouse midbrain development](https://github.com/lareaulab/analysis_psix/blob/main/midbrain_development/midbrain_development.ipynb)
 * [Mouse midbrain development (STARsolo)](https://github.com/lareaulab/analysis_psix/blob/main/midbrain_development/midbrain_development_STARsolo.ipynb)
@@ -149,8 +149,7 @@ Psix can find modules of correlated exons by using the neighbor average <img src
 psix_object.compute_modules(plot = True)
 ```
 
-
-![png](docs/_images/midbrain_modules.png)
+<img src="docs/_images/midbrain_modules.png" width="500"/>
 
 The modules for each cell-state associated exon can be found at ```psix_object.modules```. This is a pandas Series that maps each exon to the number of the module to which they belong. Each module is assigned an integer. Exons that are not assigned to any module are labeled with -1.
 
@@ -159,6 +158,8 @@ We can also visualize the average normalized splicing of the labeled modules in 
 ```python
 psix_object.plot_modules(save_plots='plots/')
 ```
+
+Here we show a few examples:
 
 <img src="docs/_images/module_1.png" width="200"/>
 <img src="docs/_images/module_2.png" width="200"/>
@@ -178,13 +179,13 @@ psix_object.save_psix_object(psix_dir = 'psix_output')
 
 This will create a directory named ```psix_output``` (if it doesn't exist already), where it will store the Psix object. By default, Psix will not overwrite an existing Psix oject with the same name. If you want to overwrite an existing Psix object, you should use the ```overwrite=True``` argument when running ```save_psix_object```.
 
-Next time we need to run Psix, we can load the results of the previous run (including the $\hat{\Psi}$ and mRNA tables, the Psix scores, and modules) by creating a new Psix object as follows:
+Next time we need to run Psix, we can load the results of the previous run (including the <img src="https://render.githubusercontent.com/render/math?math=\hat{\Psi}"> and mRNA tables, the Psix scores, and modules) by creating a new Psix object as follows:
 
 ```python
 psix_object = psix.Psix(psix_object = 'psix_output')
 ```
 
-### Creating a Psix from UMI data (Beta)
+### Creating a Psix object from UMI data (Beta)
 
 Unique molecular identifier (UMI) based sequencing methods, such as 10X, provide an accurate estimate of how many mRNA molecules are captured per gene. For this reason, when running Psix on such data, we do not need to approximate the number of mRNA molecules by normalizing TPM counts. We specify to Psix that we are working with UMI data on the ```junctions2psi``` function:
 
