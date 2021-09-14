@@ -1,6 +1,7 @@
 # Psix
 
-Psix is a computational tool for identifying cell-state associated alternative splicing events in single cell RNA-seq (scRNA-seq) data.
+Psix is a computational tool for identifying cell-state associated alternative splicing events in single cell RNA-seq (scRNA-seq) data, described in 
+[Buen Abad Najar et al, 2021](https://www.biorxiv.org/content/10.1101/2021.07.23.453605v2).
 
 Inspired by autocorrelation approaches, Psix will tell you if an exon's splicing is significantly associated with a cell metric that shows the relationships between single cells. In practice, this map could be a low-dimensional representation of the gene expression of a single cell population. Psix also identified modules of potentially co-regulated exons.
 
@@ -13,8 +14,8 @@ By comparing the probability of the observations given each model, Psix estimate
 
 #### A few examples of running Psix on smart-seq2 data:
 
-* [Mouse midbrain development](https://github.com/lareaulab/analysis_psix/blob/main/midbrain_development/midbrain_development.ipynb)
-* [Mouse midbrain development (STARsolo)](https://github.com/lareaulab/analysis_psix/blob/main/midbrain_development/midbrain_development_STARsolo.ipynb)
+* [Mouse midbrain development](https://github.com/lareaulab/analysis_psix/blob/main/midbrain_development/midbrain_development.ipynb) (the main analysis featured in our preprint)
+* [Mouse midbrain development (STARsolo)](https://github.com/lareaulab/analysis_psix/blob/main/midbrain_development/midbrain_development_STARsolo.ipynb) (beta version, in progress)
 * [iPS cells neurogenesis](https://github.com/lareaulab/analysis_psix/blob/main/ipsc_neurogenesis/ipsc_neurogenesis.ipynb)
 * [mES cells neurogenesis](https://github.com/lareaulab/analysis_psix/blob/main/mesc_neurogenesis/mesc_neurogenesis.ipynb)
 * [Tabula Muris, Brain (in progress...)](https://github.com/lareaulab/analysis_psix/blob/main/tabula_muris_brain/tabula_muris_brain.ipynb)
