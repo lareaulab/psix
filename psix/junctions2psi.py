@@ -8,9 +8,9 @@ from .mrna_census import *
 
 
 
-def process_SJ_dir(rnaseq_dir, intron_file, save_files_in = '', cell_list = []):
+def process_SJ_dir(rnaseq_dir, intron_file, save_files_in = '', cell_list = [], dtype=np.float64):
     
-    splice_junction_table = get_SJ_table(rnaseq_dir, intron_file, cell_list = cell_list)
+    splice_junction_table = get_SJ_table(rnaseq_dir, intron_file, cell_list = cell_list, dtype=dtype)
     
     if os.path.isdir(save_files_in):
         splice_junction_table.to_csv(save_files_in + '/splice_junctions.tab.gz', sep='\t', header=True, index=True)
@@ -40,7 +40,7 @@ def process_SJ_line(line, idx, sj_counts):
     return idx, sj_counts
 
 
-def process_SJ_table(cell_sj_file, cell):
+def process_SJ_table(cell_sj_file, cell, dtype):
     
     idx = []
     sj_counts = []
@@ -54,12 +54,12 @@ def process_SJ_table(cell_sj_file, cell):
             for line in fh:
                 idx, sj_counts = process_SJ_line(line, idx, sj_counts)
             
-    cell_series = pd.Series(sj_counts, index=idx, name=cell)
+    cell_series = pd.Series(sj_counts, index=idx, name=cell, dtype=dtype)
     
     return cell_series
 
 
-def get_SJ_table(rnaseq_dir, intron_file, cell_list):
+def get_SJ_table(rnaseq_dir, intron_file, cell_list, dtype):
     
     if len(cell_list) > 0:
         cells = cell_list
@@ -80,7 +80,7 @@ def get_SJ_table(rnaseq_dir, intron_file, cell_list):
         else:
             raise Exception('Missing ' + cell + ' SJ.out.tab file')
             
-        cell_series = process_SJ_table(cell_sj_file, cell)
+        cell_series = process_SJ_table(cell_sj_file, cell, dtype)
         series_list.append(cell_series)
         
     sj_table = pd.concat(series_list, axis=1)
@@ -184,7 +184,8 @@ def junctions_dir_to_psi(
         minPsi = 0.05,
         min_observed = 0.25,
         tenX = False,
-        save_files_in = ''
+        save_files_in = '',
+        dtype=np.float64
     ):
         
     
@@ -199,7 +200,8 @@ def junctions_dir_to_psi(
         sj_file = process_SJ_dir(sj_dir,
                              intron_file,
                              save_files_in = save_files_in,
-                             cell_list = cell_list
+                             cell_list = cell_list,
+                             dtype=dtype
                             )
 
     print('Obtaining PSI tables...')
@@ -227,7 +229,7 @@ def junctions_dir_to_psi(
 
         if len(cell_list) == 0:
             cell_list = psi.columns
-        mrna = tpm2mrna(tpm_file, cell_list)
+        mrna = tpm2mrna(tpm_file, cell_list, dtype=dtype)
         ##### New thing
         cells = psi.columns & mrna.columns
         mrna = mrna[cells]

@@ -91,7 +91,8 @@ class Psix:
         min_observed = 0.25,
         tenX = False,
         solo = False,
-        save_files_in = ''
+        save_files_in = '',
+        dtype=np.float64
        ):
         
         if (len(save_files_in) > 0) and not os.path.isdir(save_files_in):
@@ -105,7 +106,7 @@ class Psix:
         else:
             junctions_dir_to_psi(self, sj_dir = sj_dir, intron_file = intron_file, tpm_file = tpm_file,
                 cell_list = cell_list, minJR = minJR, minCell = minCell, minPsi = minPsi,
-                min_observed = min_observed, tenX = tenX, save_files_in = save_files_in)
+                min_observed = min_observed, tenX = tenX, save_files_in = save_files_in, dtype=dtype)
         
         
     def get_cell_metric(self, latent, n_neighbors = 100, weight_metric=True):
