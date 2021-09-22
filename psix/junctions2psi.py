@@ -188,6 +188,8 @@ def junctions_dir_to_psi(
         dtype=np.float64
     ):
         
+    if dype not in [np.float64, np.float32, np.float16, np.float8]:
+        raise Exception('dtype has to be numpy float type')
     
 
     print('Collecting splice junctions....', flush=True)
@@ -214,6 +216,7 @@ def junctions_dir_to_psi(
 
     psi = psi.loc[selected_exons]
     reads = reads.loc[selected_exons]
+    
 
     if tenX:
         mrna_per_event = reads
@@ -243,14 +246,22 @@ def junctions_dir_to_psi(
         idx = self.adata.obs.index & mrna_per_event.index
     else:
         idx = mrna_per_event.index
+        
+    if dtype == np.float64:
+        psi = psi.loc[idx]
+        mrna_per_event = mrna_per_event.loc[idx]
+    else:
+        # setting to np.float32 for compatibility with numba
+        psi = psi.loc[idx].astype(np.float32)
+        mrna_per_event = mrna_per_event.loc[idx].astype(np.float32)
 
     if os.path.isdir(save_files_in):
-        psi.loc[idx].to_csv(save_files_in + '/psi.tab.gz', sep='\t', 
+        psi.to_csv(save_files_in + '/psi.tab.gz', sep='\t', 
                    index=True, header=True)
-        mrna_per_event.loc[idx].to_csv(save_files_in + '/mrna.tab.gz', sep='\t', 
+        mrna_per_event.to_csv(save_files_in + '/mrna.tab.gz', sep='\t', 
                    index=True, header=True)
 
-    self.adata.uns['psi'] = psi.loc[idx].T
-    self.adata.uns['mrna_per_event'] = mrna_per_event.loc[idx].T
+    self.adata.uns['psi'] = psi.T
+    self.adata.uns['mrna_per_event'] = mrna_per_event.T
 
     print('Successfully processed RNA-seq data')
