@@ -22,7 +22,7 @@ By comparing the probability of the observations given each model, Psix estimate
 
 ## Installation
 
-Psix is a Python module and it requires Python version 3.6 or higher. Psix is installed directly from github using the following command:
+Psix is a Python module and it requires Python version 3.7 or higher. Psix is installed directly from github using the following command:
 
 ```
 pip install git+https://github.com/lareaulab/psix.git
