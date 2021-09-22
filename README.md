@@ -208,6 +208,9 @@ The ```TenX = True``` argument will let Psix know that it is working with UMI da
 
 After running ```junctions2psi```, the rest of the analysis is the same as when working with smart-seq2 data, including saving the processed tables, and the Psix object.
 
+### A note on large datasets (Beta)
+
+By default, Psix works on Pandas dataframes with ```dtype=np.float64```. With this settings, extremely large datasets can run into memory issues when compiling all the splicing junctions (especially before filtering). To avoid these issues, you can pass the argument ```dtype=np.float32``` or ```dtype=np.float16``` to ```junctions2psi```. This will reduce the memory storage of handling the splice junction matrix. After estimating the observed <img src="https://render.githubusercontent.com/render/math?math=\hat{\Psi}">, Psix will transform ```np.float16``` values into ```np.float32``` to make them compatible with numba.
 
 ## Psix turbo
 
