@@ -188,7 +188,7 @@ def junctions_dir_to_psi(
         dtype=np.float64
     ):
         
-    if dype not in [np.float64, np.float32, np.float16, np.float8]:
+    if dtype not in [np.float64, np.float32, np.float16, np.float8]:
         raise Exception('dtype has to be numpy float type')
     
 
