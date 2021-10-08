@@ -58,7 +58,7 @@ Psix requires four inputs from the user:
 * A directory containing SJ.out.tab files from STAR. This is used to calculate the exon's observed <img src="https://render.githubusercontent.com/render/math?math=\hat{\Psi}">.
 * A matrix of gene expression in transcripts per million (TPM; for smart-seq2 data only). This is used to estimate the captured mRNA molecules per observation.
 * A low-dimensional cell space; e.g., a PCA projection of normalized gene expression. This is used to define cell neighborhoods.
-* A cassette exon annotation of splice junctions. Ready-to-use mouse (mm10) and human (hg38) annotations are provided [here](http://github.com/laeraulab/psix/annotations/).
+* A cassette exon annotation of splice junctions. Ready-to-use mouse (mm10) and human (hg38) annotations are provided [here](http://github.com/lareaulab/psix/annotations/).
 
 ### Creating a Psix object with smart-seq2 data
 
