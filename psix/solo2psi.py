@@ -171,7 +171,8 @@ def solo_to_psi(
     minCell = 1,
     minPsi = 0.05,
     min_observed = 0.25,
-    tenX = False
+    tenX = False,
+    save_files_in = ''
 ):
 
     print('Processing STARsolo output. This might take a few minutes...')

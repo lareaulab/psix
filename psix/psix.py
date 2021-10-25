@@ -101,7 +101,7 @@ class Psix:
         if solo:
             solo_to_psi(self, solo_dir = sj_dir, intron_file = intron_file, tpm_file = tpm_file,
                         cell_list = cell_list, minJR = minJR, minCell = minCell, minPsi = minPsi,
-                        min_observed = min_observed, tenX = tenX)
+                        min_observed = min_observed, tenX = tenX, save_files_in = save_files_in)
             
         else:
             junctions_dir_to_psi(self, sj_dir = sj_dir, intron_file = intron_file, tpm_file = tpm_file,
