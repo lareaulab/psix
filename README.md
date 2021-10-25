@@ -212,6 +212,8 @@ After running ```junctions2psi```, the rest of the analysis is the same as when 
 
 By default, Psix works on Pandas dataframes with ```dtype=np.float64```. With this settings, extremely large datasets can run into memory issues when compiling all the splicing junctions (especially before filtering). To avoid these issues, you can pass the argument ```dtype=np.float32``` or ```dtype=np.float16``` to ```junctions2psi```. This will reduce the memory storage of handling the splice junction matrix. After estimating the observed <img src="https://render.githubusercontent.com/render/math?math=\hat{\Psi}">, Psix will transform ```np.float16``` values into ```np.float32``` to make them compatible with numba.
 
+Currently not supported for solo data.
+
 ## Psix turbo
 
 The most time consuming step of Psix is calculating the Psix score of each cell. When estimating the score of large datasets, specially when estimating the p-values, this can make Psix take a few hours to run. To work around these time limitations, we implemented a turbo functionality for Psix. Psix Turbo uses predefined look-up tables to efficiently assign a Psix score to each cell at a minor cost in accuracy.
