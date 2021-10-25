@@ -213,6 +213,12 @@ def solo_to_psi(
         idx = self.adata.obs.index & mrna_per_event.index
     else:
         idx = mrna_per_event.index
+        
+    if os.path.isdir(save_files_in):
+        psi.loc[idx].to_csv(save_files_in + '/psi.tab.gz', sep='\t', 
+                   index=True, header=True)
+        mrna_per_event.loc[idx].to_csv(save_files_in + '/mrna.tab.gz', sep='\t', 
+                   index=True, header=True)
 
     self.adata.uns['psi'] = psi.loc[idx].T
     self.adata.uns['mrna_per_event'] = mrna_per_event.loc[idx].T
