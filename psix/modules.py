@@ -91,11 +91,6 @@ def local_correlation_plot(local_correlation_z, modules, linkage,
 
     cm.ax_row_dendrogram.remove()
 
-    # Add 'module X' annotations
-#     ii = leaves_list(linkage)
-
-#     mod_reordered = modules.iloc[ii]
-
     mod_map = {}
     y = np.arange(modules.size)
 

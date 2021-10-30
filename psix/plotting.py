@@ -9,6 +9,10 @@ import numpy as np
 mpl.rcParams["mathtext.fontset"] = "stix"
 mpl.rcParams['pdf.fonttype'] = 42
 
+"""
+DEPRECATED
+"""
+
 def plot_exon(self, exon, axis_list=[], cmap='viridis'):
     
     fig = plt.figure(figsize=(8, 5))

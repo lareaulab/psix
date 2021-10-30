@@ -60,9 +60,6 @@ def compute_weight(d, sigma):
 def get_exon_neighbors_psi(observed_psi_array, cell_metric):
     psi_a_array = []
     for i in range(len(observed_psi_array)):
-#         psi_o = observed_psi_array[i]
-                    
-#         psi_o_array.append(psi_o)
 
         neighbors = cell_metric[0][i]
         weights = cell_metric[1][i]
