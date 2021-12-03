@@ -115,6 +115,23 @@ psix_object = Psix(psi_table = 'psix_output/psi.tab.gz',
                    mrna_table = 'psix_output/mrna.tab.gz')
 ```
 
+#### From splice junctions table (recommended for simulations only)
+
+You can use a table of splice junction counts to create a Psix object, as follows:
+
+```python
+psix_object.junctions2psi(
+        sj_dir='path/to/splice_junctions.tab.gz',
+        intron_file='',
+        tpm_file='/path/to/gene_expression/tpm_file.tab',
+        save_files_in='psix_output/'
+    )
+```
+
+Notice that this step does not require the intron annotations files, but the argument still needs to be passed as an empty string. This function can be useful when loading data from simulations like we do [here](https://github.com/lareaulab/analysis_psix/blob/main/simulations/single_lineage/simulation_analysis.ipynb). Outside of this context, we recommend creating a Psix object directly from cellID.SJ.out.tab files, or from the <img src="https://render.githubusercontent.com/render/math?math=\hat{\Psi}"> and mRNA tables created from a previously saved Psix object. 
+
+The names of the splice junctions in the table should follow the format from the table ```psix_output/splice_junctions.tab.gz``` that is obtained by passing the argument ```save_files_in```.
+
 ### Getting cell-state associated exons
 
 After creating a Psix object, we can obtain the Psix scores of each exon by running:
