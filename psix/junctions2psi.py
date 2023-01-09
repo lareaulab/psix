@@ -24,7 +24,11 @@ def read_intron_file(intron_file):
 
 
 def process_SJ_line(line, idx, sj_counts):
-    line = line.decode().rstrip().split('\t')
+    
+    try:
+        line = line.decode().rstrip().split('\t')
+    except:
+        line = line.rstrip().split('\t')
 
     if line[3] == '1':
         strand = '+'
@@ -46,11 +50,11 @@ def process_SJ_table(cell_sj_file, cell, dtype):
     sj_counts = []
     
     if cell_sj_file[-3:] == '.gz':
-        with gzip.open(cell_sj_file, 'rb') as fh:#open(sj_file, 'r') as fh:
+        with gzip.open(cell_sj_file, 'rb') as fh:
             for line in fh:
                 idx, sj_counts = process_SJ_line(line, idx, sj_counts)
     else:
-        with open(sj_file, 'r') as fh:
+        with open(cell_sj_file, 'r') as fh:
             for line in fh:
                 idx, sj_counts = process_SJ_line(line, idx, sj_counts)
             
