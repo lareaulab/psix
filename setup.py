@@ -1,11 +1,9 @@
 from setuptools import setup, find_packages
+from psix.version import __version__
 import os
 
 # Parse version string
 this_directory = os.path.dirname(os.path.abspath(__file__))
-version_file = os.path.join(this_directory, "psix", "_version_.py")
-exec(open(version_file).read())
-
 
 setup(
     name="psix",
