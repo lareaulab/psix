@@ -87,7 +87,8 @@ psix_object.junctions2psi(
 
 The optional argument ```save_files_in``` will create a directory where Psix will store the <img src="https://render.githubusercontent.com/render/math?math=\hat{\Psi}"> and mRNA counts matrices for future use. 
 
-\textbold{Note:} Psix automatically will only keep exons that have a <img src="https://render.githubusercontent.com/render/math?math=\bar{\Psi}"> between 0.05 and 0.95; and that have enough reads to be observed in at least 25% of the cells. These requirements might be too strict for some datasets, resulting in very few or no exons at all making the cut. There are two options to address this issue: 
+###### Note: 
+Psix automatically will only keep exons that have a <img src="https://render.githubusercontent.com/render/math?math=\bar{\Psi}"> between 0.05 and 0.95; and that have enough reads to be observed in at least 25% of the cells. These requirements might be too strict for some datasets, resulting in very few or no exons at all making the cut. There are two options to address this issue: 
 
 The first option would be to adjust these filters using the optional arguments ```minPsi``` and ```min_observed``` when running ```junctions2psi```. E.g., setting ```minPsi=0.01, min_observed=0.05``` would keep exons with a  <img src="https://render.githubusercontent.com/render/math?math=\bar{\Psi}"> between 0.01 and 0.99, and that are observed in 5% of the cells. Relaxing these filters might increase the number of exons on which Psix will run.
 
