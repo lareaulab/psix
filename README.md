@@ -87,6 +87,8 @@ psix_object.junctions2psi(
 
 The optional argument ```save_files_in``` will create a directory where Psix will store the <img src="https://render.githubusercontent.com/render/math?math=\hat{\Psi}"> and mRNA counts matrices for future use. 
 
+You can access the <img src="https://render.githubusercontent.com/render/math?math=\hat{\Psi}"> table with ```psix_object.adata.uns['psi']```.
+
 ###### Note: 
 Psix automatically will only keep exons that have a <img src="https://render.githubusercontent.com/render/math?math=\bar{\Psi}"> between 0.05 and 0.95; and that have enough reads to be observed in at least 25% of the cells. These requirements might be too strict for some datasets, resulting in very few or no exons at all making the cut. There are two options to address this issue: 
 
@@ -169,6 +171,9 @@ Gabrg2_1 | 1.896363 | 0.0005 | 0.001879
 
 
 Notice that the empirical p-values are estimated with exon permutations. For this reason, the Psix score is a better value for ranking exons with very low p-values, than the p-values themselves.
+
+You can access the table with mRNA counts per event with ```psix_object.adata.uns['mrna_per_event']```.
+
 
 ### Modules of correlated exons
 
