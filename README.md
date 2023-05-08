@@ -87,6 +87,17 @@ psix_object.junctions2psi(
 
 The optional argument ```save_files_in``` will create a directory where Psix will store the <img src="https://render.githubusercontent.com/render/math?math=\hat{\Psi}"> and mRNA counts matrices for future use. 
 
+You can access the <img src="https://render.githubusercontent.com/render/math?math=\hat{\Psi}"> table with ```psix_object.adata.uns['psi']```.
+
+##### Note in case that you are getting very few exons: 
+Psix automatically will only keep exons that have a <img src="https://render.githubusercontent.com/render/math?math=\bar{\Psi}"> between 0.05 and 0.95; and that have enough reads to be observed in at least 25% of the cells. These requirements might be too strict for some datasets, resulting in very few or no exons at all making the cut. There are two options to address this issue: 
+
+The first option would be to adjust these filters using the optional arguments ```minPsi``` and ```min_observed``` when running ```junctions2psi```. E.g., setting ```minPsi=0.01, min_observed=0.05``` would keep exons with a  <img src="https://render.githubusercontent.com/render/math?math=\bar{\Psi}"> between 0.01 and 0.99, and that are observed in 5% of the cells. Relaxing these filters might increase the number of exons on which Psix will run.
+
+The second option is to run Psix in a subset of the cells. This can be done by passing the optional argument ```cell_list```, followed by a list object with the cell IDs that you want to select. This would be particularly useful if you have a diverse dataset, but you want to analyze the splicing of a gene that is only expressed in a particular subpopulation of cells.
+
+Notice that in some unfortunate cases, a dataset might simply not be fit for a single-cell splicing analysis. In extremely sparse datasets, only a handful of exons in a small number of cells might have enough reads to pass the filters.
+
 #### From STARsolo features
 
 If you are aligning the raw reads using [STARsolo](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md), make sure to pass the argument ```--soloFeatures SJ```. You can create a Psix object directly from the raw output of STARsolo by passing the argument ```solo=True``` when running ```junctions2psi```: 
@@ -160,6 +171,9 @@ Gabrg2_1 | 1.896363 | 0.0005 | 0.001879
 
 
 Notice that the empirical p-values are estimated with exon permutations. For this reason, the Psix score is a better value for ranking exons with very low p-values, than the p-values themselves.
+
+You can access the table with mRNA counts per event with ```psix_object.adata.uns['mrna_per_event']```.
+
 
 ### Modules of correlated exons
 
