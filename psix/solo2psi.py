@@ -13,7 +13,7 @@ def read_solo_features(solo_features_path):
                            names = ['chrom', 'start', 'end', 'strand', 'motif', 'annot', 'unique', 'multimap', 'overlap'])
     intron_list = []
     for idx, row in features_solo.iterrows():
-        intron = row.chrom + ':' + str(row.start) + '-' + str(row.end) + ':'
+        intron = str(row.chrom) + ':' + str(row.start) + '-' + str(row.end) + ':'
         if row.strand == 1:
             strand = '+'
         else:
