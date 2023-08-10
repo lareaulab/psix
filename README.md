@@ -46,7 +46,7 @@ For estimating the number of mRNA molecules captured per observation, using the 
 
 ##### 4. Low-dimensional cell space
 
-To obtain a metric of phenotypic similarity between single cells. A low-dimensional cell space is provided by the user, since Psix does not perform dimensionality reduction. In principle Psix can run with any metric. However, we recommend using interpretable dimensionality reduction methods such as PCA over the normalized gene expression, while avoiding non-interpretable methods such as tSNE except for visualization. 
+To obtain a metric of phenotypic similarity between single cells. A low-dimensional cell space is provided by the user, since Psix does not perform dimensionality reduction. In principle Psix can run with any metric. However, we recommend using interpretable dimensionality reduction methods such as PCA, or a latent space from [scvi-tools](https://scvi-tools.org/). We recommend using non-interpretable methods such as tSNE or UMAP for visualization only. 
 
 For small smart-seq2 datasets (fewer than 5000 cells), we recommend using SCONE to select the best normalization method before applying a linear dimensionality reduction such as PCA. Alternatively, other methods such as ZINB-Wave can be used on this data. For larger datasets, we recommend using the latent space of scVI as the low-dimensional cell space.
 
