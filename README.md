@@ -1,3 +1,20 @@
+# Psix version 1.0.0 - beta
+
+I developed Psix during the final years of my PhD at UC Berkeley. Since then, some people have taken interest in using Psix for their own projects, and for that I'm incredibly thankful. Psix was my first peer-reviewed open source software tool. At the time I was inexperienced, and I am still learning. I think that Psix can be substantially improved to increase it's usefulness to users. My goal is to make Psix compatible with popular formats of alternative splicing annotation and making it more user friendly.
+
+This branch is under development. I do not recommend installing this version of Psix until it's merged with the main branch. This is a side project that I'm developing on my free time. With my current work and with my family life, I don't really have much free time, so I appreciate your patience. In the meantime, I would really appreciate any feedback. If you have any ideas that could improve Psix, or any feature that you would like to see implemented, please raise an [Issue](https://github.com/lareaulab/psix/issues) to let me know.
+
+My current goals are:
+* Expand compatibility of Psix:
+    * I'll consider changing the default annotation format to a popular format such as BED.
+    * Include other alternative splicing events (e.g., alternative 5' and 3' splice sites)
+    * Make Psix compatible with popular splice junction file formats such as .junc
+    * Intron clusters from [Leafcutter](http://davidaknowles.github.io/leafcutter/)
+* Make Psix more user-friendly. I hope to make Psix easier to use implementing wrappers and ready-to-use analysis and plotting tools.
+* Consider making Psix turbo the default. In the original publication, I didn't explore the option of using lookup tables extensively. Anecdotically, the results between regular Psix and Psix turbo are almost identical. Given that Psix turbo is much faster and computationally efficient than regular Psix, I will consider making it the default. I will do some evaluation of the performances and differences in results.
+* Clean up the code, annotate and debug. 
+* Improve the documentation and clean up example notebooks. 
+
 # Psix
 
 Psix is a computational tool for identifying cell-state associated alternative splicing events in single cell RNA-seq (scRNA-seq) data, described in 
