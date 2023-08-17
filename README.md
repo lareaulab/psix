@@ -10,6 +10,7 @@ My current goals are:
     * Include other alternative splicing events (e.g., alternative 5' and 3' splice sites)
     * Make Psix compatible with popular splice junction file formats such as .junc
     * Intron clusters from [Leafcutter](http://davidaknowles.github.io/leafcutter/)
+* Paralellize Psix for large datasets. Each alternative splicing event score is calculated independently. This process could be paralellized for efficiency in large datasets.
 * Make Psix more user-friendly. I hope to make Psix easier to use implementing wrappers and ready-to-use analysis and plotting tools.
 * Consider making Psix turbo the default. In the original publication, I didn't explore the option of using lookup tables extensively. Anecdotically, the results between regular Psix and Psix turbo are almost identical. Given that Psix turbo is much faster and computationally efficient than regular Psix, I will consider making it the default. I will do some evaluation of the performances and differences in results.
 * Clean up the code, annotate and debug. 
