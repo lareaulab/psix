@@ -59,7 +59,7 @@ def compute_psix_scores(self,
             processes=self.n_jobs
         ) as pool:
 
-            chunksize = np.int(np.ceil(len(exon_list)/self.n_jobs))
+            chunksize = int(np.ceil(len(exon_list)/self.n_jobs))
 
             exon_score_array = list(
                 tqdm(
@@ -128,7 +128,7 @@ def compute_pvalues(self):
             processes=self.n_jobs
         ) as pool:
 
-            chunksize = np.int(np.ceil((self.pvals_bins**2)/self.n_jobs))
+            chunksize = int(np.ceil((self.pvals_bins**2)/self.n_jobs))
 
             results = list(
                 tqdm(

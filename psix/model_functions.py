@@ -36,7 +36,7 @@ def probability_psi_m_unknown(observed_psi, true_psi, capture_efficiency, captur
     
     
     '''
-    m_array = np.arange(captured_mrna, np.int(10*captured_mrna/capture_efficiency))
+    m_array = np.arange(captured_mrna, int(10*captured_mrna/capture_efficiency))
     
     comb_1 = comb(m_array*true_psi, captured_mrna*observed_psi)
     comb_2 = comb(m_array*(1-true_psi), captured_mrna*(1-observed_psi))
@@ -223,8 +223,7 @@ def permute_array_fix_nan(idx_array):
         if np.isnan(idx_array[i]):
             new_idx.append(i)
         else:
-            new_idx.append(np.int(idx_permute[j]))
-#             print(np.int(idx_permute[j]))
+            new_idx.append(int(idx_permute[j]))
             j+=1
 
     return np.array(new_idx)
@@ -296,8 +295,8 @@ def psix_score(
 @jit(nopython=True)
 def psix_turbo(psi_o, psi_a, mrna, turbo_dict):
     
-    psi_o_idx = np.int(np.round(psi_o*100))
-    psi_a_idx = np.int(np.round(psi_a*100))-1
+    psi_o_idx = int(np.round(psi_o*100))
+    psi_a_idx = int(np.round(psi_a*100))-1
     mrna_idx = mrna-1
     
     if psi_a_idx < 0:
