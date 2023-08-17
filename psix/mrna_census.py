@@ -31,13 +31,13 @@ def get_mrna_per_event(mrna, psi, reads, constitutive_sj, solo):#constitutive_sj
 
 from numba import jit
 
-@jit
+@jit(nopython=False)
 def normalize_equation(cell, moda):
     n = np.sum(np.log10(cell) <= moda)
     interval = np.sum(cell.loc[np.log10(cell) <= moda])/np.sum(cell)
     return n/interval
 
-@jit
+@jit(nopython=False)
 def get_transcripts_per_cell(cell, remove_outliers, bw_method, adjust_high):
     z = gaussian_kde(np.log10(cell), bw_method)
     
@@ -58,7 +58,7 @@ def get_transcripts_per_cell(cell, remove_outliers, bw_method, adjust_high):
         
     return molecules_in_cell
         
-@jit    
+@jit(nopython=False)    
 def transform_cell(cell, remove_outliers, bw_method, adjust_high):
     cell_filtered = cell.loc[cell > 0.1]
     molecules_in_cell = get_transcripts_per_cell(cell_filtered, remove_outliers, bw_method, adjust_high)
