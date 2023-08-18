@@ -229,10 +229,6 @@ def junctions_dir_to_psi(
         print('Reading TPM and transforming to mRNA counts...')
 
         tpm_exists = os.path.isfile(tpm_file)
-#         constitutive_sj_exists = os.path.isfile(constitutive_sj_file)
-
-#         if not (tpm_exists and constitutive_sj_exists):
-#             raise Exception('TPM file and constitutive junctions are required when processing smart-seq data')
 
         if len(cell_list) == 0:
             cell_list = psi.columns
@@ -243,7 +239,6 @@ def junctions_dir_to_psi(
         psi = psi[cells]
         constitutive_sj = constitutive_sj[cells]
 
-#         constitutive_sj = pd.read_csv(constitutive_sj_file, sep='\t', index_col=0)
         mrna_per_event = get_mrna_per_event(mrna, psi, reads, constitutive_sj, solo=False) #constitutive_sj_file)
 
     if len(self.adata.obs) > 0:
@@ -265,6 +260,18 @@ def junctions_dir_to_psi(
         mrna_per_event.to_csv(save_files_in + '/mrna.tab.gz', sep='\t', 
                    index=True, header=True)
 
+    psi = psi.T
+    mrna_per_event = mrna_per_event.T
+    ncells_former = mrna_per_event.shape[0]
+
+    mrna_per_event = mrna_per_event[(mrna_per_event.sum(axis=1) > 0.1) & (mrna_per_event.sum(axis=1) < np.inf)]
+    ncells_current = mrna_per_event.shape[0]
+    if ncells_former > ncells_current:
+        n_diff = str(ncells_former - ncells_current)
+        print('removed ' + n_diff + 'cells with missing of "inf" mRNA values.')
+        print('This can be the consequence of very shallow coverage in the cell.')
+        psi = psi.loc[mrna_per_event.index]
+    
     self.adata.uns['psi'] = psi.T
     self.adata.uns['mrna_per_event'] = mrna_per_event.T
 
