@@ -85,7 +85,7 @@ class Psix:
                     self.adata.uns['psi'] = psi
                     self.adata.uns['mrna_per_event'] = mrna_per_event
                 else:
-                    raise Exception('Files ' + psi_table ' and/or ' + mrna_table + ' not found.')
+                    raise Exception('Files ' + psi_table + ' and/or ' + mrna_table + ' not found.')
             
             
     def junctions2psi(
