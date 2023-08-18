@@ -140,7 +140,7 @@ def get_psi_table(SJ_counts_table, minJR=1, minCell=1, tenX = False):
     constitutive_sj = SJ_counts_table.loc[constitutive_intron_idx]
     constitutive_sj.index = pd.Index([x[:-3] for x in SJ_counts_table.index if '_CI' in x])
     
-    events = events_i1 & events_i2 & events_se
+    events = events_i1.intersection(events_i2).intersection(events_se)
     
     
     i1_events = [x + '_I1' for x in events]
@@ -159,7 +159,7 @@ def get_psi_table(SJ_counts_table, minJR=1, minCell=1, tenX = False):
     I2_filt = I2_table.index[(I2_table > minJR).sum(axis=1) > minCell]
     SE_filt = SE_table.index[(SE_table > minJR).sum(axis=1) > minCell]
     
-    filtered_events = I1_filt & I2_filt & SE_filt
+    filtered_events = I1_filt.intersection(I2_filt).intersection(SE_filt)
     
     I1_table = I1_table.loc[filtered_events]
     I2_table = I2_table.loc[filtered_events]
