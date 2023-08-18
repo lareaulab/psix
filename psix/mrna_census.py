@@ -72,12 +72,21 @@ def tpm2mrna(tpm_file, cell_list, bw_method='scott', adjust_high = True, remove_
     mrna_counts_per_cell = []
     cells = tpm_dataset.columns
     tpm_dataset_filtered = tpm_dataset.loc[tpm_dataset.max(axis=1) > 0.1]
+
+    kept_cells = []
+    mrna_counts_list = []
     
     for cell in tqdm(cells, position=0, leave=True):
         cell_mrna = transform_cell(tpm_dataset_filtered[cell], remove_outliers, bw_method, adjust_high)
         if all([x == 0 for x in cell_mrna]):
             continue
-        mrna_counts[cell] = cell_mrna
+            
+        kept_cells.append(cell)
+        mrna_counts_list.append(cell_mrna)
+        #mrna_counts[cell] = cell_mrna
+    
+    mrna_counts = pd.concat(mrna_counts_list)
+    mrna_counts.columns = kept_cells
         
     return mrna_counts
 
