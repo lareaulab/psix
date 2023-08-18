@@ -272,7 +272,7 @@ def junctions_dir_to_psi(
         print('This can be the consequence of very shallow coverage in the cell.')
         psi = psi.loc[mrna_per_event.index]
     
-    self.adata.uns['psi'] = psi.T
-    self.adata.uns['mrna_per_event'] = mrna_per_event.T
+    self.adata.uns['psi'] = psi
+    self.adata.uns['mrna_per_event'] = mrna_per_event
 
     print('Successfully processed RNA-seq data')
