@@ -238,11 +238,17 @@ def get_bins(self):
 
         bins.update({'mean_' + str(i+1):mean_bins})
 
-    bin_dir = pd.DataFrame()
+    #bin_dir = pd.DataFrame()
+    bin_dir_list = []
+    exon_list = []
     for mean in bins.keys():
         for var in bins[mean].keys():
             for exon in bins[mean][var]:
-                bin_dir[exon] = [mean + '_' + var]
+                exon_list.append(exon)
+                bin_dir_list.append([mean + '_' + var])
+                #bin_dir[exon] = [mean + '_' + var]
+    bin_dir = pd.concat(bin_dir_list, axis=1)
+    bin_dir.columns = exon_list
 
     assert len([x for x in self.adata.uns['psi'].columns if x not in bin_dir.T.index]) == 0
     self.exon_bins = bin_dir
