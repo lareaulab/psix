@@ -85,7 +85,7 @@ def tpm2mrna(tpm_file, cell_list, bw_method='scott', adjust_high = True, remove_
         mrna_counts_list.append(cell_mrna)
         #mrna_counts[cell] = cell_mrna
     
-    mrna_counts = pd.concat(mrna_counts_list)
+    mrna_counts = pd.concat(mrna_counts_list, axis=1)
     mrna_counts.columns = kept_cells
         
     return mrna_counts
