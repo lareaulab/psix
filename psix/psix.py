@@ -5,11 +5,7 @@ import os
 from .cell_metric import *
 from .model_functions import psix_score
 from .mrna_census import *
-# from tpm_to_mrna import *
 import anndata
-# from rnaseq_tools import *
-
-################# from mrna_census import *
 from .junctions2psi import *
 from .score_functions import *
 from .turbo_tools import *
@@ -29,10 +25,8 @@ import numpy as np
 mpl.rcParams["mathtext.fontset"] = "stix"
 mpl.rcParams['pdf.fonttype'] = 42
 
-
 import warnings
-warnings.filterwarnings("ignore")
-
+#warnings.filterwarnings("ignore")
 
 def make_turbo(out_dir = 'psix_turbo/', 
                    granularity = 0.01, 
@@ -52,31 +46,46 @@ def make_turbo(out_dir = 'psix_turbo/',
 class Psix:
     
     def __init__(self, 
-                 psix_object = '',
-                 psi_table = '', 
-                 mrna_table = ''
+                 psix_object = None,
+                 psi_table = None, 
+                 mrna_table = None
                 ):
         
-        
-        if os.path.isdir(psix_object):
-            if os.path.isfile(psix_object+'/adata.gz'):
-                self.adata = anndata.read_h5ad(psix_object+'/adata.gz')
-            if os.path.isfile(psix_object+'/latent.tab.gz'):
-                self.latent = pd.read_csv(psix_object+'/latent.tab.gz', sep='\t', index_col=0)
-            if os.path.isfile(psix_object+'/psix_results.tab.gz'):
-                self.psix_results = pd.read_csv(psix_object+'/psix_results.tab.gz', sep='\t', index_col=0)
-            if os.path.isfile(psix_object+'/modules.tab.gz'):
-                self.modules = pd.read_csv(psix_object+'/modules.tab.gz', sep='\t', index_col=0).Modules
+        if psix_object:
+            if os.path.isdir(psix_object):
+                if os.path.isfile(psix_object+'/adata.gz'):
+                    self.adata = anndata.read_h5ad(psix_object+'/adata.gz')
+                if os.path.isfile(psix_object+'/latent.tab.gz'):
+                    self.latent = pd.read_csv(psix_object+'/latent.tab.gz', sep='\t', index_col=0)
+                if os.path.isfile(psix_object+'/psix_results.tab.gz'):
+                    self.psix_results = pd.read_csv(psix_object+'/psix_results.tab.gz', sep='\t', index_col=0)
+                if os.path.isfile(psix_object+'/modules.tab.gz'):
+                    self.modules = pd.read_csv(psix_object+'/modules.tab.gz', sep='\t', index_col=0).Modules
+            else:
+                raise Exception('Directory ' + psix_object + ' not found.')
             
         else:
             self.adata = anndata.AnnData()
 
-        
-            if os.path.isfile(psi_table) and os.path.isfile(mrna_table):
-                psi = pd.read_csv(psi_table, sep='\t', index_col=0).T
-                mrna_per_event = pd.read_csv(mrna_table, sep='\t', index_col=0).T
-                self.adata.uns['psi'] = psi
-                self.adata.uns['mrna_per_event'] = mrna_per_event
+            if psi_table and mrna_table:
+                if os.path.isfile(psi_table) and os.path.isfile(mrna_table):
+                    psi = pd.read_csv(psi_table, sep='\t', index_col=0).T
+                    mrna_per_event = pd.read_csv(mrna_table, sep='\t', index_col=0).T
+
+                    ncells_former = mrna_per_event.shape[0]
+
+                    mrna_per_event = mrna_per_event[(mrna_per_event.sum(axis=1) > 0.1) & (mrna_per_event.sum(axis=1) < np.inf)]
+                    ncells_current = mrna_per_event.shape[0]
+                    if ncells_former > ncells_current:
+                        n_diff = str(ncells_former - ncells_current)
+                        print('removed ' + n_diff + 'cells with missing of "inf" mRNA values.')
+                        print('This can be the consequence of very shallow coverage in the cell.')
+                        psi = psi.loc[mrna_per_event.index]
+      
+                    self.adata.uns['psi'] = psi
+                    self.adata.uns['mrna_per_event'] = mrna_per_event
+                else:
+                    raise Exception('Files ' + psi_table ' and/or ' + mrna_table + ' not found.')
             
             
     def junctions2psi(
@@ -114,7 +123,7 @@ class Psix:
         if type(latent) == str:
             self.latent = pd.read_csv(latent, sep='\t', index_col=0).loc[self.adata.uns['psi'].index]
         else:
-            self.latent = latent
+            self.latent = latent.loc[self.adata.uns['psi'].index]
         
         self.metric = compute_cell_metric(self.latent, 
                                           n_neighbors = n_neighbors, 
@@ -164,10 +173,7 @@ class Psix:
         
 
     def save_psix_object(self, psix_dir = 'psix_object', overwrite = False):
-#         if os.path.isdir(psix_dir):
-#             if overwrite:
-#                 sp.run('rm -r ' + psix_dir, shell=True)
-#                 os.mkdir(psix_dir)
+
         if not os.path.isdir(psix_dir):
             os.mkdir(psix_dir)
         
