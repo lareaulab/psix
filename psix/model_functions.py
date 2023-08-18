@@ -8,7 +8,6 @@ import itertools
 
 from numba import jit, njit
 
-@jit(nopython=False)
 def probability_psi_observation(observed_psi, true_psi, capture_efficiency, captured_mrna):
     """
     Calculate Pr(observed_PSI | true_PSI, capture_efficiency, captured_mrna)
@@ -30,7 +29,6 @@ def probability_psi_observation(observed_psi, true_psi, capture_efficiency, capt
         
     return proba
 
-@jit(nopython=False)
 def probability_psi_m_unknown(observed_psi, true_psi, capture_efficiency, captured_mrna):
     '''
     
@@ -47,7 +45,6 @@ def probability_psi_m_unknown(observed_psi, true_psi, capture_efficiency, captur
     
     return np.sum(prob_array)
     
-@jit(nopython=False)
 def probability_psi_m_known(observed_psi, true_psi, captured_mrna, cell_molecules):
     """
     Pr(observed_PSI | true_PSI, captured_mrna, cell_molecules)
@@ -58,7 +55,6 @@ def probability_psi_m_known(observed_psi, true_psi, captured_mrna, cell_molecule
     comb_3 = comb(cell_molecules, captured_mrna)**(-1)
     return comb_1*comb_2*comb_3
 
-@jit(nopython=False)
 def psi_observation_score(
     observed_psi, 
     neighborhood_psi, 
