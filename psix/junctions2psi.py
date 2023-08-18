@@ -216,7 +216,7 @@ def junctions_dir_to_psi(
 
     alt_exons = psi.index[np.abs(0.5 - psi.mean(axis=1)) <= (0.5-minPsi)]
     obs_exons = psi.index[psi.isna().mean(axis=1) <= 1-min_observed]
-    selected_exons = alt_exons & obs_exons
+    selected_exons = alt_exons.intersection(obs_exons)
 
     psi = psi.loc[selected_exons]
     reads = reads.loc[selected_exons]
@@ -234,7 +234,7 @@ def junctions_dir_to_psi(
             cell_list = psi.columns
         mrna = tpm2mrna(tpm_file, cell_list, dtype=dtype)
         ##### New thing
-        cells = psi.columns & mrna.columns
+        cells = psi.columns.intersection(mrna.columns)
         mrna = mrna[cells]
         psi = psi[cells]
         constitutive_sj = constitutive_sj[cells]
@@ -242,7 +242,7 @@ def junctions_dir_to_psi(
         mrna_per_event = get_mrna_per_event(mrna, psi, reads, constitutive_sj, solo=False) #constitutive_sj_file)
 
     if len(self.adata.obs) > 0:
-        idx = self.adata.obs.index & mrna_per_event.index
+        idx = self.adata.obs.index.intersection(mrna_per_event.index)
     else:
         idx = mrna_per_event.index
         
