@@ -245,7 +245,7 @@ def get_bins(self):
         for var in bins[mean].keys():
             for exon in bins[mean][var]:
                 exon_list.append(exon)
-                bin_dir_list.append([mean + '_' + var])
+                bin_dir_list.append(pd.Series([mean + '_' + var]))
                 #bin_dir[exon] = [mean + '_' + var]
     bin_dir = pd.concat(bin_dir_list, axis=1)
     bin_dir.columns = exon_list
