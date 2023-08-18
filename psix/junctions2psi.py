@@ -266,7 +266,7 @@ def junctions_dir_to_psi(
     ncells_current = mrna_per_event.shape[0]
     if ncells_former > ncells_current:
         n_diff = str(ncells_former - ncells_current)
-        print('removed ' + n_diff + ' cells with missing of "inf" mRNA values.')
+        print('removed ' + n_diff + ' cells with all missing or "inf" mRNA values.')
         print('This can be the consequence of very shallow coverage in the cell.')
         psi = psi.loc[mrna_per_event.index]
         
