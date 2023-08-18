@@ -234,6 +234,10 @@ def junctions_dir_to_psi(
             cell_list = psi.columns
         mrna = tpm2mrna(tpm_file, cell_list, dtype=dtype)
         ##### New thing
+        self.mrna_checkpoint = mrna
+        self.cells_checkpoint = cells
+        self.psi_checkpoint = psi
+        self.constitutive_sj_checkpoint = constitutive_sj
         cells = psi.columns.intersection(mrna.columns)
         mrna = mrna[cells]
         psi = psi[cells]
