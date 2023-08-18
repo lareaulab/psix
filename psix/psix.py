@@ -26,7 +26,7 @@ mpl.rcParams["mathtext.fontset"] = "stix"
 mpl.rcParams['pdf.fonttype'] = 42
 
 import warnings
-#warnings.filterwarnings("ignore")
+warnings.filterwarnings("ignore")
 
 def make_turbo(out_dir = 'psix_turbo/', 
                    granularity = 0.01, 
