@@ -254,12 +254,6 @@ def junctions_dir_to_psi(
         psi = psi.loc[idx].astype(np.float32)
         mrna_per_event = mrna_per_event.loc[idx].astype(np.float32)
 
-    if os.path.isdir(save_files_in):
-        psi.to_csv(save_files_in + '/psi.tab.gz', sep='\t', 
-                   index=True, header=True)
-        mrna_per_event.to_csv(save_files_in + '/mrna.tab.gz', sep='\t', 
-                   index=True, header=True)
-
     psi = psi.T
     mrna_per_event = mrna_per_event.T
     ncells_former = mrna_per_event.shape[0]
@@ -271,6 +265,14 @@ def junctions_dir_to_psi(
         print('removed ' + n_diff + 'cells with missing of "inf" mRNA values.')
         print('This can be the consequence of very shallow coverage in the cell.')
         psi = psi.loc[mrna_per_event.index]
+        
+    if os.path.isdir(save_files_in):
+        psi.T.to_csv(save_files_in + '/psi.tab.gz', sep='\t', 
+                   index=True, header=True)
+        mrna_per_event.T.to_csv(save_files_in + '/mrna.tab.gz', sep='\t', 
+                   index=True, header=True)
+
+    
     
     self.adata.uns['psi'] = psi
     self.adata.uns['mrna_per_event'] = mrna_per_event
