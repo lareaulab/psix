@@ -214,15 +214,27 @@ def solo_to_psi(
         idx = self.adata.obs.index & mrna_per_event.index
     else:
         idx = mrna_per_event.index
+
+    psi = psi.loc[idx].T
+    mrna_per_event = mrna_per_event.loc[idx].T
+    ncells_former = mrna_per_event.shape[0]
+
+    mrna_per_event = mrna_per_event[(mrna_per_event.sum(axis=1) > 0.1) & (mrna_per_event.sum(axis=1) < np.inf)]
+    ncells_current = mrna_per_event.shape[0]
+    if ncells_former > ncells_current:
+        n_diff = str(ncells_former - ncells_current)
+        print('removed ' + n_diff + 'cells with missing of "inf" mRNA values.')
+        print('This can be the consequence of very shallow coverage in the cell.')
+        psi = psi.loc[mrna_per_event.index]
         
     if os.path.isdir(save_files_in):
-        psi.loc[idx].to_csv(save_files_in + '/psi.tab.gz', sep='\t', 
+        psi.T.to_csv(save_files_in + '/psi.tab.gz', sep='\t', 
                    index=True, header=True)
-        mrna_per_event.loc[idx].to_csv(save_files_in + '/mrna.tab.gz', sep='\t', 
+        mrna_per_event.T.to_csv(save_files_in + '/mrna.tab.gz', sep='\t', 
                    index=True, header=True)
 
-    self.adata.uns['psi'] = psi.loc[idx].T
-    self.adata.uns['mrna_per_event'] = mrna_per_event.loc[idx].T
+    self.adata.uns['psi'] = psi
+    self.adata.uns['mrna_per_event'] = mrna_per_event
 
     print('Successfully processed RNA-seq data')
     
