@@ -50,7 +50,9 @@ class Psix:
                  psix_object = None,
                  psi_table = None, 
                  mrna_table = None,
-                 sicelore = None
+                 sicelore = None,
+                 sicelore_min_counts = 1e3,
+                 sicelore_max_nan = 0.75
                 ):
         
         if psix_object:
@@ -90,9 +92,9 @@ class Psix:
                     raise Exception('Files ' + psi_table + ' and/or ' + mrna_table + ' not found.')
             
             elif sicelore:
-                psi, mrna = read_sicelore(sicelore)
-                self.adata.uns['psi'] = psi
-                self.adata.uns['mrna_per_event'] = mrna
+                psi, mrna = read_sicelore(sicelore, min_cell_counts = sicelore_min_counts, max_nan_psi = sicelore_max_nan)
+                self.adata.uns['psi'] = psi.T
+                self.adata.uns['mrna_per_event'] = mrna.T
             
     def junctions2psi(
         self,
