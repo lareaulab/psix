@@ -25,7 +25,8 @@ def read_sicelore(isomatrix, min_cell_counts = 1e3, max_nan_psi = 0.75):
         if (df.transcriptId == 'undef').any():
             transcript = list(df.loc[(df.transcriptId != 'undef')].index)
         else:
-            transcript = list(df.index[0:-1])
+            transcript = list(df[cell_names].var(axis=1).sort_values(ascending=False).index[:-1])
+            # transcript = list(df.index[0:-1])
             
         gene_list.extend([idx]*len(transcript))
         transcript_id.extend(transcript)
