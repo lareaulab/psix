@@ -293,7 +293,7 @@ def psix_score(
 
     global_psi = np.nanmean(observed_psi_array)
 
-    mrna_max = len(turbo)
+    max_mrna = len(turbo)
 
     L_vec = psi_observations_scores_vec(
         observed_psi_array, 
