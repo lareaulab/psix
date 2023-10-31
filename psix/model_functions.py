@@ -335,6 +335,7 @@ def psix_score(
 
 ##################### lookup functions ########################
 
+@jit(nopython=True)
 def psi_observations_scores_vec(observed_psi_array, neighborhood_psi_array, global_psi, mrna_array, capture_efficiency, 
                                 turbo_dict, max_mrna = 30, min_probability=0.01, cap_mrna = True):
 
