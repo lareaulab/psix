@@ -181,30 +181,30 @@ def psi_observation_score(
         return log_probability_neighborhood - log_probability_global
         
 
-def psi_observations_scores_vec(
-    observed_psi_array, 
-    neighborhood_psi_array, 
-    global_psi, 
-    mrna_array, 
-    capture_efficiency, 
-    min_probability
-):
+# def psi_observations_scores_vec(
+#     observed_psi_array, 
+#     neighborhood_psi_array, 
+#     global_psi, 
+#     mrna_array, 
+#     capture_efficiency, 
+#     min_probability
+# ):
 
-    neighborhood_psi_array = np.array([0.99 if x > 0.99 else 0.01 if x < 0.01 else x for x in neighborhood_psi_array])
+#     neighborhood_psi_array = np.array([0.99 if x > 0.99 else 0.01 if x < 0.01 else x for x in neighborhood_psi_array])
 
-    func = lambda i: psi_observation_score(
-        observed_psi_array[i], 
-        neighborhood_psi_array[i], 
-        global_psi, 
-        mrna_array[i], 
-        capture_efficiency, 
-        min_probability
-    )
-    x = range(len(observed_psi_array))
-    x_func = np.vectorize(func)
-    psi_scores_vec = x_func(x)
+#     func = lambda i: psi_observation_score(
+#         observed_psi_array[i], 
+#         neighborhood_psi_array[i], 
+#         global_psi, 
+#         mrna_array[i], 
+#         capture_efficiency, 
+#         min_probability
+#     )
+#     x = range(len(observed_psi_array))
+#     x_func = np.vectorize(func)
+#     psi_scores_vec = x_func(x)
 
-    return psi_scores_vec
+#     return psi_scores_vec
     
 
     
@@ -242,22 +242,22 @@ def get_arrays(observed_psi_array, mrna_obs_array, cell_metric):
     return psi_o_array, psi_a_array, mrna_array
 
 
-@njit
-def permute_array_fix_nan(idx_array):
+# @njit
+# def permute_array_fix_nan(idx_array):
 
-    idx_non_nan = np.array([i for i in range(len(idx_array)) if not np.isnan(idx_array[i])])
-    idx_permute = np.random.permutation(idx_non_nan)
+#     idx_non_nan = np.array([i for i in range(len(idx_array)) if not np.isnan(idx_array[i])])
+#     idx_permute = np.random.permutation(idx_non_nan)
 
-    new_idx = []
-    j = 0
-    for i in range(len(idx_array)):
-        if np.isnan(idx_array[i]):
-            new_idx.append(i)
-        else:
-            new_idx.append(int(idx_permute[j]))
-            j+=1
+#     new_idx = []
+#     j = 0
+#     for i in range(len(idx_array)):
+#         if np.isnan(idx_array[i]):
+#             new_idx.append(i)
+#         else:
+#             new_idx.append(int(idx_permute[j]))
+#             j+=1
 
-    return np.array(new_idx)
+#     return np.array(new_idx)
         
     
 def psix_score(
@@ -268,7 +268,7 @@ def psix_score(
     randomize = False,  
     min_probability = 0.01,
     seed=0,
-    turbo = False
+    turbo = 'lookup/'
 ):
     
 
@@ -292,32 +292,73 @@ def psix_score(
         return np.nan
 
     global_psi = np.nanmean(observed_psi_array)
+
+    mrna_max = len(turbo)
+
+    L_vec = psi_observations_scores_vec(
+        observed_psi_array, 
+        neighborhood_psi_array, 
+        global_psi, 
+        mrna_array, 
+        capture_efficiency, 
+        turbo, 
+        max_mrna = max_mrna, 
+        min_probability=0.01
+    )
     
-    if turbo:
+    # if turbo:
         
-        mrna_max = len(turbo)
-        mrna_array = [mrna_max if x >= mrna_max else x for x in mrna_array]
+    #     mrna_max = len(turbo)
+    #     mrna_array = [mrna_max if x >= mrna_max else x for x in mrna_array]
         
-        L_vec = psi_observations_scores_vec_turbo(
-            observed_psi_array, 
-            neighborhood_psi_array, 
-            global_psi, 
-            mrna_array,
-            turbo
-        )
+    #     L_vec = psi_observations_scores_vec_turbo(
+    #         observed_psi_array, 
+    #         neighborhood_psi_array, 
+    #         global_psi, 
+    #         mrna_array,
+    #         turbo
+    #     )
         
-    else:
+    # else:
     
-        L_vec = psi_observations_scores_vec(
-            observed_psi_array, 
-            neighborhood_psi_array, 
-            global_psi, 
-            mrna_array, 
-            capture_efficiency, 
-            min_probability
-        )
+    #     L_vec = psi_observations_scores_vec(
+    #         observed_psi_array, 
+    #         neighborhood_psi_array, 
+    #         global_psi, 
+    #         mrna_array, 
+    #         capture_efficiency, 
+    #         min_probability
+    #     )
 
     return np.sum(L_vec)/total_cells
+
+
+##################### lookup functions ########################
+
+def psi_observations_scores_vec(observed_psi_array, neighborhood_psi_array, global_psi, mrna_array, capture_efficiency, 
+                                turbo_dict, max_mrna = 50, min_probability=0.01):
+
+    neighborhood_psi_array = np.array([0.99 if x > 0.99 else 0.01 if x < 0.01 else x for x in neighborhood_psi_array])
+    
+    L_vec = []
+    
+    for i in range(len(observed_psi_array)):
+        psi_o = observed_psi_array[i]
+        psi_a = neighborhood_psi_array[i]
+        mrna = mrna_array[i]
+        if mrna <= max_mrna:
+            L = L_score_lookup(psi_o, psi_a, global_psi, mrna, turbo_dict)
+        else:
+            L = psi_observation_score(
+                    psi_o, 
+                    psi_a, 
+                    global_psi, 
+                    mrna, 
+                    capture_efficiency, 
+                    min_probability
+                )
+        L_vec.append(L)
+    return L_vec
 
 
 ##################### Turbo functions #######################
@@ -325,8 +366,8 @@ def psix_score(
 @jit(nopython=True)
 def psix_turbo(psi_o, psi_a, mrna, turbo_dict):
     
-    psi_o_idx = int(np.round(psi_o*100))
-    psi_a_idx = int(np.round(psi_a*100))-1
+    psi_o_idx = int(round_numba(psi_o*100))
+    psi_a_idx = int(round_numba(psi_a*100))-1
     mrna_idx = mrna-1
     
     if psi_a_idx < 0:

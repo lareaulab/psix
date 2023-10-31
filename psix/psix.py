@@ -29,7 +29,7 @@ mpl.rcParams['pdf.fonttype'] = 42
 import warnings
 warnings.filterwarnings("ignore")
 
-def make_turbo(out_dir = 'psix_turbo/', 
+def make_turbo(out_dir = 'lookup/', 
                    granularity = 0.01, 
                    max_mrna = 20, 
                    capture_efficiency = 0.1, 
@@ -161,7 +161,7 @@ class Psix:
                  latent='latent', 
                  n_neighbors = 100, 
                  weight_metric=True,
-                 turbo = False
+                 turbo = 'lookup/'
                 ):
         
         self.n_neighbors = n_neighbors
