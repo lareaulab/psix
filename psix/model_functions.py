@@ -336,7 +336,7 @@ def psix_score(
 ##################### lookup functions ########################
 
 def psi_observations_scores_vec(observed_psi_array, neighborhood_psi_array, global_psi, mrna_array, capture_efficiency, 
-                                turbo_dict, max_mrna = 50, min_probability=0.01):
+                                turbo_dict, max_mrna = 30, min_probability=0.01, cap_mrna = True):
 
     neighborhood_psi_array = np.array([0.99 if x > 0.99 else 0.01 if x < 0.01 else x for x in neighborhood_psi_array])
     
@@ -346,6 +346,10 @@ def psi_observations_scores_vec(observed_psi_array, neighborhood_psi_array, glob
         psi_o = observed_psi_array[i]
         psi_a = neighborhood_psi_array[i]
         mrna = mrna_array[i]
+
+        if cap_mrna:
+            mrna = np.min((mrna, max_mrna))
+        
         if mrna <= max_mrna:
             L = L_score_lookup(psi_o, psi_a, global_psi, mrna, turbo_dict)
         else:
