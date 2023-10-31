@@ -293,7 +293,7 @@ def psix_score(
 
     global_psi = np.nanmean(observed_psi_array)
 
-    mrna_max = len(turbo)
+    max_mrna = len(turbo)
 
     L_vec = psi_observations_scores_vec(
         observed_psi_array, 
@@ -378,7 +378,7 @@ def psix_turbo(psi_o, psi_a, mrna, turbo_dict):
     return psix_score_out
 
 @jit(nopython=True)
-def L_score_turbo(psi_o, psi_a, psi_n, mrna, turbo_dict):
+def L_score_lookup(psi_o, psi_a, psi_n, mrna, turbo_dict):
     L_a = np.log(psix_turbo(psi_o, psi_a, mrna, turbo_dict))
     L_null = np.log(psix_turbo(psi_o, psi_n, mrna, turbo_dict))
     
