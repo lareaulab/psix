@@ -404,7 +404,7 @@ def psi_observations_scores_vec_turbo(observed_psi_array, neighborhood_psi_array
         psi_o = observed_psi_array[i]
         psi_a = neighborhood_psi_array[i]
         mrna = mrna_array[i]
-        L = L_score_turbo(psi_o, psi_a, global_psi, mrna, turbo_dict)
+        L = L_score_lookup(psi_o, psi_a, global_psi, mrna, turbo_dict)
         L_vec.append(L)
     return L_vec
 
