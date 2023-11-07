@@ -37,7 +37,7 @@ def compute_psix_scores(self,
         self.turbo = load_turbo(turbo_dir = turbo)
 
     else:
-        self.turbo = False
+        self.turbo = []
 
     if not 'cell_metric' in self.adata.uns:
         print('Computing cell-cell metric...', flush=True)
