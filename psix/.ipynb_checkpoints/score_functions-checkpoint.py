@@ -19,7 +19,8 @@ def compute_psix_scores(self,
                         latent='latent', 
                         n_neighbors = 100, 
                         weight_metric=True,
-                        turbo = 'lookup/'
+                        turbo = 'lookup/',
+                        no_lookup = False
                        ):
 
     self.capture_efficiency = capture_efficiency
@@ -29,7 +30,10 @@ def compute_psix_scores(self,
     self.n_random_exons = n_random_exons
     self.n_jobs = n_jobs
 
-    if turbo:
+
+    self.no_lookup = no_lookup
+    
+    if not no_lookup:
         self.turbo = load_turbo(turbo_dir = turbo)
 
     else:
@@ -93,7 +97,8 @@ def run_psix_exon(exon, self):
                                        randomize = False,  
                                        min_probability = self.min_probability,
                                        seed=self.seed,
-                                       turbo = self.turbo
+                                       turbo = self.turbo,
+                                       no_lookup = self.no_lookup
                            )
 
 

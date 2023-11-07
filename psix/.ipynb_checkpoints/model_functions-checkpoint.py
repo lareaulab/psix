@@ -323,7 +323,8 @@ def psix_score(
     min_probability = 0.01,
     seed=0,
     turbo = 'lookup/',
-    cap_mrna = True
+    cap_mrna = True,
+    no_lookup=False
 ):
     
 
@@ -367,18 +368,7 @@ def psix_score(
         mrna_max = len(turbo)
         mrna_array = [mrna_max if x >= mrna_max else x for x in mrna_array]
     
-    if turbo:
-        
-        
-        L_vec = psi_observations_scores_vec_turbo(
-            observed_psi_array, 
-            neighborhood_psi_array, 
-            global_psi, 
-            mrna_array,
-            turbo
-        )
-        
-    else:
+    if no_lookup:
 
         neighborhood_psi_array = np.array(neighborhood_psi_array)
     
@@ -390,6 +380,20 @@ def psix_score(
             capture_efficiency, 
             min_probability
         )
+        
+    else:
+        
+        
+        L_vec = psi_observations_scores_vec_turbo(
+            observed_psi_array, 
+            neighborhood_psi_array, 
+            global_psi, 
+            mrna_array,
+            turbo
+        )
+        
+
+        
 
     return np.sum(L_vec)/total_cells
 
