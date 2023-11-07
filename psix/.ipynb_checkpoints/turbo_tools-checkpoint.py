@@ -5,8 +5,8 @@ from .model_functions import probability_psi_observation
 from tqdm import tqdm
 
 
-def load_turbo(turbo_dir = 'lookup/', max_mrna = 30):
-    turbo_files = ['psix_'+str(i)+'.tab.gz' for i in range(1, max_mrna+1)]
+def load_turbo(turbo_dir = 'lookup/', max_mrna = 50):
+    turbo_files = [f'psix_{str(i)}.tab.gz' for i in range(1, max_mrna+1)]
     turbo_dict = []
     for x in tqdm(turbo_files, position=0, leave=True):
         mrna_counts = int(x.split('.')[0].split('_')[-1])
@@ -15,7 +15,7 @@ def load_turbo(turbo_dir = 'lookup/', max_mrna = 30):
     return turbo_dict
 
 
-def make_turbo_function(out_dir = 'lookup/', granularity = 0.01, max_mrna = 30, capture_efficiency=0.1, min_probability=0.01):
+def make_turbo_function(out_dir = 'lookup/', granularity = 0.01, max_mrna = 50, capture_efficiency=0.1, min_probability=0.01):
     if not os.path.isdir(out_dir):
         os.mkdir(out_dir)
     observed_range = np.arange(0, 1+granularity, granularity)

@@ -141,6 +141,60 @@ def probability_psi_m_known(observed_psi, true_psi, captured_mrna, cell_molecule
 #     comb_3 = comb(cell_molecules, captured_mrna)**(-1)
 #     return comb_1*comb_2*comb_3
 
+# def psi_observation_score(
+#     observed_psi, 
+#     neighborhood_psi, 
+#     global_psi, 
+#     captured_mrna, 
+#     capture_efficiency, 
+#     min_probability
+# ):
+#     """
+#     log Pr(observed_psi | neighborhood_psi) - log Pr(observed_psi | global_psi)
+#     """
+    
+#     if np.isnan(observed_psi):
+#         return 0
+    
+#     probability_given_neighborhood = np.max([
+#         min_probability, probability_psi_observation(observed_psi, neighborhood_psi, capture_efficiency, captured_mrna)
+#     ])
+#     probability_given_global = np.max([
+#         min_probability, probability_psi_observation(observed_psi, global_psi, capture_efficiency, captured_mrna)
+#     ])
+    
+#     log_probability_neighborhood = np.log(probability_given_neighborhood)
+#     log_probability_global = np.log(probability_given_global)
+    
+#     any_nan = False
+#     if (np.isnan(log_probability_neighborhood)):
+#         any_nan=True
+#     if np.isnan(log_probability_global):
+#         any_nan=True
+#     if np.isnan(log_probability_neighborhood - log_probability_global):
+#         any_nan=True
+    
+#     if any_nan:
+#         return 0
+    
+#     else: 
+#         return log_probability_neighborhood - log_probability_global
+
+@jit(nopython=True)
+def max_pair_numba(a, b):
+    if a > b:
+        return a
+    else:
+        return b
+
+@jit(nopython=True)
+def min_pair_numba(a, b):
+    if a < b:
+        return a
+    else:
+        return b
+        
+@jit(nopython=True)
 def psi_observation_score(
     observed_psi, 
     neighborhood_psi, 
@@ -156,12 +210,12 @@ def psi_observation_score(
     if np.isnan(observed_psi):
         return 0
     
-    probability_given_neighborhood = np.max([
+    probability_given_neighborhood = max_pair_numba(
         min_probability, probability_psi_observation(observed_psi, neighborhood_psi, capture_efficiency, captured_mrna)
-    ])
-    probability_given_global = np.max([
+    )
+    probability_given_global = max_pair_numba(
         min_probability, probability_psi_observation(observed_psi, global_psi, capture_efficiency, captured_mrna)
-    ])
+    )
     
     log_probability_neighborhood = np.log(probability_given_neighborhood)
     log_probability_global = np.log(probability_given_global)
@@ -179,32 +233,32 @@ def psi_observation_score(
     
     else: 
         return log_probability_neighborhood - log_probability_global
-        
+       
 
-def psi_observations_scores_vec(
-    observed_psi_array, 
-    neighborhood_psi_array, 
-    global_psi, 
-    mrna_array, 
-    capture_efficiency, 
-    min_probability
-):
+# def psi_observations_scores_vec(
+#     observed_psi_array, 
+#     neighborhood_psi_array, 
+#     global_psi, 
+#     mrna_array, 
+#     capture_efficiency, 
+#     min_probability
+# ):
 
-    # neighborhood_psi_array = np.array([0.99 if x > 0.99 else 0.01 if x < 0.01 else x for x in neighborhood_psi_array])
+#     # neighborhood_psi_array = np.array([0.99 if x > 0.99 else 0.01 if x < 0.01 else x for x in neighborhood_psi_array])
 
-    func = lambda i: psi_observation_score(
-        observed_psi_array[i], 
-        neighborhood_psi_array[i], 
-        global_psi, 
-        mrna_array[i], 
-        capture_efficiency, 
-        min_probability
-    )
-    x = range(len(observed_psi_array))
-    x_func = np.vectorize(func)
-    psi_scores_vec = x_func(x)
+#     func = lambda i: psi_observation_score(
+#         observed_psi_array[i], 
+#         neighborhood_psi_array[i], 
+#         global_psi, 
+#         mrna_array[i], 
+#         capture_efficiency, 
+#         min_probability
+#     )
+#     x = range(len(observed_psi_array))
+#     x_func = np.vectorize(func)
+#     psi_scores_vec = x_func(x)
 
-    return psi_scores_vec
+#     return psi_scores_vec
     
 
     
@@ -342,35 +396,35 @@ def psix_score(
 
 ##################### lookup functions ########################
 
-# @jit(nopython=True)
-# def psi_observations_scores_vec(observed_psi_array, neighborhood_psi_array, global_psi, mrna_array, capture_efficiency, 
-#                                 turbo_dict, max_mrna = 30, min_probability=0.01, cap_mrna = True):
+@jit(nopython=True)
+def psi_observations_scores_vec(
+    observed_psi_array, 
+    neighborhood_psi_array, 
+    global_psi, 
+    mrna_array, 
+    capture_efficiency, 
+    min_probability = 0.01
+):
 
-#     neighborhood_psi_array = np.array([0.99 if x > 0.99 else 0.01 if x < 0.01 else x for x in neighborhood_psi_array])
+    neighborhood_psi_array = [0.99 if x > 0.99 else 0.01 if x < 0.01 else x for x in neighborhood_psi_array]
     
-#     L_vec = []
+    L_vec = []
     
-#     for i in range(len(observed_psi_array)):
-#         psi_o = observed_psi_array[i]
-#         psi_a = neighborhood_psi_array[i]
-#         mrna = mrna_array[i]
+    for i in range(len(observed_psi_array)):
+        psi_o = observed_psi_array[i]
+        psi_a = neighborhood_psi_array[i]
+        mrna = mrna_array[i]
 
-#         if cap_mrna:
-#             mrna = np.min((mrna, max_mrna))
-        
-#         if mrna <= max_mrna:
-#             L = L_score_lookup(psi_o, psi_a, global_psi, mrna, turbo_dict)
-#         else:
-#             L = psi_observation_score(
-#                     psi_o, 
-#                     psi_a, 
-#                     global_psi, 
-#                     mrna, 
-#                     capture_efficiency, 
-#                     min_probability
-#                 )
-#         L_vec.append(L)
-#     return L_vec
+        L = psi_observation_score(
+                psi_o, 
+                psi_a, 
+                global_psi, 
+                mrna, 
+                capture_efficiency, 
+                min_probability
+            )
+        L_vec.append(L)
+    return L_vec
 
 
 ##################### Turbo functions #######################

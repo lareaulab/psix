@@ -31,7 +31,7 @@ warnings.filterwarnings("ignore")
 
 def make_turbo(out_dir = 'lookup/', 
                    granularity = 0.01, 
-                   max_mrna = 30, 
+                   max_mrna = 50, 
                    capture_efficiency = 0.1, 
                    min_probability = 0.01
                   ):

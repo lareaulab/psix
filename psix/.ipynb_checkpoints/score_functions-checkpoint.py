@@ -29,11 +29,11 @@ def compute_psix_scores(self,
     self.n_random_exons = n_random_exons
     self.n_jobs = n_jobs
 
-    # if turbo:
-    self.turbo = load_turbo(turbo_dir = turbo)
+    if turbo:
+        self.turbo = load_turbo(turbo_dir = turbo)
 
-    # else:
-    #     self.turbo = False
+    else:
+        self.turbo = False
 
     if not 'cell_metric' in self.adata.uns:
         print('Computing cell-cell metric...', flush=True)
