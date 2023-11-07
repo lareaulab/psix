@@ -338,8 +338,10 @@ def psix_score(
 
 
     observed_psi_array, neighborhood_psi_array, mrna_array = get_arrays(exon_psi_array, exon_mrna_array, cell_metric)
-    
-    mrna_array = np.round(mrna_array).astype(int)
+
+    observed_psi_array = list(observed_psi_array)
+    neighborhood_psi_array = list(neighborhood_psi_array)
+    mrna_array = list(np.round(mrna_array).astype(int))
     
 
     total_cells = round((len(observed_psi_array) - np.sum(mrna_array == 0)))
@@ -370,7 +372,7 @@ def psix_score(
     
     if no_lookup:
 
-        neighborhood_psi_array = np.array(neighborhood_psi_array)
+        # neighborhood_psi_array = np.array(neighborhood_psi_array)
     
         L_vec = psi_observations_scores_vec(
             observed_psi_array, 
