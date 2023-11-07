@@ -191,7 +191,8 @@ def compute_random_exons(bucket, self):
                        randomize = True,  
                        min_probability = self.min_probability,
                        seed=self.seed,
-                       turbo = self.turbo) for exon in r_choice]
+                       turbo = self.turbo, 
+                       no_lookup = self.no_lookup) for exon in r_choice]
             ######################
 
 
@@ -204,7 +205,8 @@ def compute_random_exons(bucket, self):
                        randomize = True,  
                        min_probability = self.min_probability,
                        seed=self.seed,
-                       turbo = self.turbo) for exon in r_choice]
+                       turbo = self.turbo,
+                       no_lookup = self.no_lookup) for exon in r_choice]
             ####################
 
         return np.array(output)
