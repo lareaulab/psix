@@ -8,6 +8,9 @@ import itertools
 
 from numba import jit, njit
 
+import logging
+
+
 
 @jit(nopython=True)
 def round_numba(x):
@@ -372,6 +375,14 @@ def psix_score(
     
     if no_lookup:
 
+        logging.basicConfig(filename='/project2/yangili1/cfbuenabadn/analysis_psix/debug.log', level=logging.DEBUG)
+
+        observed_psi_str = ''.join([str(x) for x in observed_psi_array])
+
+        logging.info(observed_psi_str)
+
+
+
         # neighborhood_psi_array = np.array(neighborhood_psi_array)
     
         L_vec = psi_observations_scores_vec(
@@ -382,6 +393,8 @@ def psix_score(
             capture_efficiency, 
             min_probability
         )
+
+    logging(L_vec)
         
     else:
         
