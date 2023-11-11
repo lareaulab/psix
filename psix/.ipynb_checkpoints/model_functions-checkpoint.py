@@ -394,7 +394,7 @@ def psix_score(
             min_probability
         )
 
-        logging(L_vec)
+        logging.info(L_vec)
         
     else:
         
