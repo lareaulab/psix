@@ -369,9 +369,7 @@ def psix_score(
 
     neighborhood_psi_array = [0.99 if x > 0.99 else 0.01 if x < 0.01 else x for x in neighborhood_psi_array]
 
-    if cap_mrna:
-        mrna_max = len(turbo)
-        mrna_array = [mrna_max if x >= mrna_max else x for x in mrna_array]
+    
     
     if no_lookup:
 
@@ -403,6 +401,10 @@ def psix_score(
         logging.info(L_vec)
         
     else:
+
+        if cap_mrna:
+            mrna_max = len(turbo)
+            mrna_array = [mrna_max if x >= mrna_max else x for x in mrna_array]
         
         
         L_vec = psi_observations_scores_vec_turbo(
