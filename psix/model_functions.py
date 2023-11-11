@@ -375,7 +375,7 @@ def psix_score(
     
     if no_lookup:
 
-        logging.basicConfig(filename='/project2/yangili1/cfbuenabadn/analysis_psix/debug.log', level=logging.INFO)
+        logging.basicConfig(filename='/project2/yangili1/cfbuenabadn/analysis_psix/debug.log', level=logging.DEBUG)
 
         observed_psi_str = ','.join([str(x) for x in observed_psi_array])
 
