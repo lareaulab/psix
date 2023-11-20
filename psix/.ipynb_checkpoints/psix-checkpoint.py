@@ -95,7 +95,19 @@ class Psix:
                 psi, mrna = read_sicelore(sicelore, min_cell_counts = sicelore_min_counts, max_nan_psi = sicelore_max_nan)
                 self.adata.uns['psi'] = psi.T
                 self.adata.uns['mrna_per_event'] = mrna.T
-            
+
+    def collect_junctions(
+        self,
+        sj_dir,
+        intron_file
+    ):
+        self.sj_file = process_SJ_dir(sj_dir,
+                                      intron_file,
+                                      cell_list = cell_list,
+                                      dtype=dtype
+                                     )
+        
+    
     def junctions2psi(
         self,
         sj_dir,

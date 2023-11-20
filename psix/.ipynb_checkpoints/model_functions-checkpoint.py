@@ -373,17 +373,17 @@ def psix_score(
     
     if no_lookup:
 
-        logging.basicConfig(filename='/project2/yangili1/cfbuenabadn/analysis_psix/debug.log', level=logging.DEBUG)
+        # logging.basicConfig(filename='/project2/yangili1/cfbuenabadn/analysis_psix/debug.log', level=logging.DEBUG)
 
         observed_psi_str = ','.join([str(x) for x in observed_psi_array])
 
-        logging.info(type(observed_psi_array[0]))
+        # logging.info(type(observed_psi_array[0]))
 
-        logging.info(observed_psi_array)
+        # logging.info(observed_psi_array)
 
-        logging.info(neighborhood_psi_array)
+        # logging.info(neighborhood_psi_array)
 
-        logging.info(mrna_array)
+        # logging.info(mrna_array)
 
 
 
@@ -398,7 +398,7 @@ def psix_score(
             min_probability
         )
 
-        logging.info(L_vec)
+        # logging.info(L_vec)
         
     else:
 
