@@ -100,7 +100,8 @@ class Psix:
         self,
         sj_dir,
         intron_file,
-        cell_list = []
+        cell_list = [],
+        dtype=np.float32
     ):
         self.sj_file = process_SJ_dir(sj_dir,
                                       intron_file,
