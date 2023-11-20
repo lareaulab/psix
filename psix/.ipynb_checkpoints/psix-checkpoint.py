@@ -99,7 +99,8 @@ class Psix:
     def collect_junctions(
         self,
         sj_dir,
-        intron_file
+        intron_file,
+        cell_list = []
     ):
         self.sj_file = process_SJ_dir(sj_dir,
                                       intron_file,
