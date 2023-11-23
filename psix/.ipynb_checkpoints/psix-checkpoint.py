@@ -50,7 +50,7 @@ class Psix:
                  psix_object = None,
                  psi_table = None, 
                  counts_per_event = None,
-                 counts_type = 'mrna'
+                 counts_type = None
                  # sicelore = None,
                  # sicelore_min_counts = 1e3,
                  # sicelore_max_nan = 0.75
@@ -74,13 +74,19 @@ class Psix:
 
             if psi_table and counts_per_event:
                 if os.path.isfile(psi_table) and os.path.isfile(counts_per_event):
+
+                    if counts_type:
+                        if counts_type not in ['mrna', 'tpm', 'reads']:
+                            raise Exception('counts_type has to be one of the following: "mrna", "tpm" or "reads"')
+                    else:
+                        raise Exception('please define counts_type as one of the following: "mrna", "tpm" or "reads"')
                     
                     psi = pd.read_csv(psi_table, sep='\t', index_col=0)
                     counts_per_event = pd.read_csv(counts_per_event, sep='\t', index_col=0)
 
-                    if any(psi.index != counts.index):
+                    if any(psi.index != counts_per_event.index):
                         raise Exception('PSI and counts matrices are required to have the same alternative splicing events.')
-                    if any(psi.columns != counts.columns):
+                    if any(psi.columns != counts_per_event.columns):
                         raise Exception('PSI and counts matrices are required to have the same cell labels.')
 
                     if counts_type == 'reads':
