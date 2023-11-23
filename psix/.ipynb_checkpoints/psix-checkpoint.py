@@ -90,7 +90,7 @@ class Psix:
                         raise Exception('PSI and counts matrices are required to have the same cell labels.')
 
                     if counts_type == 'reads':
-                        mrna_per_event = counts2tpm(counts_per_event, psi)
+                        mrna_per_event = counts2mrna(counts_per_event, psi)
                     elif counts_type == 'tpm':
                         mrna_per_event = tpm2mrna(counts_per_event)
                     elif counts_type == 'mrna':

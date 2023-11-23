@@ -112,7 +112,7 @@ def counts2tpm(counts, psi):
 
     return tpm
 
-def counts2tpm(counts, psi, dtype=np.float32):
+def counts2mrna(counts, psi, dtype=np.float32):
     # Get TPM from counts per event.
     tpm = counts2tpm(counts, psi)
     # Since we calculated the TPM for each cluster instead of for each gene, the mRNA estimates are also per cluster.
