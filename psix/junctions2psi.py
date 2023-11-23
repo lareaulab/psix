@@ -232,7 +232,10 @@ def junctions_dir_to_psi(
 
         if len(cell_list) == 0:
             cell_list = psi.columns
-        mrna = tpm2mrna(tpm_file, cell_list, dtype=dtype)
+
+        tpm_dataset = pd.read_csv(tpm_file, sep='\t', index_col=0)[cell_list]
+        
+        mrna = tpm2mrna(tpm_dataset, dtype=dtype)
         
         cells = psi.columns.intersection(mrna.columns)
         mrna = mrna[cells]

@@ -232,13 +232,12 @@ def junctions_dir_to_psi(
 
         if len(cell_list) == 0:
             cell_list = psi.columns
-        mrna = tpm2mrna(tpm_file, cell_list, dtype=dtype)
-        ##### New thing
-        self.mrna_checkpoint = mrna
-        self.psi_checkpoint = psi
-        self.constitutive_sj_checkpoint = constitutive_sj
+
+        tpm_dataset = pd.read_csv(tpm_file, sep='\t', index_col=0)[cell_list]
+        
+        mrna = tpm2mrna(tpm_dataset, dtype=dtype)
+        
         cells = psi.columns.intersection(mrna.columns)
-        self.cells_checkpoint = cells
         mrna = mrna[cells]
         psi = psi[cells]
         constitutive_sj = constitutive_sj[cells]
@@ -266,7 +265,7 @@ def junctions_dir_to_psi(
     ncells_current = mrna_per_event.shape[0]
     if ncells_former > ncells_current:
         n_diff = str(ncells_former - ncells_current)
-        print('removed ' + n_diff + ' cells with missing of "inf" mRNA values.')
+        print('removed ' + n_diff + ' cells with all missing or "inf" mRNA values.')
         print('This can be the consequence of very shallow coverage in the cell.')
         psi = psi.loc[mrna_per_event.index]
         

@@ -29,7 +29,7 @@ mpl.rcParams['pdf.fonttype'] = 42
 import warnings
 warnings.filterwarnings("ignore")
 
-def make_turbo(out_dir = 'lookup/', 
+def build_lookup(out_dir = 'lookup/', 
                    granularity = 0.01, 
                    max_mrna = 50, 
                    capture_efficiency = 0.1, 
@@ -49,10 +49,11 @@ class Psix:
     def __init__(self, 
                  psix_object = None,
                  psi_table = None, 
-                 mrna_table = None,
-                 sicelore = None,
-                 sicelore_min_counts = 1e3,
-                 sicelore_max_nan = 0.75
+                 counts_per_event = None,
+                 counts_type = 'mrna'
+                 # sicelore = None,
+                 # sicelore_min_counts = 1e3,
+                 # sicelore_max_nan = 0.75
                 ):
         
         if psix_object:
@@ -71,11 +72,29 @@ class Psix:
         else:
             self.adata = anndata.AnnData()
 
-            if psi_table and mrna_table:
-                if os.path.isfile(psi_table) and os.path.isfile(mrna_table):
-                    psi = pd.read_csv(psi_table, sep='\t', index_col=0).T
-                    mrna_per_event = pd.read_csv(mrna_table, sep='\t', index_col=0).T
+            if psi_table and counts_per_event:
+                if os.path.isfile(psi_table) and os.path.isfile(counts_per_event):
+                    
+                    psi = pd.read_csv(psi_table, sep='\t', index_col=0)
+                    counts_per_event = pd.read_csv(counts_per_event, sep='\t', index_col=0)
 
+                    if any(psi.index != counts.index):
+                        raise Exception('PSI and counts matrices are required to have the same alternative splicing events.')
+                    if any(psi.columns != counts.columns):
+                        raise Exception('PSI and counts matrices are required to have the same cell labels.')
+
+                    if counts_type == 'reads':
+                        mrna_per_event = counts2tpm(counts_per_event, psi)
+                    elif counts_type == 'tpm':
+                        mrna_per_event = tpm2mrna(counts_per_event)
+                    elif counts_type == 'mrna':
+                        mrna_per_event = counts_per_event
+                    else:
+                        raise Exception('Unrecognized counts per event type: ' + counts_type + '\nplease specify counts_type = "mrna", "tpm" or "reads".')
+
+                    psi = psi.T
+                    mrna_per_event = mrna_per_event.T
+                    
                     ncells_former = mrna_per_event.shape[0]
 
                     mrna_per_event = mrna_per_event[(mrna_per_event.sum(axis=1) > 0.1) & (mrna_per_event.sum(axis=1) < np.inf)]
@@ -89,13 +108,53 @@ class Psix:
                     self.adata.uns['psi'] = psi
                     self.adata.uns['mrna_per_event'] = mrna_per_event
                 else:
-                    raise Exception('Files ' + psi_table + ' and/or ' + mrna_table + ' not found.')
-            
-            elif sicelore:
-                psi, mrna = read_sicelore(sicelore, min_cell_counts = sicelore_min_counts, max_nan_psi = sicelore_max_nan)
-                self.adata.uns['psi'] = psi.T
-                self.adata.uns['mrna_per_event'] = mrna.T
+                    raise Exception('Files ' + psi_table + ' and/or ' + counts_per_event + ' not found.')
 
+            # elif psi_table and read_counts_per_event:
+            #     if os.path.isfile(psi_table) and os.path.isfile(read_counts_per_event):
+            #         print('loading PSI and read counts matrix')
+            #         psi = pd.read_csv(psi_table, sep='\t', index_col=0)
+            #         counts = pd.read_csv(read_counts_per_event, sep='\t', index_col=0)
+
+            #         if any(psi.index != counts.index):
+            #             raise Exception('PSI and read counts matrices are required to have the same alternative splicing events.')
+            #         if any(psi.columns != counts.columns):
+            #             raise Exception('PSI and read counts matrices are required to have the same cell labels.')
+
+            #         mrna_per_event = counts2tpm(counts, psi)
+
+            #         psi = psi.T
+            #         mrna_per_event = mrna_per_event.T
+
+            #         ncells_former = mrna_per_event.shape[0]
+
+            #         mrna_per_event = mrna_per_event[(mrna_per_event.sum(axis=1) > 0.1) & (mrna_per_event.sum(axis=1) < np.inf)]
+            #         ncells_current = mrna_per_event.shape[0]
+            #         if ncells_former > ncells_current:
+            #             n_diff = str(ncells_former - ncells_current)
+            #             print('removed ' + n_diff + ' cells with all missing or "inf" mRNA values.')
+            #             print('This can be the consequence of very shallow coverage in the cell.')
+            #             psi = psi.loc[mrna_per_event.index]
+      
+            #         self.adata.uns['psi'] = psi
+            #         self.adata.uns['mrna_per_event'] = mrna_per_event
+
+            #     else:
+            #         raise Exception(f'Files {psi_table} and/or {read_counts_per_event} not found.')
+            
+            # elif sicelore:
+            #     psi, mrna = read_sicelore(sicelore, min_cell_counts = sicelore_min_counts, max_nan_psi = sicelore_max_nan)
+            #     self.adata.uns['psi'] = psi.T
+            #     self.adata.uns['mrna_per_event'] = mrna.T
+
+    def load_sicelore(sicelore,
+                      sicelore_min_counts = 1e3,
+                      sicelore_max_nan = 0.75
+                     ):
+        psi, mrna = read_sicelore(sicelore, min_cell_counts = sicelore_min_counts, max_nan_psi = sicelore_max_nan)
+        self.adata.uns['psi'] = psi.T
+        self.adata.uns['mrna_per_event'] = mrna.T
+    
     def collect_junctions(
         self,
         sj_dir,
@@ -103,7 +162,7 @@ class Psix:
         cell_list = [],
         dtype=np.float32
     ):
-        self.sj_file = process_SJ_dir(sj_dir,
+        self.sj_table = process_SJ_dir(sj_dir,
                                       intron_file,
                                       cell_list = cell_list,
                                       dtype=dtype

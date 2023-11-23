@@ -67,8 +67,9 @@ def transform_cell(cell, remove_outliers, bw_method, adjust_high):
     return cell_transcript_counts
 
 
-def tpm2mrna(tpm_file, cell_list, bw_method='scott', adjust_high = True, remove_outliers=True, dtype=np.float64):
-    tpm_dataset = pd.read_csv(tpm_file, sep='\t', index_col=0)[cell_list]
+def tpm2mrna(tpm_dataset, bw_method='scott', adjust_high = True, remove_outliers=True, dtype=np.float64):
+    print('Transforming TPM into mRNA counts.')
+    # tpm_dataset = pd.read_csv(tpm_file, sep='\t', index_col=0)[cell_list]
     mrna_counts = pd.DataFrame(dtype=dtype)
     mrna_counts_per_cell = []
     cells = tpm_dataset.columns
@@ -92,3 +93,28 @@ def tpm2mrna(tpm_file, cell_list, bw_method='scott', adjust_high = True, remove_
     return mrna_counts
 
 
+def counts2tpm(counts, psi):
+
+    print('Transforming read counts into TPM.')
+    
+    # Counts -> TPM
+    
+    # Assuming that we have two junctions for exon inclusion and one for exclusion, we adjust the read counts accordingly. 
+    # This is equivalent to normalizing counts by length. Here it's easier because the reads are limited to the splice junctions,
+    # which means that the length will be cancelled away across different clusters. We only need to account for how many reads come
+    # from paired inclusion junctions, vs how many come from single exclusion junctions.
+    
+    normalized_counts = (((1-psi)*counts) + ((psi * counts)/2))#.fillna(0)
+
+    # Now we calculate TPM as usual:
+    counts_per_cell = normalized_counts.sum(axis=0)
+    tpm = normalized_counts.divide(counts_per_cell, axis=1)*1e6
+
+    return tpm
+
+def counts2tpm(counts, psi, dtype=np.float32):
+    # Get TPM from counts per event.
+    tpm = counts2tpm(counts, psi)
+    # Since we calculated the TPM for each cluster instead of for each gene, the mRNA estimates are also per cluster.
+    mrna = tpm2mrna(tpm, dtype=dtype)
+    return mrna
