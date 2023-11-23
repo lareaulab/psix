@@ -240,7 +240,7 @@ class Psix:
                  latent='latent', 
                  n_neighbors = 100, 
                  weight_metric=True,
-                 turbo = 'lookup/',
+                 lookup = 'lookup/',
                  no_lookup=False
                 ):
         
@@ -256,7 +256,7 @@ class Psix:
                         latent = latent, 
                         n_neighbors = n_neighbors, 
                         weight_metric = weight_metric,
-                        turbo = turbo,
+                        turbo = lookup,
                         no_lookup = no_lookup
                        )
         
