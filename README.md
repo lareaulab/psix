@@ -47,7 +47,7 @@ You can create a Psix object from splice junction tables and a TPM table as desc
 ## Running Psix using lookup tables
 You can run Psix using the following command:
 ```
-psix_object.run_psix(latent='data/pc2_rd.renamed.tab.gz',
+psix_object.run_psix(latent='path/to/latent_space.tab.gz',
                     lookup = 'lookup/' # specify a pre-built lookup tables directory
                     )
 ```
