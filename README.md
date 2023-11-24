@@ -47,10 +47,10 @@ You can create a Psix object from splice junction tables and a TPM table as desc
 ## Running Psix using lookup tables
 You can run Psix using the following command:
 ```
-psix_object.run_psix(latent='data/pc2_rd.renamed.tab.gz', n_jobs=25,
+psix_object.run_psix(latent='data/pc2_rd.renamed.tab.gz',
                     lookup = 'lookup/' # specify a pre-built lookup tables directory
                     )
 ```
-You can specify the location of the lookup tables directory using the argument `lookup`. This way you only need to build the lookup tables once. 
+You can specify the location of the lookup tables directory using the argument `lookup`. This way you only need to build the lookup tables once. Like in the original version of Psix, you can further increase speed by parallelizing the processes using the argument `n_jobs=5` (or any number of jobs). 
 
 You can run Psix 0.11.0 without lookup tables by using the argument `no_lookup=True`. This will run each probability calculation anew for every exon in every cell, like in the earlier version of Psix. These functions have been improved using numba, which means that there will still be a significant improvement on speed over the original version of Psix. Using lookup tables, however, is the fastest approach. 
