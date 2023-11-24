@@ -30,6 +30,14 @@ pip install git+https://github.com/lareaulab/psix.git
 
 Missing package dependencies will be automatically installed.
 
+A new version of Psix is currently under development. This new version is faster and it requires fewer inputs than the original Psix. You can install it by running:
+
+```
+pip install git+https://github.com/lareaulab/psix.git@psix_numba
+```
+
+See the [psix_numba](https://github.com/lareaulab/psix/tree/psix_numba) branch for details.
+
 ## Psix input
 
 ##### 1. SJ.out.tab files OR STARsolo SJ features
