@@ -30,7 +30,7 @@ pip install git+https://github.com/lareaulab/psix.git
 
 Missing package dependencies will be automatically installed.
 
-#### New version of Psix:
+### New version of Psix:
 
 A new version of Psix is currently under development. This new version is faster and it requires fewer inputs than the original Psix. You can install it by running:
 
