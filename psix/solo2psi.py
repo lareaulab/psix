@@ -34,15 +34,27 @@ def read_solo_barcodes(solo_barcodes_path):
                 barcodes.append(row.rstrip())
     return barcodes
 
-def read_solo_matrix(solo_matrix_path, intron_list, barcodes, cell_list):
-    matrix = pd.DataFrame.sparse.from_spmatrix(scipy.io.mmread(solo_matrix_path),
-                                               index=intron_list, columns=barcodes)
+def read_solo_matrix(solo_matrix_path, intron_list, barcodes, cell_list, intron_set):
+
+    m = scipy.io.mmread(solo_matrix_path)
+    m = scipy.sparse.csr_matrix(m)
+
+    Z = [i for i, x in enumerate(intron_list) if ((x in intron_set) and (x[:3]=='chr'))]
+    Y = [i for i, x in enumerate(barcodes) if x in cell_list]
+
+    Z_names = [x for i, x in enumerate(intron_list) if  ((x in intron_set) and (x[:3]=='chr'))]
+    Y_names = [x for i, x in enumerate(barcodes) if x in cell_list]
+
+    m = m.transpose()[Y].transpose()[Z]
+    m = pd.DataFrame.sparse.from_spmatrix(m, index=Z_names, columns=Y_names)
+    #matrix = pd.DataFrame.sparse.from_spmatrix(scipy.io.mmread(solo_matrix_path),
+    #                                           index=intron_list, columns=barcodes)
     
-    matrix = matrix[cell_list]
-    matrix = matrix.loc[[x.split(':')[0][:3]=='chr' for x in matrix.index]]
-    matrix = matrix.loc[(matrix.sum(axis=1) > 0)]
+    m = m[cell_list]
+    #m = m.loc[[x.split(':')[0][:3]=='chr' for x in m.index]]
+    m = m.loc[(m.sum(axis=1) > 0)]
     
-    return matrix
+    return m
 
 def process_solo(solo_dir, intron_file, cell_list):
     
@@ -73,9 +85,14 @@ def process_solo(solo_dir, intron_file, cell_list):
     if len(cell_list) == 0:
         cell_list = barcodes
         
-    matrix = read_solo_matrix(solo_matrix_path, intron_list, barcodes, cell_list)
     
-    intron_events = pd.read_csv(intron_file, sep='\t', index_col=0)
+    intron_events = pd.read_csv(intron_file, sep='\t', index_col=0).drop_duplicates()
+    intron_set = set(intron_events.intron)
+    matrix = read_solo_matrix(solo_matrix_path, intron_list, barcodes, cell_list, intron_set)
+    
+    print('Matrix shape:')
+    print(matrix.shape)
+    # intron_events = pd.read_csv(intron_file, sep='\t', index_col=0)
     
     intron_mtx = intron_events.drop_duplicates().merge(matrix.drop_duplicates(), left_on='intron', right_index=True)[matrix.columns]
     
