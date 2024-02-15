@@ -47,10 +47,12 @@ def read_solo_matrix(solo_matrix_path, intron_list, barcodes, cell_list, intron_
     Y_names = [x for i, x in enumerate(barcodes) if x in cell_list]
 
     m = m.transpose()[Y].transpose()[Z]
+    print(m.size)
+    print('transform to dataframe')
     m = pd.DataFrame.sparse.from_spmatrix(m, index=Z_names, columns=Y_names)
     #matrix = pd.DataFrame.sparse.from_spmatrix(scipy.io.mmread(solo_matrix_path),
     #                                           index=intron_list, columns=barcodes)
-    
+    print('done transforming to dataframe')
     m = m[cell_list]
     #m = m.loc[[x.split(':')[0][:3]=='chr' for x in m.index]]
     m = m.loc[(m.sum(axis=1) > 0)]
