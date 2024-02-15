@@ -53,9 +53,9 @@ def read_solo_matrix(solo_matrix_path, intron_list, barcodes, cell_list, intron_
     #matrix = pd.DataFrame.sparse.from_spmatrix(scipy.io.mmread(solo_matrix_path),
     #                                           index=intron_list, columns=barcodes)
     print('done transforming to dataframe')
-    m = m[cell_list]
+    #m = m[cell_list]
     #m = m.loc[[x.split(':')[0][:3]=='chr' for x in m.index]]
-    m = m.loc[(m.sum(axis=1) > 0)]
+    #m = m.loc[(m.sum(axis=1) > 0)]
     print('intron matrix shape: ' + str(m.shape))
     return m
 
