@@ -226,7 +226,7 @@ def solo_to_psi(
             cell_list = psi.columns
 
         tpm_dataset = pd.read_csv(tpm_file, sep='\t', index_col=0)[cell_list]
-        mrna = tpm2mrna(tpm_file)
+        mrna = tpm2mrna(tpm_dataset)
         ##### New thing
         cells = psi.columns.intersection(mrna.columns)
         mrna = mrna[cells]
