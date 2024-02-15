@@ -227,12 +227,19 @@ def solo_to_psi(
 
         tpm_dataset = pd.read_csv(tpm_file, sep='\t', index_col=0)[cell_list]
         mrna = tpm2mrna(tpm_dataset)
+
+        print(mrna.shape)
+        print(mrna.head())
         ##### New thing
         cells = psi.columns.intersection(mrna.columns)
         mrna = mrna[cells]
         psi = psi[cells]
 
         mrna_per_event = get_mrna_per_event(mrna, psi, reads, intron_mtx_CI, solo=True) #constitutive_sj_file)
+
+    self.psi_  = psi
+    self.mrna_ = mrna
+    self.mrna_per_event_ = mrna_per_event
 
     if len(self.adata.obs) > 0:
         idx = self.adata.obs.index.intersection(mrna_per_event.index)
