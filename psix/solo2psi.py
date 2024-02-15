@@ -4,7 +4,8 @@ from tqdm import tqdm
 import os
 import csv
 import gzip
-import scipy.io
+from scipy.io import mmread
+from scipy.sparse import csr_matrix
 from .mrna_census import *
 
 def read_solo_features(solo_features_path):
@@ -35,10 +36,10 @@ def read_solo_barcodes(solo_barcodes_path):
     return barcodes
 
 def read_solo_matrix(solo_matrix_path, intron_list, barcodes, cell_list, intron_set):
-
+    print('loading sparse matrix')
     m = scipy.io.mmread(solo_matrix_path)
     m = scipy.sparse.csr_matrix(m)
-
+    print('sub-setting sparse matrix')
     Z = [i for i, x in enumerate(intron_list) if ((x in intron_set) and (x[:3]=='chr'))]
     Y = [i for i, x in enumerate(barcodes) if x in cell_list]
 
@@ -53,7 +54,7 @@ def read_solo_matrix(solo_matrix_path, intron_list, barcodes, cell_list, intron_
     m = m[cell_list]
     #m = m.loc[[x.split(':')[0][:3]=='chr' for x in m.index]]
     m = m.loc[(m.sum(axis=1) > 0)]
-    
+    print('intron matrix shape: ' + str(m.shape))
     return m
 
 def process_solo(solo_dir, intron_file, cell_list):
@@ -79,6 +80,7 @@ def process_solo(solo_dir, intron_file, cell_list):
     else:
         raise Exception('matrix file not found in solo directory')
     
+    print('reading barcodes, features')
     intron_list = read_solo_features(solo_features_path)
     barcodes = read_solo_barcodes(solo_barcodes_path)
     
@@ -88,6 +90,7 @@ def process_solo(solo_dir, intron_file, cell_list):
     
     intron_events = pd.read_csv(intron_file, sep='\t', index_col=0).drop_duplicates()
     intron_set = set(intron_events.intron)
+    print('reading matrix')
     matrix = read_solo_matrix(solo_matrix_path, intron_list, barcodes, cell_list, intron_set)
     
     print('Matrix shape:')
