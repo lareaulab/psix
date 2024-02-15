@@ -37,8 +37,8 @@ def read_solo_barcodes(solo_barcodes_path):
 
 def read_solo_matrix(solo_matrix_path, intron_list, barcodes, cell_list, intron_set):
     print('loading sparse matrix')
-    m = scipy.io.mmread(solo_matrix_path)
-    m = scipy.sparse.csr_matrix(m)
+    m = mmread(solo_matrix_path)
+    m = csr_matrix(m)
     print('sub-setting sparse matrix')
     Z = [i for i, x in enumerate(intron_list) if ((x in intron_set) and (x[:3]=='chr'))]
     Y = [i for i, x in enumerate(barcodes) if x in cell_list]
