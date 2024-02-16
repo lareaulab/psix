@@ -8,7 +8,7 @@ from .mrna_census import *
 
 
 
-def process_SJ_dir(rnaseq_dir, intron_file, save_files_in = '', cell_list = [], dtype=np.float16):
+def process_SJ_dir(rnaseq_dir, intron_file, save_files_in = '', cell_list = [], dtype=np.float32):
     
     splice_junction_table = get_SJ_table(rnaseq_dir, intron_file, cell_list = cell_list, dtype=dtype)
     
@@ -189,7 +189,7 @@ def junctions_dir_to_psi(
         min_observed = 0.25,
         tenX = False,
         save_files_in = '',
-        dtype=np.float16
+        dtype=np.float32
     ):
         
     if dtype not in [np.float64, np.float32, np.float16]:
@@ -252,13 +252,11 @@ def junctions_dir_to_psi(
     if dtype == np.float64:
         psi = psi.loc[idx]
         mrna_per_event = mrna_per_event.loc[idx]
-    elif dtype == np.float32:
+    else:
         # setting to np.float32 for compatibility with numba
         psi = psi.loc[idx].astype(np.float32)
         mrna_per_event = mrna_per_event.loc[idx].astype(np.float32)
-    else:
-        psi = psi.loc[idx].astype(np.float16)
-        mrna_per_event = mrna_per_event.loc[idx].astype(np.float16)
+    
 
     psi = psi.T
     mrna_per_event = mrna_per_event.T

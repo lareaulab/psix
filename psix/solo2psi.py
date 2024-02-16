@@ -268,7 +268,7 @@ def solo_to_psi(
         mrna_per_event.T.to_csv(save_files_in + '/mrna.tab.gz', sep='\t', 
                    index=True, header=True)
 
-    self.adata.uns['psi'] = psi.astype(np.float16)
+    self.adata.uns['psi'] = psi.astype(np.float32)
     self.adata.uns['mrna_per_event'] = mrna_per_event
 
     print('Successfully processed RNA-seq data')
