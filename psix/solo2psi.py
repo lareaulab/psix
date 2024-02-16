@@ -36,10 +36,10 @@ def read_solo_barcodes(solo_barcodes_path):
     return barcodes
 
 def read_solo_matrix(solo_matrix_path, intron_list, barcodes, cell_list, intron_set):
-    print('loading sparse matrix')
+    #print('loading sparse matrix')
     m = mmread(solo_matrix_path)
     m = csr_matrix(m)
-    print('sub-setting sparse matrix')
+    #print('sub-setting sparse matrix')
     Z = [i for i, x in enumerate(intron_list) if ((x in intron_set) and (x[:3]=='chr'))]
     Y = [i for i, x in enumerate(barcodes) if x in cell_list]
 
@@ -47,16 +47,16 @@ def read_solo_matrix(solo_matrix_path, intron_list, barcodes, cell_list, intron_
     Y_names = [x for i, x in enumerate(barcodes) if x in cell_list]
 
     m = m.transpose()[Y].transpose()[Z]
-    print(m.size)
-    print('transform to dataframe')
+    #print(m.size)
+    #print('transform to dataframe')
     m = pd.DataFrame.sparse.from_spmatrix(m, index=Z_names, columns=Y_names)
     #matrix = pd.DataFrame.sparse.from_spmatrix(scipy.io.mmread(solo_matrix_path),
     #                                           index=intron_list, columns=barcodes)
-    print('done transforming to dataframe')
+    #print('done transforming to dataframe')
     #m = m[cell_list]
     #m = m.loc[[x.split(':')[0][:3]=='chr' for x in m.index]]
     #m = m.loc[(m.sum(axis=1) > 0)]
-    print('intron matrix shape: ' + str(m.shape))
+    #print('intron matrix shape: ' + str(m.shape))
     return m
 
 def process_solo(solo_dir, intron_file, cell_list):
@@ -82,7 +82,7 @@ def process_solo(solo_dir, intron_file, cell_list):
     else:
         raise Exception('matrix file not found in solo directory')
     
-    print('reading barcodes, features')
+    #print('reading barcodes, features')
     intron_list = read_solo_features(solo_features_path)
     barcodes = read_solo_barcodes(solo_barcodes_path)
     
@@ -92,11 +92,11 @@ def process_solo(solo_dir, intron_file, cell_list):
     
     intron_events = pd.read_csv(intron_file, sep='\t', index_col=0).drop_duplicates()
     intron_set = set(intron_events.intron)
-    print('reading matrix')
+    #print('reading matrix')
     matrix = read_solo_matrix(solo_matrix_path, intron_list, barcodes, cell_list, intron_set)
     
-    print('Matrix shape:')
-    print(matrix.shape)
+    #print('Matrix shape:')
+    #print(matrix.shape)
     # intron_events = pd.read_csv(intron_file, sep='\t', index_col=0)
     
     intron_mtx = intron_events.drop_duplicates().merge(matrix.drop_duplicates(), left_on='intron', right_index=True)[matrix.columns]
@@ -232,8 +232,8 @@ def solo_to_psi(
         tpm_dataset = pd.read_csv(tpm_file, sep='\t', index_col=0)[cell_list]
         mrna = tpm2mrna(tpm_dataset)
 
-        print(mrna.shape)
-        print(mrna.head())
+        #print(mrna.shape)
+        #print(mrna.head())
         ##### New thing
         cells = psi.columns.intersection(mrna.columns)
         mrna = mrna[cells]
