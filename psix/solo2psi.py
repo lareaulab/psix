@@ -200,10 +200,14 @@ def solo_to_psi(
     print('Processing STARsolo output. This might take a few minutes...')
     intron_mtx_CI, intron_mtx_exons = process_solo(solo_dir, intron_file, cell_list)
 
+    self.intron_mtx_CI_ = intron_mtx_CI
+    self.intron_mtx_exons_ = intron_mtx_exons
     print('Obtaining PSI tables...')
 
     psi, reads = get_psi_table_solo(intron_mtx_exons, minJR, minCell, tenX=tenX)
 
+    self.psi__ = psi
+    self.reads_ = reads
     alt_exons = psi.index[np.abs(0.5 - psi.mean(axis=1)) <= (0.5-minPsi)]
     obs_exons = psi.index[psi.isna().mean(axis=1) <= 1-min_observed]
     selected_exons = alt_exons.intersection(obs_exons)
