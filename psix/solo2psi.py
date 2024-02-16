@@ -209,7 +209,7 @@ def solo_to_psi(
     self.psi__ = psi
     self.reads_ = reads
     alt_exons = psi.index[np.abs(0.5 - psi.mean(axis=1)) <= (0.5-minPsi)]
-    obs_exons = psi.index[psi.isna().mean(axis=1) <= 1-min_observed]
+    obs_exons = psi.index[psi.isna().astype(int).mean(axis=1) <= 1-min_observed]
     selected_exons = alt_exons.intersection(obs_exons)
 
     psi = psi.loc[selected_exons]
