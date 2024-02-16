@@ -4,7 +4,8 @@ from tqdm import tqdm
 import os
 import csv
 import gzip
-import scipy.io
+from scipy.io import mmread
+from scipy.sparse import csr_matrix
 from .mrna_census import *
 
 def read_solo_features(solo_features_path):
@@ -34,15 +35,29 @@ def read_solo_barcodes(solo_barcodes_path):
                 barcodes.append(row.rstrip())
     return barcodes
 
-def read_solo_matrix(solo_matrix_path, intron_list, barcodes, cell_list):
-    matrix = pd.DataFrame.sparse.from_spmatrix(scipy.io.mmread(solo_matrix_path),
-                                               index=intron_list, columns=barcodes)
-    
-    matrix = matrix[cell_list]
-    matrix = matrix.loc[[x.split(':')[0][:3]=='chr' for x in matrix.index]]
-    matrix = matrix.loc[(matrix.sum(axis=1) > 0)]
-    
-    return matrix
+def read_solo_matrix(solo_matrix_path, intron_list, barcodes, cell_list, intron_set):
+    print('loading sparse matrix')
+    m = mmread(solo_matrix_path)
+    m = csr_matrix(m)
+    print('sub-setting sparse matrix')
+    Z = [i for i, x in enumerate(intron_list) if ((x in intron_set) and (x[:3]=='chr'))]
+    Y = [i for i, x in enumerate(barcodes) if x in cell_list]
+
+    Z_names = [x for i, x in enumerate(intron_list) if  ((x in intron_set) and (x[:3]=='chr'))]
+    Y_names = [x for i, x in enumerate(barcodes) if x in cell_list]
+
+    m = m.transpose()[Y].transpose()[Z]
+    print(m.size)
+    print('transform to dataframe')
+    m = pd.DataFrame.sparse.from_spmatrix(m, index=Z_names, columns=Y_names)
+    #matrix = pd.DataFrame.sparse.from_spmatrix(scipy.io.mmread(solo_matrix_path),
+    #                                           index=intron_list, columns=barcodes)
+    print('done transforming to dataframe')
+    #m = m[cell_list]
+    #m = m.loc[[x.split(':')[0][:3]=='chr' for x in m.index]]
+    #m = m.loc[(m.sum(axis=1) > 0)]
+    print('intron matrix shape: ' + str(m.shape))
+    return m
 
 def process_solo(solo_dir, intron_file, cell_list):
     
@@ -67,15 +82,22 @@ def process_solo(solo_dir, intron_file, cell_list):
     else:
         raise Exception('matrix file not found in solo directory')
     
+    print('reading barcodes, features')
     intron_list = read_solo_features(solo_features_path)
     barcodes = read_solo_barcodes(solo_barcodes_path)
     
     if len(cell_list) == 0:
         cell_list = barcodes
         
-    matrix = read_solo_matrix(solo_matrix_path, intron_list, barcodes, cell_list)
     
-    intron_events = pd.read_csv(intron_file, sep='\t', index_col=0)
+    intron_events = pd.read_csv(intron_file, sep='\t', index_col=0).drop_duplicates()
+    intron_set = set(intron_events.intron)
+    print('reading matrix')
+    matrix = read_solo_matrix(solo_matrix_path, intron_list, barcodes, cell_list, intron_set)
+    
+    print('Matrix shape:')
+    print(matrix.shape)
+    # intron_events = pd.read_csv(intron_file, sep='\t', index_col=0)
     
     intron_mtx = intron_events.drop_duplicates().merge(matrix.drop_duplicates(), left_on='intron', right_index=True)[matrix.columns]
     
@@ -139,9 +161,9 @@ def get_psi_table_solo(intron_mtx_exons, minJR=5, minCell=20, tenX = False):
     SE_table = intron_mtx_exons.loc[se_events]
     SE_table.index = events
     
-    I1_filt = I1_table.index[(I1_table > minJR).sum(axis=1) > minCell]
-    I2_filt = I2_table.index[(I2_table > minJR).sum(axis=1) > minCell]
-    SE_filt = SE_table.index[(SE_table > minJR).sum(axis=1) > minCell]
+    I1_filt = I1_table.index[(I1_table > minJR).astype(int).sum(axis=1) > minCell]
+    I2_filt = I2_table.index[(I2_table > minJR).astype(int).sum(axis=1) > minCell]
+    SE_filt = SE_table.index[(SE_table > minJR).astype(int).sum(axis=1) > minCell]
     
     filtered_events = I1_filt.intersection(I2_filt).intersection(SE_filt)
     
@@ -178,12 +200,16 @@ def solo_to_psi(
     print('Processing STARsolo output. This might take a few minutes...')
     intron_mtx_CI, intron_mtx_exons = process_solo(solo_dir, intron_file, cell_list)
 
+    self.intron_mtx_CI_ = intron_mtx_CI
+    self.intron_mtx_exons_ = intron_mtx_exons
     print('Obtaining PSI tables...')
 
     psi, reads = get_psi_table_solo(intron_mtx_exons, minJR, minCell, tenX=tenX)
 
+    self.psi__ = psi
+    self.reads_ = reads
     alt_exons = psi.index[np.abs(0.5 - psi.mean(axis=1)) <= (0.5-minPsi)]
-    obs_exons = psi.index[psi.isna().mean(axis=1) <= 1-min_observed]
+    obs_exons = psi.index[psi.isna().astype(int).mean(axis=1) <= 1-min_observed]
     selected_exons = alt_exons.intersection(obs_exons)
 
     psi = psi.loc[selected_exons]
@@ -202,13 +228,22 @@ def solo_to_psi(
 
         if len(cell_list) == 0:
             cell_list = psi.columns
-        mrna = tpm2mrna(tpm_file, cell_list)
+
+        tpm_dataset = pd.read_csv(tpm_file, sep='\t', index_col=0)[cell_list]
+        mrna = tpm2mrna(tpm_dataset)
+
+        print(mrna.shape)
+        print(mrna.head())
         ##### New thing
         cells = psi.columns.intersection(mrna.columns)
         mrna = mrna[cells]
         psi = psi[cells]
 
         mrna_per_event = get_mrna_per_event(mrna, psi, reads, intron_mtx_CI, solo=True) #constitutive_sj_file)
+
+    self.psi_  = psi
+    self.mrna_ = mrna
+    self.mrna_per_event_ = mrna_per_event
 
     if len(self.adata.obs) > 0:
         idx = self.adata.obs.index.intersection(mrna_per_event.index)
@@ -233,7 +268,7 @@ def solo_to_psi(
         mrna_per_event.T.to_csv(save_files_in + '/mrna.tab.gz', sep='\t', 
                    index=True, header=True)
 
-    self.adata.uns['psi'] = psi
+    self.adata.uns['psi'] = psi.astype(np.float32)
     self.adata.uns['mrna_per_event'] = mrna_per_event
 
     print('Successfully processed RNA-seq data')

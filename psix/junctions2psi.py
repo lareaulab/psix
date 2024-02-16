@@ -155,9 +155,9 @@ def get_psi_table(SJ_counts_table, minJR=1, minCell=1, tenX = False):
     SE_table = SJ_counts_table.loc[se_events]
     SE_table.index = events
     
-    I1_filt = I1_table.index[(I1_table > minJR).sum(axis=1) > minCell]
-    I2_filt = I2_table.index[(I2_table > minJR).sum(axis=1) > minCell]
-    SE_filt = SE_table.index[(SE_table > minJR).sum(axis=1) > minCell]
+    I1_filt = I1_table.index[(I1_table > minJR).astype(int).sum(axis=1) > minCell]
+    I2_filt = I2_table.index[(I2_table > minJR).astype(int).sum(axis=1) > minCell]
+    SE_filt = SE_table.index[(SE_table > minJR).astype(int).sum(axis=1) > minCell]
     
     filtered_events = I1_filt.intersection(I2_filt).intersection(SE_filt)
     
