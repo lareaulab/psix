@@ -67,7 +67,7 @@ def transform_cell(cell, remove_outliers, bw_method, adjust_high):
     return cell_transcript_counts
 
 
-def tpm2mrna(tpm_dataset, bw_method='scott', adjust_high = True, remove_outliers=True, dtype=np.float64):
+def tpm2mrna(tpm_dataset, bw_method='scott', adjust_high = True, remove_outliers=True, dtype=np.float16):
     print('Transforming TPM into mRNA counts.')
     # tpm_dataset = pd.read_csv(tpm_file, sep='\t', index_col=0)[cell_list]
     mrna_counts = pd.DataFrame(dtype=dtype)

@@ -166,7 +166,7 @@ class Psix:
         sj_dir,
         intron_file,
         cell_list = [],
-        dtype=np.float32
+        dtype=np.float16
     ):
         self.sj_table = process_SJ_dir(sj_dir,
                                       intron_file,
@@ -188,7 +188,7 @@ class Psix:
         tenX = False,
         solo = False,
         save_files_in = '',
-        dtype=np.float64
+        dtype=np.float16
        ):
         
         if (len(save_files_in) > 0) and not os.path.isdir(save_files_in):
