@@ -1,4 +1,4 @@
-# Psix 0.11.0
+# Psix 0.11.1
 
 Psix is a computational tool for identifying cell-state associated alternative splicing events in single cell RNA-seq (scRNA-seq) data, described in 
 [Buen Abad Najar et al, 2022](https://genome.cshlp.org/content/32/7/1385).
